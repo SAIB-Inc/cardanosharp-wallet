@@ -6,20 +6,43 @@
 #pragma warning disable CS8981
 using System;
 using System.Runtime.InteropServices;
+using System.Reflection;
+using System.IO;
 
 namespace CsBindgen
 {
     public static unsafe partial class UPLCNativeMethods
     {
-        const string __DllName = "./UPLC/target/debug/cardanosharp_uplc.dll";
+        static UPLCNativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(UPLCNativeMethods).Assembly, ImportResolver);
+        }
 
-        [DllImport(__DllName, EntryPoint = "apply_params_to_plutus_script", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        private static IntPtr ImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            if (libraryName == "cardanosharp_uplc.dll")
+            {
+                string assemblyLocation = assembly.Location;
+                string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+
+                string libraryPath = Path.Combine(assemblyDirectory, "UPLC", "target", "debug", "cardanosharp_uplc.dll");
+
+                if (!File.Exists(libraryPath))
+                {
+                    throw new DllNotFoundException($"Unable to find the native library at '{libraryPath}'.");
+                }
+
+                return NativeLibrary.Load(libraryPath);
+            }
+
+            return IntPtr.Zero;
+        }
+
+        [DllImport("cardanosharp_uplc.dll", EntryPoint = "apply_params_to_plutus_script", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern PlutusScriptResult apply_params_to_plutus_script(byte* @params, byte* plutus_script, nuint params_length, nuint plutus_script_length);
 
-        [DllImport(__DllName, EntryPoint = "get_ex_units", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        [DllImport("cardanosharp_uplc.dll", EntryPoint = "get_ex_units", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern ExUnitsResult get_ex_units(byte* tx, byte** inputs, byte** outputs, byte* cost_mdls, ulong initial_budget_mem, ulong initial_budget_step, ulong slot_config_zero_time, ulong slot_config_zero_slot, uint slot_config_slot_length, nuint tx_length, nuint inputs_outputs_length, nuint* inputs_length, nuint* outputs_length, nuint cost_mdls_length);
-
-
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -38,8 +61,5 @@ namespace CsBindgen
         public nuint length;
         public nuint* length_value;
     }
-
-
-
 }
     
