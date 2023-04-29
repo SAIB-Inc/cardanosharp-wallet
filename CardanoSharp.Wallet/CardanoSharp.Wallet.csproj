@@ -4,7 +4,7 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>Orion.CardanoSharp.Wallet</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>6.0.3</Version>
+    <Version>6.0.5</Version>
     <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
@@ -21,7 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="UPLC/target/debug/cardanosharp_uplc.dll" Pack="true" PackagePath="lib/net7.0/UPLC/target/debug" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="cardanosharp_uplc.dll">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
