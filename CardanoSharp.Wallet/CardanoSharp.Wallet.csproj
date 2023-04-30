@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
-    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
+    <PackageId>CardanoSharp.Wallet</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>6.0.5</Version>
+    <Version>6.0.6</Version>
     <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
