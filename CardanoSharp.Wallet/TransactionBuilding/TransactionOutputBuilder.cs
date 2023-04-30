@@ -7,7 +7,6 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     public interface ITransactionOutputBuilder: IABuilder<TransactionOutput>
     {
         ITransactionOutputBuilder SetAddress(byte[] address);
-
         ITransactionOutputBuilder SetTransactionOutputValue(TransactionOutputValue value);
         ITransactionOutputBuilder SetDatumOption(DatumOption datumOption);
         ITransactionOutputBuilder SetScriptReference(ScriptReference scriptReference);

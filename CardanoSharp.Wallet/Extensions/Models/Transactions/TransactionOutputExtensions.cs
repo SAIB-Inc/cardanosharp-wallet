@@ -11,7 +11,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
     public static partial class TransactionOutputExtensions
     {
-        private static ulong adaOnlyMinUTxO = 1000000;
         private static string dummyAddress =
             "addr_test1qpu5vlrf4xkxv2qpwngf6cjhtw542ayty80v8dyr49rf5ewvxwdrt70qlcpeeagscasafhffqsxy36t90ldv06wqrk2qum8x5w";
 
@@ -20,17 +19,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             // Support Legacy Alonzo Transaction format
             if (transactionOutput.DatumOption == null && transactionOutput.ScriptReference == null)
             {
-                CBORObject legacyTransactionCBOR = CBORObject
-                    .NewArray()
-                    .Add(transactionOutput.Address)
-                    .Add(transactionOutput.Value.GetCBOR());
+                CBORObject legacyTransactionCBOR = CBORObject.NewArray().Add(transactionOutput.Address).Add(transactionOutput.Value.GetCBOR());
                 return legacyTransactionCBOR;
             }
 
-            CBORObject cborTransactionOutput = CBORObject
-                .NewMap()
-                .Add(0, transactionOutput.Address)
-                .Add(1, transactionOutput.Value.GetCBOR());
+            CBORObject cborTransactionOutput = CBORObject.NewMap().Add(0, transactionOutput.Address).Add(1, transactionOutput.Value.GetCBOR());
 
             if (transactionOutput.DatumOption is not null)
             {
@@ -52,49 +45,30 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 throw new ArgumentNullException(nameof(transactionOutputCbor));
             }
-            if (
-                transactionOutputCbor.Type != CBORType.Map
-                && transactionOutputCbor.Type != CBORType.Array
-            ) // We must support both pre and post alonzo format
+            if (transactionOutputCbor.Type != CBORType.Map && transactionOutputCbor.Type != CBORType.Array) // We must support both pre and post alonzo format
             {
-                throw new ArgumentException(
-                    "transactionOutputCbor is not expected type CBORType.Map"
-                );
+                throw new ArgumentException("transactionOutputCbor is not expected type CBORType.Map");
             }
             if (transactionOutputCbor.Count < 2)
             {
-                throw new ArgumentException(
-                    "transactionOutputCbor unexpected number elements (expected at least 2)"
-                );
+                throw new ArgumentException("transactionOutputCbor unexpected number elements (expected at least 2)");
             }
             if (transactionOutputCbor[0].Type != CBORType.ByteString)
             {
-                throw new ArgumentException(
-                    "transactionOutputCbor first element unexpected type (expected ByteString)"
-                );
+                throw new ArgumentException("transactionOutputCbor first element unexpected type (expected ByteString)");
             }
-            if (
-                transactionOutputCbor[1].Type != CBORType.Integer
-                && transactionOutputCbor[1].Type != CBORType.Array
-            )
+            if (transactionOutputCbor[1].Type != CBORType.Integer && transactionOutputCbor[1].Type != CBORType.Array)
             {
-                throw new ArgumentException(
-                    "transactionInputCbor second element unexpected type (expected Integer or Array)"
-                );
+                throw new ArgumentException("transactionInputCbor second element unexpected type (expected Integer or Array)");
             }
 
             //get data
             var transactionOutput = new TransactionOutput();
-            transactionOutput.Address = (
-                (string)transactionOutputCbor[0].DecodeValueByCborType()
-            ).HexToByteArray();
+            transactionOutput.Address = ((string)transactionOutputCbor[0].DecodeValueByCborType()).HexToByteArray();
             if (transactionOutputCbor[1].Type == CBORType.Integer)
             {
                 //coin
-                transactionOutput.Value = new TransactionOutputValue()
-                {
-                    Coin = transactionOutputCbor[1].DecodeValueToUInt64()
-                };
+                transactionOutput.Value = new TransactionOutputValue() { Coin = transactionOutputCbor[1].DecodeValueToUInt64() };
             }
             else
             {
@@ -111,16 +85,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     var nativeAsset = new NativeAsset();
 
                     var assetMapCbor = multiAssetCbor[policyKeyCbor];
-                    var policyKeyBytes = (
-                        (string)policyKeyCbor.DecodeValueByCborType()
-                    ).HexToByteArray();
+                    var policyKeyBytes = ((string)policyKeyCbor.DecodeValueByCborType()).HexToByteArray();
 
                     foreach (var assetKeyCbor in assetMapCbor.Keys)
                     {
                         var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToInt64();
-                        var assetKeyBytes = (
-                            (string)assetKeyCbor.DecodeValueByCborType()
-                        ).HexToByteArray();
+                        var assetKeyBytes = ((string)assetKeyCbor.DecodeValueByCborType()).HexToByteArray();
 
                         nativeAsset.Token.Add(assetKeyBytes, assetToken);
                     }
@@ -140,7 +110,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             // Script Reference
             if (transactionOutputCbor.ContainsKey(3))
             {
-                var scriptReferenceCborWithTag = transactionOutputCbor[3];                
+                var scriptReferenceCborWithTag = transactionOutputCbor[3];
                 ScriptReference scriptReference = scriptReferenceCborWithTag.GetScriptReference();
                 transactionOutput.ScriptReference = scriptReference;
             }
@@ -169,14 +139,14 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 && output.DatumOption != null
                 && output.ScriptReference != null
             )
-                return adaOnlyMinUTxO;
+                return (ulong)CardanoUtility.adaOnlyMinUtxo;
 
             // Set a dummy coin value if coin is 0
             bool setDummyCoin = false;
             if (output.Value.Coin == 0)
             {
                 setDummyCoin = true;
-                output.Value.Coin = adaOnlyMinUTxO;
+                output.Value.Coin = (ulong)CardanoUtility.adaOnlyMinUtxo;
             }
 
             // Set a dummy address if this function is called with Address == null
@@ -186,8 +156,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             byte[] serializedOutput = output.Serialize();
             ulong outputLength = (ulong)serializedOutput.Length;
             ulong minUTxO = coinsPerUtxOByte * (160 + outputLength);
-            if (minUTxO < adaOnlyMinUTxO)
-                minUTxO = adaOnlyMinUTxO;
+            if (minUTxO < (ulong)CardanoUtility.adaOnlyMinUtxo)
+                minUTxO = (ulong)CardanoUtility.adaOnlyMinUtxo;
 
             if (setDummyCoin)
             {
