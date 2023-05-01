@@ -51,5 +51,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             //remove the utxos we used
             removeIndices.ForEach(x => availableUtxos.Remove(x));
         }
+
+        public void SelectRequiredInputs(CoinSelection coinSelection, List<Utxo> requiredUtxos)
+        {
+            SelectRequiredUtxos(coinSelection, requiredUtxos);
+        }
     }
 }

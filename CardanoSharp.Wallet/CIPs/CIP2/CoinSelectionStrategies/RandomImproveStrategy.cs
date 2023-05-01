@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.TransactionBuilding;
@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, int limit = 20)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, int limit = 20, List<Utxo>? requiredUtxos = null)
         {
             //1. Randomly select UTxOs
             var rand = new Random();
@@ -37,7 +37,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                     {
                         currentSelectedUtxo.Clear();
                         coinSelection.Clear();
-                        currentAmount = 0;
+                        SelectRequiredInputs(coinSelection, requiredUtxos);
+                        currentAmount = GetCurrentBalance(coinSelection, asset);
                     }
                     else
                         break;
@@ -130,6 +131,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             arrayToMatchConditions[2] = limit > utxos.Count;
 
             return arrayToMatchConditions[0] && arrayToMatchConditions[1] && arrayToMatchConditions[2];
+        }
+
+        public void SelectRequiredInputs(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
+        {
+            SelectRequiredUtxos(coinSelection, requiredUtxos);
         }
     }
 }

@@ -80,5 +80,13 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
             return orderedUtxos;
         }
+
+        public void SelectRequiredUtxos(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
+        {
+            if (requiredUtxos == null) return;
+
+            foreach (var utxo in requiredUtxos)
+                coinSelection.SelectedUtxos.Add(utxo);
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             IEnumerable<Utxo> utxos,
             string changeAddress,
             ITokenBundleBuilder? mint = null,
+            List<Utxo>? requiredUtxos = null,
             int limit = 20,
             ulong feeBuffer = 0
         );
@@ -40,6 +41,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             IEnumerable<Utxo> utxos,
             string changeAddress,
             ITokenBundleBuilder? mint = null,
+            List<Utxo>? requiredUtxos = null,
             int limit = 20,
             ulong feeBuffer = 0
         )
@@ -47,18 +49,21 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
 
+            // Add Required UTXOs to selection
+            _coinSelection.SelectRequiredInputs(coinSelection, requiredUtxos);
+
             //use balance with mint to select change outputs and balancing without mint to select inputs
             var balance = outputs.AggregateAssets(mint, feeBuffer);
 
             //perform initial selection of multi assets and ada
             foreach (var asset in balance.Assets)
             {
-                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, limit);
+                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, requiredUtxos, limit);
 
                 if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset))
                     throw new Exception("UTxOs have insufficient balance");
             }
-            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, limit);
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, requiredUtxos, limit);
             if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
                 throw new Exception("UTxOs have insufficient balance");
 
@@ -76,7 +81,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 //feeBuffer is already in this calculation from minChangeAdaRequired
                 long minADA = (minChangeAdaRequired - change) + coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
 
-                _coinSelection.SelectInputs(coinSelection, availableUTxOs, minADA, null, limit);
+                _coinSelection.SelectInputs(coinSelection, availableUTxOs, minADA, null, requiredUtxos, limit);
                 if (!HasSufficientBalance(coinSelection.SelectedUtxos, minADA, null))
                     throw new Exception("UTxOs have insufficient balance");
 
