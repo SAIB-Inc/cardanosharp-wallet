@@ -19,7 +19,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
         public Dictionary<byte[], uint>? Withdrawls { get; set; }
         public Update? Update { get; set; }
         public string? MetadataHash { get; set; }
-        public uint? TransactionStartInterval { get; set; }
+        public uint? ValidityIntervalStart { get; set; }
         public Dictionary<byte[], NativeAsset> Mint { get; set; }
         public byte[]? ScriptDataHash { get; set; }
         public virtual IList<TransactionInput>? Collateral { get; set; }

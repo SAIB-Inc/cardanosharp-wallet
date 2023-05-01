@@ -256,7 +256,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
-            Assert.Null(expected.TransactionBody.TransactionStartInterval);
+            Assert.Null(expected.TransactionBody.ValidityIntervalStart);
             Assert.Equal(mintAsset.Build(), expected.TransactionBody.Mint);
 
             // Assert the TransactionWitnessSet values are expected
@@ -534,7 +534,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
-            Assert.Null(expected.TransactionBody.TransactionStartInterval);
+            Assert.Null(expected.TransactionBody.ValidityIntervalStart);
             Assert.Equal(new Dictionary<byte[], NativeAsset>(), expected.TransactionBody.Mint);
 
             // Assert the TransactionWitnessSet values are expected

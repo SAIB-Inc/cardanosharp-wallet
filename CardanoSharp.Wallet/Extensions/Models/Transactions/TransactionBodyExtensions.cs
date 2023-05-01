@@ -77,6 +77,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             // 8) validity interval start
+            if (transactionBody.ValidityIntervalStart.HasValue)
+                cborBody.Add(8, transactionBody.ValidityIntervalStart.Value);
 
             // 9) add tokens for minting
             if (transactionBody.Mint.Any())
@@ -233,6 +235,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             //? 8 : uint                    ; validity interval start
+            if (transactionBodyCbor.ContainsKey(8))
+            {
+                transactionBody.ValidityIntervalStart = transactionBodyCbor[8].DecodeValueToUInt32();
+            }
+
             //? 9 : mint
             if (transactionBodyCbor.ContainsKey(9))
             {
