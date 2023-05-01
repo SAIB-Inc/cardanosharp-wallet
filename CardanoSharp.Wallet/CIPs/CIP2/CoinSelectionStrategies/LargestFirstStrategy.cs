@@ -11,9 +11,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class LargestFirstStrategy : BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, int limit = 20)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, List<Utxo>? requiresUtxos = null, int limit = 20)
         {
-            //determine
+            //determine the current balance
             long currentAmount = GetCurrentBalance(coinSelection, asset);
 
             //reorder the available utxos
@@ -52,7 +52,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             removeIndices.ForEach(x => availableUtxos.Remove(x));
         }
 
-        public void SelectRequiredInputs(CoinSelection coinSelection, List<Utxo> requiredUtxos)
+        public void SelectRequiredInputs(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
         {
             SelectRequiredUtxos(coinSelection, requiredUtxos);
         }

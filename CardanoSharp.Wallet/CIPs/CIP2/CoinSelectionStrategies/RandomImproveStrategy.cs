@@ -12,12 +12,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, int limit = 20, List<Utxo>? requiredUtxos = null)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, List<Utxo>? requiredUtxos = null, int limit = 20)
         {
             //1. Randomly select UTxOs
             var rand = new Random();
 
-            //determine
+            //determine the current balance
             long currentAmount = GetCurrentBalance(coinSelection, asset);
 
             //reorder list
