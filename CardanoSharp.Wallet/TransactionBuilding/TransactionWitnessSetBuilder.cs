@@ -33,6 +33,9 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionWitnessSetBuilder AddPlutusV2Script(
             PlutusV2ScriptBuilder plutusV2ScriptBuilder
         );
+        ITransactionWitnessSetBuilder AddPlutusV2Script(
+            PlutusV2Script plutusV2Script
+        );
     }
 
     public class TransactionWitnessSetBuilder
@@ -189,6 +192,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         )
         {
             _model.PlutusV2Scripts.Add(plutusV2ScriptBuilder.Build());
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder AddPlutusV2Script(
+            PlutusV2Script plutusV2Script
+        )
+        {
+            _model.PlutusV2Scripts.Add(plutusV2Script);
             return this;
         }
     }
