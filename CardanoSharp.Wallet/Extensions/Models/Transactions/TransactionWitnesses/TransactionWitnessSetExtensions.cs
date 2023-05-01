@@ -72,12 +72,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
 
             if (transactionWitnessSet.PlutusV2Scripts.Any())
             {
-                var cborPlutusV1Scripts = CBORObject.NewArray();
-                foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts)
+                var cborPlutusV2Scripts = CBORObject.NewArray();
+                foreach (var plutusV2Script in transactionWitnessSet.PlutusV1Scripts)
                 {
-                    cborPlutusV1Scripts.Add(plutusV1Script.GetCBOR());
+                    cborPlutusV2Scripts.Add(plutusV2Script.GetCBOR());
                 }
-                cborWitnessSet.Add(6, cborPlutusV1Scripts);
+                cborWitnessSet.Add(6, cborPlutusV2Scripts);
             }
 
             return cborWitnessSet;
