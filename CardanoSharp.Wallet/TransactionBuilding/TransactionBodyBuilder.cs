@@ -37,6 +37,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         ITransactionBodyBuilder AddMinUtxoOutput(
             byte[] address,
+            ulong coin = 0,
             ITokenBundleBuilder? tokenBundleBuilder = null,
             DatumOption? datumOption = null,
             ScriptReference? scriptReference = null,
@@ -162,8 +163,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        // This function will set the minUTXO or the coin, whichever is higher
         public ITransactionBodyBuilder AddMinUtxoOutput(
             byte[] address,
+            ulong coin = 0,
             ITokenBundleBuilder? tokenBundleBuilder = null,
             DatumOption? datumOption = null,
             ScriptReference? scriptReference = null,
@@ -189,13 +192,16 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
             // Now we calculate the correct minUtxo coin value
             var transactionOutput = transactionOutputBuilder.Build();
+            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
             if (tokenBundleBuilder is not null)
+            {
                 transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = transactionOutput.CalculateMinUtxoLovelace(), MultiAsset = tokenBundleBuilder.Build() }
+                    new TransactionOutputValue { Coin = finalCoin, MultiAsset = tokenBundleBuilder.Build() }
                 );
+            }
             else
                 transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = transactionOutput.CalculateMinUtxoLovelace() }
+                    new TransactionOutputValue { Coin = finalCoin }
                 );
 
             _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
