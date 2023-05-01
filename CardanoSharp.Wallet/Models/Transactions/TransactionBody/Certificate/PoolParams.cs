@@ -2,7 +2,6 @@
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
-
     //    pub struct PoolParams
     //    {
     //    operator: Ed25519KeyHash,
@@ -23,15 +22,16 @@ namespace CardanoSharp.Wallet.Models.Transactions
         {
             RewardAddress = new HashSet<byte[]>();
             PoolOwners = new HashSet<byte[]>();
-            Relays = new HashSet<Relays>(); 
+            Relays = new HashSet<Relays>();
         }
-        public byte[] Operator { get; set; }
-        public byte[] VrfKeyhash { get; set; }
+
+        public byte[] Operator { get; set; } = default!;
+        public byte[] VrfKeyhash { get; set; } = default!;
         public uint Pledge { get; set; }
-        public Margin Cost { get; set; }
+        public Margin? Cost { get; set; }
         public ICollection<byte[]> RewardAddress { get; set; }
         public ICollection<byte[]> PoolOwners { get; set; }
         public Relays Relays { get; set; }
-        public PoolMetadata MyProperty { get; set; }
+        public PoolMetadata? MyProperty { get; set; }
     }
 }

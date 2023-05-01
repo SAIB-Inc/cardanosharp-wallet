@@ -8,7 +8,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // bounded_bytes
     public class PlutusDataBytes : IPlutusData
     {
-        public byte[] Value { get; set; }
+        public byte[] Value { get; set; } = new byte[0];
 
         public PlutusDataBytes() { }
 

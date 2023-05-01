@@ -1,8 +1,8 @@
-﻿using CardanoSharp.Wallet.Extensions.Models;
+﻿using System;
+using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Segments;
 using CardanoSharp.Wallet.Utilities;
-using System;
 
 namespace CardanoSharp.Wallet.Models.Derivations
 {
@@ -23,14 +23,14 @@ namespace CardanoSharp.Wallet.Models.Derivations
         }
 
         public ISegment Segment { get; }
-        public PrivateKey PrivateKey { get; protected set; }
-        public PublicKey PublicKey { get; protected set; }
+        public PrivateKey PrivateKey { get; protected set; } = default!;
+        public PublicKey PublicKey { get; protected set; } = default!;
 
         public void SetPublicKey()
         {
             if (PrivateKey == null)
                 throw new Exception("Private Key is not set");
-            
+
             PublicKey = PrivateKey.GetPublicKey(false);
         }
     }
@@ -38,7 +38,6 @@ namespace CardanoSharp.Wallet.Models.Derivations
     public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
     {
         const uint MinHardIndex = 0x80000000;
-
 
         protected AChildKeyDerivation(PrivateKey key, ISegment segment) : base(segment)
         {
@@ -48,7 +47,8 @@ namespace CardanoSharp.Wallet.Models.Derivations
             }
 
             var index = Convert.ToUInt32(segment.Value);
-            if (segment.IsHardened) index += MinHardIndex;
+            if (segment.IsHardened)
+                index += MinHardIndex;
             PrivateKey = Bip32Utility.GetChildKeyDerivation(key, index);
             PublicKey = PrivateKey.GetPublicKey(withZeroByte: false);
         }
@@ -61,8 +61,9 @@ namespace CardanoSharp.Wallet.Models.Derivations
             }
 
             var index = Convert.ToUInt32(segment.Value);
-            if (segment.IsHardened) throw new Exception("Public Keys cannot derive hardened paths");
-            PrivateKey = null;
+            if (segment.IsHardened)
+                throw new Exception("Public Keys cannot derive hardened paths");
+            PrivateKey = null!;
             PublicKey = Bip32Utility.GetChildKeyDerivation(key, index);
         }
     }

@@ -2,7 +2,7 @@
 {
     public partial class PoolMetadata
     {
-        public string Url { get; set; }
-        public byte[] MetadataHash { get; set; }
+        public string Url { get; set; } = default!;
+        public byte[] MetadataHash { get; set; } = default!;
     }
 }

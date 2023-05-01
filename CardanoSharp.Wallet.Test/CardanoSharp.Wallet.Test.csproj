@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>xUnit2013</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

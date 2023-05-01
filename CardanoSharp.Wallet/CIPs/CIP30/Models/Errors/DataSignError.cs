@@ -2,10 +2,10 @@
 
 namespace CardanoSharp.Wallet.CIPs.CIP30.Models.Errors
 {
-	public class DataSignError
-	{
-		public DataSignErrorCode Code { get; set; }
+    public class DataSignError
+    {
+        public DataSignErrorCode Code { get; set; }
 
-		public string Info { get; set; }
-	}
+        public string Info { get; set; } = default!;
+    }
 }

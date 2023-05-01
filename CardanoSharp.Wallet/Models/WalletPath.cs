@@ -4,7 +4,7 @@ using System;
 namespace CardanoSharp.Wallet.Models
 {
     /// <summary>
-    /// Path used in Hierarchical Deterministic (HD) Wallets for Cardano 
+    /// Path used in Hierarchical Deterministic (HD) Wallets for Cardano
     /// See <see href="https://cips.cardano.org/cips/cip1852/">CIP1852</see> for context
     /// </summary>
     public class WalletPath
@@ -16,7 +16,7 @@ namespace CardanoSharp.Wallet.Models
             DerivationType.HARD, // coin
             DerivationType.HARD, // account
             DerivationType.SOFT, // role
-            DerivationType.SOFT  // index
+            DerivationType.SOFT // index
         };
 
         private static char __master = 'm';
@@ -39,19 +39,14 @@ namespace CardanoSharp.Wallet.Models
         public RoleType Role { get; }
         public int Index { get; }
 
-        private WalletPath(params object[] segments) : this(FormatPath(segments))
-        {
-        }
+        private WalletPath(params object[] segments) : this(FormatPath(segments)) { }
 
         public WalletPath(PurposeType purpose, CoinType coin, int accountIx, RoleType role, int index)
-            : this(__master, (int)purpose, (int)coin, accountIx, (int)role, index)
-        {
-        }
-
+            : this(__master, (int)purpose, (int)coin, accountIx, (int)role, index) { }
 
         /// <summary>
-        /// partial derivation only works for un-hardened paths supported paths are 
-        /// "m/HARD'/HARD'/HARD'" and "SOFT/SOFT" 
+        /// partial derivation only works for un-hardened paths supported paths are
+        /// "m/HARD'/HARD'/HARD'" and "SOFT/SOFT"
         /// other paths are rejected
         /// </summary>
         /// <param name="path"></param>
@@ -62,16 +57,18 @@ namespace CardanoSharp.Wallet.Models
             var isPartial = seg.Length != _segments.Length;
             var isRoot = seg[0] == "m";
 
-            if (depth < 1 || depth > 5) throw new InvalidOperationException("Invalid path");
-            if (isRoot && depth <= 2) throw new InvalidOperationException("Invalid path");
+            if (depth < 1 || depth > 5)
+                throw new InvalidOperationException("Invalid path");
+            if (isRoot && depth <= 2)
+                throw new InvalidOperationException("Invalid path");
 
             var dt = new DerivationType[seg.Length];
-            for(int i = 0; i< seg.Length; i++)
+            for (int i = 0; i < seg.Length; i++)
             {
                 dt[i] = seg[i].EndsWith("'") ? DerivationType.HARD : DerivationType.SOFT;
             }
 
-            if(isRoot)
+            if (isRoot)
             {
                 InitAccountPath(seg, dt);
 
@@ -119,9 +116,8 @@ namespace CardanoSharp.Wallet.Models
         public override string ToString()
         {
             // TODO filter empty segments
-            return FormatPath(_segments);     //empty index
+            return FormatPath(_segments); //empty index
         }
-
 
         private string ReadSegment(int id, bool trim = true)
         {
@@ -130,7 +126,8 @@ namespace CardanoSharp.Wallet.Models
 
         private bool TryParseSegment<T>(int id, out T value) where T : struct
         {
-            if (typeof(T).IsEnum) return Enum.TryParse(ReadSegment(id).TrimEnd('\''), out value);
+            if (typeof(T).IsEnum)
+                return Enum.TryParse(ReadSegment(id).TrimEnd('\''), out value);
             value = default;
             return false;
         }
@@ -178,7 +175,6 @@ namespace CardanoSharp.Wallet.Models
             Array.Copy(seg, _segments, 4);
         }
 
-
         public static WalletPath Parse(string path)
         {
             return new WalletPath(path.Trim().ToLower());
@@ -191,9 +187,9 @@ namespace CardanoSharp.Wallet.Models
                 path = Parse(s);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                path = null;
+                path = null!;
                 return false;
             }
         }
@@ -209,7 +205,8 @@ namespace CardanoSharp.Wallet.Models
             if (segments.GetType() == typeof(string[]))
             {
                 format = string.Join("/", segments);
-            } else
+            }
+            else
             {
                 format = string.Format("{0}/{1}'/{2}'/{3}'/{4}/{5}", segments);
             }

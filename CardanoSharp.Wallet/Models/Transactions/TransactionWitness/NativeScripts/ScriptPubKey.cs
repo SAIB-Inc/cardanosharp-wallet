@@ -3,6 +3,6 @@
     public class ScriptPubKey
     {
         // addr_keyhash = $hash28
-        public byte[] KeyHash { get; set; }
+        public byte[] KeyHash { get; set; } = default!;
     }
 }

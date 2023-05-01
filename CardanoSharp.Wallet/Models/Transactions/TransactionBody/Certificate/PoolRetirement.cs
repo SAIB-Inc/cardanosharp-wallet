@@ -7,7 +7,7 @@
     //}
     public partial class PoolRetirement
     {
-        public byte[] PoolKeyHash { get; set; }
+        public byte[] PoolKeyHash { get; set; } = default!;
         public uint Epoch { get; set; }
     }
 }

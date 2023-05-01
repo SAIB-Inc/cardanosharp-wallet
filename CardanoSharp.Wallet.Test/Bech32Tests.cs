@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.Test
     public class Bech32Tests
     {
         /// <summary>
-        /// 
+        ///
         /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#test-vectors
         /// </summary>
         /// <param name="addr"></param>
@@ -71,7 +71,7 @@ namespace CardanoSharp.Wallet.Test
         }
 
         /// <summary>
-        /// 
+        ///
         /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#test-vectors
         /// </summary>
         /// <param name="addr"></param>
@@ -88,6 +88,7 @@ namespace CardanoSharp.Wallet.Test
         [InlineData("A1G7SGD8", "Invalid checksum.")]
         [InlineData("A1G7SGD8", "empty HRP")]
         [InlineData("1qzzfhee", "empty HRP")]
+        #pragma warning disable xUnit1026
         public void TestInvalidInputs(string addr, string expectedError)
         {
             // arrange
@@ -122,6 +123,7 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.True(raised);
         }
+        #pragma warning restore xUnit1026
 
         [Theory]
         [InlineData("stake1u9tdcf6nvpv2j5yywktxyxgrzap042jjxt2p6c4hs87jznq3d0dug")]

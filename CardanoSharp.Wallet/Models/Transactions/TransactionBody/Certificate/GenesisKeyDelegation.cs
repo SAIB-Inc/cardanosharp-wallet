@@ -6,10 +6,11 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public GenesisKeyDelegation()
         {
-            GenesisHash = new HashSet<byte[]>(); 
+            GenesisHash = new HashSet<byte[]>();
         }
+
         public ICollection<byte[]> GenesisHash { get; set; }
-        public byte[] GenesisDelegateHash { get; set; }
-        public byte[] VRFKeyHash { get; set; }
+        public byte[] GenesisDelegateHash { get; set; } = default!;
+        public byte[] VRFKeyHash { get; set; } = default!;
     }
 }

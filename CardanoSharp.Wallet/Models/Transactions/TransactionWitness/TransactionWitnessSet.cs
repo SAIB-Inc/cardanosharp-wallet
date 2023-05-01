@@ -27,13 +27,13 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness
             Redeemers = new HashSet<Redeemer>();
             PlutusV2Scripts = new HashSet<PlutusV2Script>();
         }
+
         public ICollection<VKeyWitness> VKeyWitnesses { get; set; }
         public ICollection<NativeScript> NativeScripts { get; set; }
-        public ICollection<BootStrapWitness> BootStrapWitnesses { get; set; }
+        public ICollection<BootStrapWitness> BootStrapWitnesses { get; set; } = default!;
         public ICollection<PlutusV1Script> PlutusV1Scripts { get; set; }
         public ICollection<IPlutusData> PlutusDatas { get; set; }
         public ICollection<Redeemer> Redeemers { get; set; }
         public ICollection<PlutusV2Script> PlutusV2Scripts { get; set; }
-        
     }
 }

@@ -2,7 +2,7 @@
 {
     public partial class StakeDelegation
     {
-        public byte[] StakeCredential { get; set; }
-        public byte[] PoolHash { get; set; }
+        public byte[] StakeCredential { get; set; } = default!;
+        public byte[] PoolHash { get; set; } = default!;
     }
 }

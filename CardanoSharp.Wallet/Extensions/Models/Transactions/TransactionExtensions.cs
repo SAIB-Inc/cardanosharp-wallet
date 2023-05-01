@@ -25,12 +25,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //if we have a transaction witness set, lets build Witness Set CBOR and add to Transaction Array
             if (transaction.TransactionWitnessSet != null)
             {
-                cborTransaction.Add(
-                    transaction.TransactionWitnessSet.GetCBOR(
-                        transaction.TransactionBody,
-                        transaction.AuxiliaryData
-                    )
-                );
+                cborTransaction.Add(transaction.TransactionWitnessSet.GetCBOR(transaction.TransactionBody!, transaction.AuxiliaryData));
             }
             else
             {
@@ -41,9 +36,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             cborTransaction.Add(transaction.IsValid.GetCBOR());
 
             //add metadata
-            cborTransaction.Add(
-                transaction.AuxiliaryData != null ? transaction.AuxiliaryData.GetCBOR() : null
-            );
+            cborTransaction.Add(transaction.AuxiliaryData != null ? transaction.AuxiliaryData.GetCBOR() : null);
 
             //return serialized cbor
             return cborTransaction;
@@ -62,9 +55,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             if (transactionCbor.Count < 2)
             {
-                throw new ArgumentException(
-                    "transactionCbor does not contain at least 2 elements (body & witness set)"
-                );
+                throw new ArgumentException("transactionCbor does not contain at least 2 elements (body & witness set)");
             }
 
             //get data
@@ -78,8 +69,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             transaction.TransactionBody = transactionBodyCbor.GetTransactionBody();
             if (transactionWitnessSetCbor != null && transactionWitnessSetCbor.Count > 0)
             {
-                transaction.TransactionWitnessSet =
-                    transactionWitnessSetCbor.GetTransactionWitnessSet();
+                transaction.TransactionWitnessSet = transactionWitnessSetCbor.GetTransactionWitnessSet();
             }
             if (isValidCbor != null && !isValidCbor.IsNull)
             {
@@ -107,11 +97,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return baseFee + scriptFee;
         }
 
-        public static uint CalculateBaseFee(
-            this Transaction transaction,
-            uint? a = null,
-            uint? b = null
-        )
+        public static uint CalculateBaseFee(this Transaction transaction, uint? a = null, uint? b = null)
         {
             if (!a.HasValue)
                 a = FeeStructure.Coefficient;
@@ -122,11 +108,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
         }
 
-        public static uint CalculateScriptFee(
-            this Transaction transaction,
-            double? priceMem = null,
-            double? priceStep = null
-        )
+        public static uint CalculateScriptFee(this Transaction transaction, double? priceMem = null, double? priceStep = null)
         {
             if (!priceMem.HasValue)
                 priceMem = FeeStructure.PriceMem;
@@ -173,9 +155,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         )
         {
             if (numberOfVKeyWitnessesToMock > 0)
-                transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(
-                    numberOfVKeyWitnessesToMock
-                );
+                transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(numberOfVKeyWitnessesToMock);
 
             var fee = CalculateFee(transaction, a, b, priceMem, priceStep);
             transaction.TransactionBody.Fee = fee;
@@ -188,15 +168,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         }
 
         // This function sets ExUnits from the Ogmios / Blockfrost evaluation functions
-        public static void SetExUnits(
-            this Transaction transaction,
-            Dictionary<string, ExUnits>? exUnits
-        )
+        public static void SetExUnits(this Transaction transaction, Dictionary<string, ExUnits>? exUnits)
         {
             if (transaction.TransactionWitnessSet.Redeemers == null)
                 return;
 
-            
             foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers)
             {
                 string tag = redeemer.Tag.ToString().ToLower();

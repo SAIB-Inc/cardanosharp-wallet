@@ -11,7 +11,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         // May need to add a chunking system
         //https://github.com/bloxbean/cardano-client-lib/blob/7322b16030d8fa3ac5417d5dc58c92df401855ad/core/src/main/java/com/bloxbean/cardano/client/transaction/spec/ListPlutusData.java#L72
-        public IPlutusData[] Value { get; set; }
+        public IPlutusData[] Value { get; set; } = new IPlutusData[0];
 
         public CBORObject GetCBOR()
         {

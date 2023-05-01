@@ -11,9 +11,9 @@ namespace CardanoSharp.Wallet.Models.Transactions
     /// </summary>
     public class Transaction
     {
-        public TransactionBody TransactionBody { get; set; }
-        public TransactionWitnessSet TransactionWitnessSet { get; set; }
+        public TransactionBody TransactionBody { get; set; } = default!;
+        public TransactionWitnessSet TransactionWitnessSet { get; set; } = default!;
         public bool IsValid { get; set; } = true;
-        public AuxiliaryData AuxiliaryData { get; set; }
+        public AuxiliaryData? AuxiliaryData { get; set; }
     }
 }

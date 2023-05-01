@@ -18,7 +18,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
         public static CBORObject GetCBOR2(this NativeScript nativeScript)
         {
-            if(nativeScript.ScriptPubKey != null)
+            if (nativeScript.ScriptPubKey != null)
                 return nativeScript.ScriptPubKey.GetCBOR();
 
             if (nativeScript.ScriptAll != null)
@@ -36,7 +36,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             if (nativeScript.InvalidBefore != null)
                 return nativeScript.InvalidBefore.GetCBOR();
 
-            return null;
+            return null!;
         }
 
         [Obsolete("Will be deprecated. Please use GetCBOR2() instead")]

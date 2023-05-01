@@ -71,7 +71,7 @@ namespace CardanoSharp.Wallet.Encoding
                 // Speed doesn't matter for this class but we can skip this check for 8 to 5 conversion.
                 if ((b >> fromBits) > 0)
                 {
-                    return null;
+                    return null!;
                 }
                 acc = ((acc << fromBits) | b) & maxacc;
                 bits += fromBits;
@@ -90,10 +90,9 @@ namespace CardanoSharp.Wallet.Encoding
             }
             else if (bits >= fromBits || (byte)((acc << (toBits - bits)) & maxv) != 0)
             {
-                return null;
+                return null!;
             }
             return result.ToArray();
         }
-
     }
 }

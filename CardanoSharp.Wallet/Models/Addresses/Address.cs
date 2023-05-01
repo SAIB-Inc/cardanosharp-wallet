@@ -1,20 +1,16 @@
-﻿using CardanoSharp.Wallet.Encoding;
+﻿using System;
+using System.Collections.Generic;
+using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
-using System;
-using System.Collections.Generic;
 using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Models.Addresses
 {
-    public class Address
-        : IEqualityComparer<Address>,
-            IEquatable<Address>,
-            IEquatable<string>,
-            IEquatable<byte[]>
+    public class Address : IEqualityComparer<Address>, IEquatable<Address>, IEquatable<string>, IEquatable<byte[]>
     {
-        private byte[] _bytes;
-        private string _address;
+        private byte[] _bytes = default!;
+        private string _address = default!;
         public AddressType AddressType { get; }
         public NetworkType NetworkType { get; }
 
@@ -104,7 +100,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
             };
         }
 
-        public string Prefix { get; set; }
+        public string Prefix { get; set; } = default!;
         public byte WitnessVersion { get; set; }
 
         public bool Equals(string other)

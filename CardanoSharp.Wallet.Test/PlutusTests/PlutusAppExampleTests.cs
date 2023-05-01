@@ -45,10 +45,10 @@ public class PlutusScriptTests
     private readonly string createTxHash =
         "a8d2cd792a5d2f76666e748b0842bcdb518e47326f947c06fe6d71738da2f74c";
     private readonly uint createTxIndex = 0;
-    private readonly int fee = 442701;
+    //private readonly int fee = 442701;
     private readonly long lovelace1 = 10000000;
-    private readonly long lovelace2 = 10835340;
-    private readonly string datum = "{\"int\":42}";
+    //private readonly long lovelace2 = 10835340;
+    //private readonly string datum = "{\"int\":42}";
 
     // Here are the cardano-cli commands that represents the control
     //

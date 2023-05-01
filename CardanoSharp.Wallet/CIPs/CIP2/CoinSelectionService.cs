@@ -14,10 +14,17 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public interface ICoinSelectionService
     {
-        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, ITokenBundleBuilder mint = null, int limit = 20, ulong feeBuffer = 0);
+        CoinSelection GetCoinSelection(
+            IEnumerable<TransactionOutput> outputs,
+            IEnumerable<Utxo> utxos,
+            string changeAddress,
+            ITokenBundleBuilder? mint = null,
+            int limit = 20,
+            ulong feeBuffer = 0
+        );
     }
 
-    public class CoinSelectionService: ICoinSelectionService
+    public class CoinSelectionService : ICoinSelectionService
     {
         private readonly ICoinSelectionStrategy _coinSelection;
         private readonly IChangeCreationStrategy _changeCreation;
@@ -28,7 +35,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             _changeCreation = changeCreation;
         }
 
-        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, ITokenBundleBuilder mint = null, int limit = 20, ulong feeBuffer = 0)
+        public CoinSelection GetCoinSelection(
+            IEnumerable<TransactionOutput> outputs,
+            IEnumerable<Utxo> utxos,
+            string changeAddress,
+            ITokenBundleBuilder? mint = null,
+            int limit = 20,
+            ulong feeBuffer = 0
+        )
         {
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
@@ -49,15 +63,16 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 throw new Exception("UTxOs have insufficient balance");
 
             //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
-            if(coinSelection.SelectedUtxos.Any() && _changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
+            if (coinSelection.SelectedUtxos.Any() && _changeCreation is not null)
+                _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
 
             //calculate change ada from ouputs (not the current change in the coinSelection) and the minium required change ada
             long change = CalculateChangeADA(coinSelection, balance, feeBuffer);
             long minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
 
             //perform additional input selection until we have enough ada to cover the new min amounts (since they change each selction) or we run out of inputs
-            while (change < minChangeAdaRequired && availableUTxOs.Count > 0) {
-
+            while (change < minChangeAdaRequired && availableUTxOs.Count > 0)
+            {
                 //feeBuffer is already in this calculation from minChangeAdaRequired
                 long minADA = (minChangeAdaRequired - change) + coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
 
@@ -65,7 +80,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 if (!HasSufficientBalance(coinSelection.SelectedUtxos, minADA, null))
                     throw new Exception("UTxOs have insufficient balance");
 
-                if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
+                if (_changeCreation is not null)
+                    _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
 
                 change = CalculateChangeADA(coinSelection, balance, feeBuffer);
                 minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
@@ -80,7 +96,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             return coinSelection;
         }
 
-        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset asset = null)
+        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset? asset = null)
         {
             long totalInput = 0;
             foreach (var su in selectedUtxos)
@@ -92,11 +108,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 }
                 else
                 {
-                    quantity = (long)(su.Balance.Assets
-                        .FirstOrDefault(ma =>
-                            ma.PolicyId.SequenceEqual(asset.PolicyId)
-                            && ma.Name.Equals(asset.Name))?
-                        .Quantity ?? 0);
+                    quantity = (long)(
+                        su.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))?.Quantity ?? 0
+                    );
                 }
 
                 totalInput = totalInput + quantity;
@@ -105,7 +119,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             return totalInput >= amount;
         }
 
-        private long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0) {
+        private long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0)
+        {
             long inputADA = coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
             long outputADA = (long)balance.Lovelaces - (long)feeBuffer; // Subtract feebuffer to get the real outputADA amount
             long change = inputADA - outputADA;
@@ -117,7 +132,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         private long CalculateMinChangeADARequired(CoinSelection coinSelection, ulong feeBuffer = 0)
         {
             long minChangeADARequired = (long)feeBuffer; // Ensure we have enough ada equal to the min required + fee buffer
-            foreach (var changeOutput in coinSelection.ChangeOutputs) {
+            foreach (var changeOutput in coinSelection.ChangeOutputs)
+            {
                 minChangeADARequired += (long)changeOutput.CalculateMinUtxoLovelace();
             }
             return minChangeADARequired;
@@ -127,11 +143,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         {
             foreach (var su in coinSelection.SelectedUtxos)
             {
-                coinSelection.Inputs.Add(new TransactionInput()
-                {
-                    TransactionId = su.TxHash.HexToByteArray(),
-                    TransactionIndex = su.TxIndex
-                });
+                coinSelection.Inputs.Add(new TransactionInput() { TransactionId = su.TxHash.HexToByteArray(), TransactionIndex = su.TxIndex });
             }
         }
     }

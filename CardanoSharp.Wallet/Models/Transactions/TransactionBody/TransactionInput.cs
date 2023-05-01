@@ -9,7 +9,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
     //                    ]
     public partial class TransactionInput
     {
-        public byte[] TransactionId { get; set; }
+        public byte[] TransactionId { get; set; } = default!;
         public uint TransactionIndex { get; set; }
     }
 
@@ -17,10 +17,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public int Compare(TransactionInput x, TransactionInput y)
         {
-            int txCompare = string.Compare(
-                x.TransactionId.ToStringHex(),
-                y.TransactionId.ToStringHex()
-            );
+            int txCompare = string.Compare(x.TransactionId.ToStringHex(), y.TransactionId.ToStringHex());
             if (txCompare != 0)
                 return txCompare;
             else

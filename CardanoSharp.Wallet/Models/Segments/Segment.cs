@@ -1,11 +1,12 @@
-﻿using CardanoSharp.Wallet.Enums;
-using System;
+﻿using System;
+using CardanoSharp.Wallet.Enums;
 
 namespace CardanoSharp.Wallet.Models.Segments
 {
     public interface ISegment
     {
         IConvertible Value { get; }
+
         //string Name { get; }
         DerivationType? Derivation { get; }
         bool IsRoot { get; }
@@ -22,12 +23,13 @@ namespace CardanoSharp.Wallet.Models.Segments
         {
             IsRoot = root;
             Value = value;
-            if (root) return;
+            if (root)
+                return;
             _derivation = derivation;
         }
 
         public bool IsRoot { get; }
-        public string Name { get; }
+        public string Name { get; } = default!;
         public virtual DerivationType? Derivation => _derivation;
 
         public bool IsHardened => Derivation == DerivationType.HARD;

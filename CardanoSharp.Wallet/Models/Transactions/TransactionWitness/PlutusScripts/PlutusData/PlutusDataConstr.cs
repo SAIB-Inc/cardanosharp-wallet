@@ -21,7 +21,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         public static readonly long GENERAL_FORM_TAG = 102;
         public long Alternative { get; set; } = 0;
-        public PlutusDataArray Value { get; set; }
+        public PlutusDataArray Value { get; set; } = new PlutusDataArray();
 
         public CBORObject GetCBOR()
         {
@@ -89,9 +89,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
             if (dataCbor.Type != CBORType.Array)
             {
-                throw new ArgumentException(
-                    "dataCbor is not expected type CBORType.Array (with constr tag)"
-                );
+                throw new ArgumentException("dataCbor is not expected type CBORType.Array (with constr tag)");
             }
 
             long alternative;
@@ -101,9 +99,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 var untaggedDataCbor = dataCbor.Untag();
                 if (untaggedDataCbor.Count != 2)
                 {
-                    throw new ArgumentException(
-                        "dataCbor has unexpected number of elements for tag 102 (expected 2)"
-                    );
+                    throw new ArgumentException("dataCbor has unexpected number of elements for tag 102 (expected 2)");
                 }
 
                 alternative = untaggedDataCbor[0].DecodeValueToInt64();

@@ -9,7 +9,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
 {
     public static class VKeyWitnessExtensions
     {
-        public static CBORObject GetCBOR(this VKeyWitness vKeyWitness, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        public static CBORObject GetCBOR(this VKeyWitness vKeyWitness, TransactionBody transactionBody, AuxiliaryData? auxiliaryData)
         {
             //execute only if not mocked
             if (!vKeyWitness.IsMock)
@@ -30,9 +30,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             }
 
             //fill out cbor structure for vkey witnesses
-            return CBORObject.NewArray()
-                .Add(vKeyWitness.VKey.Key)
-                .Add(vKeyWitness.Signature);
+            return CBORObject.NewArray().Add(vKeyWitness.VKey.Key).Add(vKeyWitness.Signature);
         }
 
         public static VKeyWitness GetVKeyWitness(this CBORObject vKeyWitnessCbor)
@@ -54,7 +52,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             //get data
             var vkeyWitness = new VKeyWitness();
             var key = ((string)vKeyWitnessCbor[0].DecodeValueByCborType()).HexToByteArray();
-            vkeyWitness.VKey = new PublicKey(key, null);
+            vkeyWitness.VKey = new PublicKey(key, null!);
             vkeyWitness.Signature = ((string)vKeyWitnessCbor[1].DecodeValueByCborType()).HexToByteArray();
 
             //return
@@ -75,15 +73,17 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         {
             for (var x = 0; x < mocks; x++)
             {
-                witnesses.Add(new VKeyWitness()
-                {
-                    VKey = new PublicKey(getMockKeyId(32), null),
-                    Signature = getMockKeyId(64),
-                    IsMock = true
-                });
+                witnesses.Add(
+                    new VKeyWitness()
+                    {
+                        VKey = new PublicKey(getMockKeyId(32), null!),
+                        Signature = getMockKeyId(64),
+                        IsMock = true
+                    }
+                );
             }
         }
-        
+
         private static byte[] getMockKeyId(int length)
         {
             var hash = new byte[length];

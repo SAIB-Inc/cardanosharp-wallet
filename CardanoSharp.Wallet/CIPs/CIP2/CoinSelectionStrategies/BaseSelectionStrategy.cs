@@ -10,7 +10,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public abstract class BaseSelectionStrategy
     {
-        protected long GetCurrentBalance(CoinSelection coinSelection, Asset asset = null)
+        protected long GetCurrentBalance(CoinSelection coinSelection, Asset? asset = null)
         {
             if (asset is null)
             {
@@ -24,15 +24,20 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
             else
             {
-                return coinSelection.SelectedUtxos.Where(x => x.Balance.Assets is not null)
-                    .Sum(x => (long)(x.Balance.Assets
-                    .FirstOrDefault(ma =>
-                        ma.PolicyId.SequenceEqual(asset.PolicyId)
-                        && ma.Name.Equals(asset.Name))?.Quantity ?? 0));
+                return coinSelection.SelectedUtxos
+                    .Where(x => x.Balance.Assets is not null)
+                    .Sum(
+                        x =>
+                            (long)(
+                                x.Balance.Assets
+                                    .FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
+                                    ?.Quantity ?? 0
+                            )
+                    );
             }
         }
 
-        protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset asset = null)
+        protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset? asset = null)
         {
             var orderedUtxos = new List<Utxo>();
             if (asset is null)
@@ -40,20 +45,22 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             else
             {
                 orderedUtxos = utxos
-                    .Where(x => x.Balance.Assets is not null && x.Balance.Assets.FirstOrDefault(ma =>
-                        ma.PolicyId.SequenceEqual(asset.PolicyId)
-                        && ma.Name.Equals(asset.Name)) is not null)
-                    .OrderByDescending(x => x.Balance.Assets
-                    .FirstOrDefault(ma =>
-                        ma.PolicyId.SequenceEqual(asset.PolicyId)
-                        && ma.Name.Equals(asset.Name))
-                    .Quantity).ToList();
+                    .Where(
+                        x =>
+                            x.Balance.Assets is not null
+                            && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
+                                is not null
+                    )
+                    .OrderByDescending(
+                        x => x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)).Quantity
+                    )
+                    .ToList();
             }
 
             return orderedUtxos;
         }
 
-        protected List<Utxo> OrderUTxOsByAscending (List<Utxo> utxos, Asset asset = null)
+        protected List<Utxo> OrderUTxOsByAscending(List<Utxo> utxos, Asset? asset = null)
         {
             var orderedUtxos = new List<Utxo>();
             if (asset is null)
@@ -61,14 +68,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             else
             {
                 orderedUtxos = utxos
-                    .Where(x => x.Balance.Assets is not null && x.Balance.Assets.FirstOrDefault(ma =>
-                            ma.PolicyId.SequenceEqual(asset.PolicyId)
-                            && ma.Name.Equals(asset.Name)) is not null)
-                    .OrderBy(x => x.Balance.Assets
-                    .First(ma =>
-                        ma.PolicyId.SequenceEqual(asset.PolicyId)
-                        && ma.Name.Equals(asset.Name))
-                    .Quantity).ToList();
+                    .Where(
+                        x =>
+                            x.Balance.Assets is not null
+                            && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
+                                is not null
+                    )
+                    .OrderBy(x => x.Balance.Assets.First(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)).Quantity)
+                    .ToList();
             }
 
             return orderedUtxos;

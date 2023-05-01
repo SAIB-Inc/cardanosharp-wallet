@@ -16,12 +16,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness
     //     ]
     public partial class NativeScript
     {
-        public ScriptPubKey ScriptPubKey { get; set; }
-        public ScriptAll ScriptAll { get; set; }
-        public ScriptAny ScriptAny { get; set; }
-        public ScriptNofK ScriptNofK { get; set; }
-        public ScriptInvalidAfter InvalidAfter { get; set; }
-        public ScriptInvalidBefore InvalidBefore { get; set; }
-
+        public ScriptPubKey ScriptPubKey { get; set; } = default!;
+        public ScriptAll ScriptAll { get; set; } = default!;
+        public ScriptAny ScriptAny { get; set; } = default!;
+        public ScriptNofK ScriptNofK { get; set; } = default!;
+        public ScriptInvalidAfter InvalidAfter { get; set; } = default!;
+        public ScriptInvalidBefore InvalidBefore { get; set; } = default!;
     }
 }

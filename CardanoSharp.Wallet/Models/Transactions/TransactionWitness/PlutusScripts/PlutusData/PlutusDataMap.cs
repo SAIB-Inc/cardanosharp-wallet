@@ -13,7 +13,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // { * plutus_data => plutus_data }
     public class PlutusDataMap : IPlutusData
     {
-        public Dictionary<IPlutusData, IPlutusData> Value { get; set; }
+        public Dictionary<IPlutusData, IPlutusData> Value { get; set; } = new Dictionary<IPlutusData, IPlutusData>();
 
         public CBORObject GetCBOR()
         {
@@ -51,8 +51,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             }
 
             PlutusDataMap plutusDataMap = new PlutusDataMap();
-            Dictionary<IPlutusData, IPlutusData> plutusDatas =
-                new Dictionary<IPlutusData, IPlutusData>();
+            Dictionary<IPlutusData, IPlutusData> plutusDatas = new Dictionary<IPlutusData, IPlutusData>();
             foreach (var key in dataCbor.Keys)
             {
                 IPlutusData plutusDataKey = key.GetPlutusData();

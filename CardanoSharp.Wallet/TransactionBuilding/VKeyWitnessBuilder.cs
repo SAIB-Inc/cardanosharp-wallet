@@ -3,7 +3,7 @@ using CardanoSharp.Wallet.Models.Transactions;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public interface IVKeyWitnessBuilder: IABuilder<VKeyWitness>
+    public interface IVKeyWitnessBuilder : IABuilder<VKeyWitness>
     {
         IVKeyWitnessBuilder WithVKey(PublicKey vKey);
 
@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         IVKeyWitnessBuilder WithSignature(byte[] signature);
     }
 
-    public class VKeyWitnessBuilder: ABuilder<VKeyWitness>, IVKeyWitnessBuilder
+    public class VKeyWitnessBuilder : ABuilder<VKeyWitness>, IVKeyWitnessBuilder
     {
         public VKeyWitnessBuilder()
         {
@@ -24,7 +24,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = model;
         }
 
-        public static IVKeyWitnessBuilder GetBuilder(VKeyWitness model = null)
+        public static IVKeyWitnessBuilder GetBuilder(VKeyWitness? model = null)
         {
             if (model == null)
             {

@@ -5,9 +5,9 @@
         T Build();
     }
 
-    public abstract class ABuilder<T>: IABuilder<T>
+    public abstract class ABuilder<T> : IABuilder<T>
     {
-        protected T _model;
+        protected T _model = default!;
 
         public T Build()
         {

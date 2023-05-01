@@ -10,19 +10,16 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
     public static class TransactionBodyExtensions
     {
-        public static CBORObject GetCBOR(
-            this TransactionBody transactionBody,
-            AuxiliaryData auxiliaryData
-        )
+        public static CBORObject GetCBOR(this TransactionBody transactionBody, AuxiliaryData? auxiliaryData)
         {
             CBORObject cborBody = CBORObject.NewMap();
 
-            CBORObject cborInputs = null;
-            CBORObject cborOutputs = null;
-            CBORObject cborTransactionMint = null;
-            CBORObject cborCollateralInputs = null;
-            CBORObject cborRequiredSigners = null;
-            CBORObject cborReferenceInputs = null;
+            CBORObject cborInputs = null!;
+            CBORObject cborOutputs = null!;
+            CBORObject cborTransactionMint = null!;
+            CBORObject cborCollateralInputs = null!;
+            CBORObject cborRequiredSigners = null!;
+            CBORObject cborReferenceInputs = null!;
 
             //add all the transaction inputs
             if (transactionBody.TransactionInputs.Any())
@@ -172,9 +169,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             if (transactionBodyCbor.Type != CBORType.Map)
             {
-                throw new ArgumentException(
-                    "transactionBodyCbor is not expected type CBORType.Map"
-                );
+                throw new ArgumentException("transactionBodyCbor is not expected type CBORType.Map");
             }
             if (!transactionBodyCbor.ContainsKey(0))
             {
@@ -190,9 +185,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             else if (transactionBodyCbor[2].Type != CBORType.Integer)
             {
-                throw new ArgumentException(
-                    "transactionBodyCbor element 2 (Fee/Coin) unexpected type (expected Integer)"
-                );
+                throw new ArgumentException("transactionBodyCbor element 2 (Fee/Coin) unexpected type (expected Integer)");
             }
             if (!transactionBodyCbor.ContainsKey(3))
             {
@@ -200,9 +193,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             else if (transactionBodyCbor[3].Type != CBORType.Integer)
             {
-                throw new ArgumentException(
-                    "transactionBodyCbor element 3 (TTL) unexpected type (expected Integer)"
-                );
+                throw new ArgumentException("transactionBodyCbor element 3 (TTL) unexpected type (expected Integer)");
             }
 
             //get data
@@ -238,8 +229,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //? 7 : auxiliary_data_hash
             if (transactionBodyCbor.ContainsKey(7))
             {
-                transactionBody.MetadataHash = (string)
-                    transactionBodyCbor[7].DecodeValueByCborType();
+                transactionBody.MetadataHash = (string)transactionBodyCbor[7].DecodeValueByCborType();
             }
 
             //? 8 : uint                    ; validity interval start
@@ -254,9 +244,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     var nativeAsset = new NativeAsset();
                     foreach (var assetKey in assetCbor.Keys)
                     {
-                        var byteAssetKey = (
-                            (string)assetKey.DecodeValueByCborType()
-                        ).HexToByteArray();
+                        var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
                         var token = assetCbor[assetKey].DecodeValueToInt64();
                         nativeAsset.Token.Add(byteAssetKey, token);
                     }
@@ -269,9 +257,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionBodyCbor.ContainsKey(11))
             {
                 var scriptDataHashCBOR = transactionBodyCbor[11];
-                var scriptDataHash = (
-                    (string)scriptDataHashCBOR.DecodeValueByCborType()
-                ).HexToByteArray();
+                var scriptDataHash = ((string)scriptDataHashCBOR.DecodeValueByCborType()).HexToByteArray();
                 transactionBody.ScriptDataHash = scriptDataHash;
             }
 
@@ -291,13 +277,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionBodyCbor.ContainsKey(14))
             {
                 transactionBody.RequiredSigners = new List<byte[]>();
-                
+
                 var requiredSignersCbor = transactionBodyCbor[14];
                 foreach (var requiredSignerCbor in requiredSignersCbor.Values)
                 {
-                    var requiredSigner = (
-                        (string)requiredSignerCbor.DecodeValueByCborType()
-                    ).HexToByteArray();
+                    var requiredSigner = ((string)requiredSignerCbor.DecodeValueByCborType()).HexToByteArray();
                     transactionBody.RequiredSigners.Add(requiredSigner);
                 }
             }
@@ -336,10 +320,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return transactionBody;
         }
 
-        public static byte[] Serialize(
-            this TransactionBody transactionBody,
-            AuxiliaryData auxiliaryData
-        )
+        public static byte[] Serialize(this TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
             return transactionBody.GetCBOR(auxiliaryData).EncodeToBytes();
         }
