@@ -181,8 +181,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
                 if (exUnits != null && exUnits.TryGetValue(combined, out ExUnits exUnit))
                 {
-                    redeemer.ExUnits.Mem = (ulong)Math.Ceiling(exUnit.Mem * 1.1); // Increase Mem by 10% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
-                    redeemer.ExUnits.Steps = (ulong)Math.Ceiling(exUnit.Steps * 1.1); // Increase Steps by 10% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                    redeemer.ExUnits.Mem = (ulong)Math.Ceiling(exUnit.Mem * 1.05); // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                    redeemer.ExUnits.Steps = (ulong)Math.Ceiling(exUnit.Steps * 1.05); // Increase Steps by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
                 }
                 else
                 {
