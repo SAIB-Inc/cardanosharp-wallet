@@ -163,7 +163,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        // This function will set the minUTXO or the coin, whichever is higher
+        // This function will set the minUtxo or the coin, whichever is higher
         public ITransactionBodyBuilder AddMinUtxoOutput(
             byte[] address,
             ulong coin = 0,
@@ -173,36 +173,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             OutputPurpose outputPurpose = OutputPurpose.Spend
         )
         {
-            // First we create a transaction output builder with a dummy coin value
-            ulong dummyCoin = (ulong)(CardanoUtility.adaOnlyMinUtxo); // We need a Dummy Coin for proper minUTXO calculation
             TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-                TransactionOutputBuilder.Create.SetAddress(address).SetOutputPurpose(outputPurpose);
-
-            if (tokenBundleBuilder is not null)
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = dummyCoin, MultiAsset = tokenBundleBuilder.Build() }
-                );
-            else
-                transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = dummyCoin });
-
-            if (datumOption is not null)
-                transactionOutputBuilder.SetDatumOption(datumOption);
-            if (scriptReference is not null)
-                transactionOutputBuilder.SetScriptReference(scriptReference);
-
-            // Now we calculate the correct minUtxo coin value
-            var transactionOutput = transactionOutputBuilder.Build();
-            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
-            if (tokenBundleBuilder is not null)
-            {
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = finalCoin, MultiAsset = tokenBundleBuilder.Build() }
-                );
-            }
-            else
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = finalCoin }
-                );
+                TransactionOutputBuilder.Create.SetMinUtxoOutput(address, coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
 
             _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
             return this;
