@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 
@@ -13,10 +16,21 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionOutputBuilder SetDatumOption(DatumOption datumOption);
         ITransactionOutputBuilder SetScriptReference(ScriptReference scriptReference);
         ITransactionOutputBuilder SetOutputPurpose(OutputPurpose outputPurpose);
+
+        // Advanced Helper Functions
+        ITransactionOutputBuilder SetMinUtxo();
         ITransactionOutputBuilder SetMinUtxoOutput(
             byte[] address,
             ulong coin = 0,
             ITokenBundleBuilder? tokenBundleBuilder = null,
+            DatumOption? datumOption = null,
+            ScriptReference? scriptReference = null,
+            OutputPurpose outputPurpose = OutputPurpose.Spend
+        );
+
+        ITransactionOutputBuilder SetOutputFromUtxo(
+            byte[] address,
+            Utxo utxo,
             DatumOption? datumOption = null,
             ScriptReference? scriptReference = null,
             OutputPurpose outputPurpose = OutputPurpose.Spend
@@ -79,6 +93,21 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        // Advanced Helper Functions
+        public ITransactionOutputBuilder SetMinUtxo()
+        {
+            // Now we calculate the correct minUtxo coin value
+            var transactionOutput = this.Build();
+            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), transactionOutput.Value.Coin);
+
+            // Set the correct minUtxo value
+            if (transactionOutput.Value.MultiAsset is not null)
+                this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin, MultiAsset = transactionOutput.Value.MultiAsset });
+            else
+                this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin });
+            return this;
+        }
+
         public ITransactionOutputBuilder SetMinUtxoOutput(
             byte[] address,
             ulong coin = 0,
@@ -90,44 +119,71 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         {
             // First we create a transaction output builder with a dummy coin value
             ulong dummyCoin = (ulong)(CardanoUtility.adaOnlyMinUtxo); // We need a Dummy Coin for proper minUTXO calculation
-            TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-                TransactionOutputBuilder.Create.SetAddress(address).SetOutputPurpose(outputPurpose);
+            this.SetAddress(address).SetOutputPurpose(outputPurpose);
 
             if (tokenBundleBuilder is not null)
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = dummyCoin, MultiAsset = tokenBundleBuilder.Build() }
-                );
+                this.SetTransactionOutputValue(new TransactionOutputValue { Coin = dummyCoin, MultiAsset = tokenBundleBuilder.Build() });
             else
-                transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = dummyCoin });
+                this.SetTransactionOutputValue(new TransactionOutputValue { Coin = dummyCoin });
 
             if (datumOption is not null)
-                transactionOutputBuilder.SetDatumOption(datumOption);
+                this.SetDatumOption(datumOption);
             if (scriptReference is not null)
-                transactionOutputBuilder.SetScriptReference(scriptReference);
+                this.SetScriptReference(scriptReference);
 
             // Now we calculate the correct minUtxo coin value
-            var transactionOutput = transactionOutputBuilder.Build();
-            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
-            if (tokenBundleBuilder is not null)
+            this.SetMinUtxo();
+            return this;
+        }
+
+        public ITransactionOutputBuilder SetOutputFromUtxo(
+            byte[] address,
+            Utxo utxo,
+            DatumOption? datumOption = null,
+            ScriptReference? scriptReference = null,
+            OutputPurpose outputPurpose = OutputPurpose.Spend
+        )
+        {
+            Dictionary<string, Dictionary<string, long>> nativeAssetsNames = new Dictionary<string, Dictionary<string, long>>();
+            foreach (var asset in utxo.Balance.Assets)
             {
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = finalCoin, MultiAsset = tokenBundleBuilder.Build() }
-                );
+                if (!nativeAssetsNames.ContainsKey(asset.PolicyId))
+                {
+                    Dictionary<string, long> tokenName = new Dictionary<string, long>() { { asset.Name, asset.Quantity } };
+                    nativeAssetsNames.Add(asset.PolicyId, tokenName);
+                }
+                else
+                {
+                    nativeAssetsNames[asset.PolicyId].Add(asset.Name, asset.Quantity);
+                }
             }
-            else
-                transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin });
 
-            var minUtxoTransactionOutput = transactionOutputBuilder.Build();
-            this.SetAddress(minUtxoTransactionOutput.Address)
-                .SetTransactionOutputValue(minUtxoTransactionOutput.Value)
-                .SetOutputPurpose(minUtxoTransactionOutput.OutputPurpose);
+            // Convert to Byte Array Dictionary
+            Dictionary<byte[], NativeAsset> nativeAssets = new Dictionary<byte[], NativeAsset>();
+            foreach (var nativeAssetPair in nativeAssetsNames)
+            {
+                byte[] policyId = nativeAssetPair.Key.HexToByteArray();
+                Dictionary<byte[], long> tokenValue = new Dictionary<byte[], long>();
+                foreach (var tokenPair in nativeAssetPair.Value)
+                {
+                    byte[] tokenKey = tokenPair.Key.HexToByteArray();
+                    tokenValue.Add(tokenKey, tokenPair.Value);
+                }
+                NativeAsset nativeAsset = new NativeAsset { Token = tokenValue };
+                nativeAssets.Add(policyId, nativeAsset);
+            }
 
-            if (minUtxoTransactionOutput.DatumOption is not null)
-                this.SetDatumOption(minUtxoTransactionOutput.DatumOption);
+            this.SetAddress(address)
+                .SetTransactionOutputValue(new TransactionOutputValue { Coin = utxo.Balance.Lovelaces, MultiAsset = nativeAssets })
+                .SetOutputPurpose(outputPurpose);
 
-            if (minUtxoTransactionOutput.ScriptReference is not null)
-                this.SetScriptReference(minUtxoTransactionOutput.ScriptReference);
+            if (datumOption is not null)
+                this.SetDatumOption(datumOption);
 
+            if (scriptReference is not null)
+                this.SetScriptReference(scriptReference);
+
+            this.SetMinUtxo();
             return this;
         }
     }
