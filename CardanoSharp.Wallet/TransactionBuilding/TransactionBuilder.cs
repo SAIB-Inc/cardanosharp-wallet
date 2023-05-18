@@ -9,18 +9,18 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBuilder SetAuxData(IAuxiliaryDataBuilder auxDataBuilder);
 
         // Composable Builders
-        ITransactionBodyBuilder bodyBuilder { get; set; }
-        ITransactionWitnessSetBuilder witnessesBuilder { get; set; }
+        ITransactionBodyBuilder transactionBodyBuilder { get; set; }
+        ITransactionWitnessSetBuilder transactionWitnessesBuilder { get; set; }
         IAuxiliaryDataBuilder auxDataBuilder { get; set; }
-        ITransactionBuilder SetBodyBuilder(ITransactionBodyBuilder bodyBuilder);
-        ITransactionBuilder SetWitnessesBuilder(ITransactionWitnessSetBuilder witnessesBuilder);
+        ITransactionBuilder SetBodyBuilder(ITransactionBodyBuilder transactionBodyBuilder);
+        ITransactionBuilder SetWitnessesBuilder(ITransactionWitnessSetBuilder transactionWitnessesBuilder);
         ITransactionBuilder SetAuxDataBuilder(IAuxiliaryDataBuilder auxDataBuilder);
     }
 
     public partial class TransactionBuilder : ABuilder<Transaction>, ITransactionBuilder
     {
-        public ITransactionBodyBuilder bodyBuilder { get; set; } = default!;
-        public ITransactionWitnessSetBuilder witnessesBuilder { get; set; } = default!;
+        public ITransactionBodyBuilder transactionBodyBuilder { get; set; } = default!;
+        public ITransactionWitnessSetBuilder transactionWitnessesBuilder { get; set; } = default!;
         public IAuxiliaryDataBuilder auxDataBuilder { get; set; } = default!;
 
         private TransactionBuilder()
@@ -67,13 +67,13 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public ITransactionBuilder SetBodyBuilder(ITransactionBodyBuilder bodyBuilder)
         {
-            this.bodyBuilder = bodyBuilder;
+            this.transactionBodyBuilder = bodyBuilder;
             return this;
         }
 
         public ITransactionBuilder SetWitnessesBuilder(ITransactionWitnessSetBuilder witnessesBuilder)
         {
-            this.witnessesBuilder = witnessesBuilder;
+            this.transactionWitnessesBuilder = witnessesBuilder;
             return this;
         }
 
@@ -85,11 +85,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public override Transaction Build()
         {
-            if (bodyBuilder != null)
-                SetBody(bodyBuilder);
+            if (transactionBodyBuilder != null)
+                SetBody(transactionBodyBuilder);
 
-            if (witnessesBuilder != null)
-                SetWitnesses(witnessesBuilder);
+            if (transactionWitnessesBuilder != null)
+                SetWitnesses(transactionWitnessesBuilder);
 
             if (auxDataBuilder != null)
                 SetAuxData(auxDataBuilder);

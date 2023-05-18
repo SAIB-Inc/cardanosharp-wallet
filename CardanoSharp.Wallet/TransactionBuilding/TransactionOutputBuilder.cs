@@ -18,7 +18,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionOutputBuilder SetOutputPurpose(OutputPurpose outputPurpose);
 
         // Advanced Helper Functions
-        ITransactionOutputBuilder SetMinUtxo();
+        ITransactionOutputBuilder SetMinUtxo(ulong coin);
         ITransactionOutputBuilder SetMinUtxoOutput(
             byte[] address,
             ulong coin = 0,
@@ -94,11 +94,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         }
 
         // Advanced Helper Functions
-        public ITransactionOutputBuilder SetMinUtxo()
+        public ITransactionOutputBuilder SetMinUtxo(ulong coin)
         {
             // Now we calculate the correct minUtxo coin value
             var transactionOutput = this.Build();
-            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), transactionOutput.Value.Coin);
+            ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
 
             // Set the correct minUtxo value
             if (transactionOutput.Value.MultiAsset is not null)
@@ -132,7 +132,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 this.SetScriptReference(scriptReference);
 
             // Now we calculate the correct minUtxo coin value
-            this.SetMinUtxo();
+            this.SetMinUtxo(coin);
             return this;
         }
 
@@ -183,7 +183,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             if (scriptReference is not null)
                 this.SetScriptReference(scriptReference);
 
-            this.SetMinUtxo();
+            this.SetMinUtxo((ulong)CardanoUtility.adaOnlyMinUtxo);
             return this;
         }
     }

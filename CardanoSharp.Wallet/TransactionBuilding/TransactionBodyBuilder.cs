@@ -297,11 +297,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner)
         {
             if (_model.RequiredSigners is null)
-            {
                 _model.RequiredSigners = new List<byte[]>();
-            }
 
-            _model.RequiredSigners.Add(requiredSigner);
+            if (!_model.RequiredSigners.Any(existingSigner => existingSigner.SequenceEqual(requiredSigner)))
+                _model.RequiredSigners.Add(requiredSigner);
+
             return this;
         }
 
