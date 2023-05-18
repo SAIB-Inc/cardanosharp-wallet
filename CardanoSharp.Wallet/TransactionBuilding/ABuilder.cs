@@ -9,7 +9,7 @@
     {
         protected T _model = default!;
 
-        public T Build()
+        public virtual T Build()
         {
             return _model;
         }

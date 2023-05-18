@@ -5,6 +5,7 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
@@ -35,6 +36,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             OutputPurpose outputPurpose = OutputPurpose.Spend
         );
 
+        // Advanced output functions
         ITransactionBodyBuilder AddMinUtxoOutput(
             byte[] address,
             ulong coin = 0,
@@ -43,6 +45,15 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             ScriptReference? scriptReference = null,
             OutputPurpose outputPurpose = OutputPurpose.Spend
         );
+
+        ITransactionBodyBuilder AddOutputFromUtxo(
+            byte[] address,
+            Utxo utxo,
+            DatumOption? datumOption = null,
+            ScriptReference? scriptReference = null,
+            OutputPurpose outputPurpose = OutputPurpose.Spend
+        );
+
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
@@ -180,6 +191,21 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        public ITransactionBodyBuilder AddOutputFromUtxo(
+            byte[] address,
+            Utxo utxo,
+            DatumOption? datumOption = null,
+            ScriptReference? scriptReference = null,
+            OutputPurpose outputPurpose = OutputPurpose.Spend
+        )
+        {
+            TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
+                TransactionOutputBuilder.Create.SetOutputFromUtxo(address, utxo, datumOption, scriptReference, outputPurpose);
+
+            _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
+            return this;
+        }
+
         public ITransactionBodyBuilder SetFee(ulong fee)
         {
             _model.Fee = fee;
@@ -271,11 +297,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner)
         {
             if (_model.RequiredSigners is null)
-            {
                 _model.RequiredSigners = new List<byte[]>();
-            }
 
-            _model.RequiredSigners.Add(requiredSigner);
+            if (!_model.RequiredSigners.Any(existingSigner => existingSigner.SequenceEqual(requiredSigner)))
+                _model.RequiredSigners.Add(requiredSigner);
+
             return this;
         }
 
@@ -320,34 +346,36 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput)
         {
             if (_model.ReferenceInputs is null)
-            {
                 _model.ReferenceInputs = new List<TransactionInput>();
-            }
 
-            _model.ReferenceInputs.Add(transactionInput);
+            if (!_model.ReferenceInputs.Contains(transactionInput))
+                _model.ReferenceInputs.Add(transactionInput);
+
             return this;
         }
 
         public ITransactionBodyBuilder AddReferenceInput(byte[] transactionId, uint transactionIndex)
         {
             if (_model.ReferenceInputs is null)
-            {
                 _model.ReferenceInputs = new List<TransactionInput>();
-            }
 
-            _model.ReferenceInputs.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
+            TransactionInput transactionInput = new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex };
+            if (!_model.ReferenceInputs.Contains(transactionInput))
+                _model.ReferenceInputs.Add(transactionInput);
+
             return this;
         }
 
         public ITransactionBodyBuilder AddReferenceInput(string transactionIdStr, uint transactionIndex)
         {
             if (_model.ReferenceInputs is null)
-            {
                 _model.ReferenceInputs = new List<TransactionInput>();
-            }
 
             byte[] transactionId = transactionIdStr.HexToByteArray();
-            _model.ReferenceInputs.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
+            TransactionInput transactionInput = new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex };
+            if (!_model.ReferenceInputs.Contains(transactionInput))
+                _model.ReferenceInputs.Add(transactionInput);
+
             return this;
         }
 
