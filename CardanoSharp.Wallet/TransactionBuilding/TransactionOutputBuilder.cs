@@ -183,7 +183,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             if (scriptReference is not null)
                 this.SetScriptReference(scriptReference);
 
-            this.SetMinUtxo((ulong)CardanoUtility.adaOnlyMinUtxo);
+            this.SetMinUtxo(utxo.Balance.Lovelaces);
             return this;
         }
     }
