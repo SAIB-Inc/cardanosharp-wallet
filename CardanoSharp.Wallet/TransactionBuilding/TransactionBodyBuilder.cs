@@ -138,7 +138,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             OutputPurpose outputPurpose = OutputPurpose.Spend
         )
         {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference);
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
         }
 
         public ITransactionBodyBuilder AddOutput(
