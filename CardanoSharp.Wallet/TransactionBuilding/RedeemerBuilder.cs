@@ -48,7 +48,6 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-
         public IRedeemerBuilder SetIndex(Transaction transaction, TransactionInput scriptTransactionInput)
         {
             List<TransactionInput> transactionInputs = new List<TransactionInput>();
