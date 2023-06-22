@@ -348,7 +348,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             if (_model.ReferenceInputs is null)
                 _model.ReferenceInputs = new List<TransactionInput>();
 
-            if (!_model.ReferenceInputs.Contains(transactionInput))
+            if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
                 _model.ReferenceInputs.Add(transactionInput);
 
             return this;
@@ -360,7 +360,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 _model.ReferenceInputs = new List<TransactionInput>();
 
             TransactionInput transactionInput = new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex };
-            if (!_model.ReferenceInputs.Contains(transactionInput))
+            if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
                 _model.ReferenceInputs.Add(transactionInput);
 
             return this;
@@ -373,7 +373,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
             byte[] transactionId = transactionIdStr.HexToByteArray();
             TransactionInput transactionInput = new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex };
-            if (!_model.ReferenceInputs.Contains(transactionInput))
+            if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
                 _model.ReferenceInputs.Add(transactionInput);
 
             return this;

@@ -24,4 +24,29 @@ namespace CardanoSharp.Wallet.Models.Transactions
                 return x.TransactionIndex.CompareTo(y.TransactionIndex);
         }
     }
+
+    public class TransactionEqualityInputComparer : IEqualityComparer<TransactionInput>
+    {
+        public bool Equals(TransactionInput x, TransactionInput y)
+        {
+            if (x == null && y == null)
+                return true;
+
+            if (x == null || y == null)
+                return false;
+
+            // Adjust this as necessary. It might be that you have to convert the byte arrays to strings
+            // or something similar to properly compare them
+            return x.TransactionId.SequenceEqual(y.TransactionId) && x.TransactionIndex == y.TransactionIndex;
+        }
+
+        public int GetHashCode(TransactionInput obj)
+        {
+            // Use prime numbers to calculate hash code
+            int hash = 17;
+            hash = hash * 31 + (obj.TransactionId != null ? BitConverter.ToInt32(obj.TransactionId, 0) : 0);
+            hash = hash * 31 + (int)obj.TransactionIndex;
+            return hash;
+        }
+    }
 }
