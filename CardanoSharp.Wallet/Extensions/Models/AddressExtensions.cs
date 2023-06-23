@@ -1,6 +1,6 @@
 ﻿using System;
-using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Extensions.Models
@@ -27,7 +27,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
         public static byte[]? GetStakeKeyHash(this Address address)
         {
             if (address.AddressType != AddressType.Base && address.AddressType != AddressType.Script)
-                throw new Exception("Address does not contain a stake key");
+                return null;
 
             byte[] pkh = new byte[28];
             Buffer.BlockCopy(address.GetBytes(), 29, pkh, 0, pkh.Length);
