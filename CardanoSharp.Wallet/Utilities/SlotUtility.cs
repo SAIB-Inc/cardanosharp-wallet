@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.Utilities
 {
     public static class SlotUtility
     {
-        public static SlotNetworkConfig Mainnet { get; set; } = new SlotNetworkConfig(1596059091000, 4924800, 1000); // Starting at Shelly Era
+        public static SlotNetworkConfig Mainnet { get; set; } = new SlotNetworkConfig(1596059091000, 4492800, 1000); // Starting at Shelly Era
         public static SlotNetworkConfig Preprod { get; set; } = new SlotNetworkConfig(1654041600000 + 1728000000, 86400, 1000); // Starting at Shelly Era
         public static SlotNetworkConfig Preview { get; set; } = new SlotNetworkConfig(1666656000000, 0, 1000); // Starting at Shelly Era
 
