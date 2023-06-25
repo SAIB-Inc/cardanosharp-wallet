@@ -11,6 +11,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public byte[] TransactionId { get; set; } = default!;
         public uint TransactionIndex { get; set; }
+        public string? OutputAddress { get; set; } = null; // Used to calculate the number of addresses in a transaction for fee estimation
     }
 
     public class TransactionInputComparer : IComparer<TransactionInput>

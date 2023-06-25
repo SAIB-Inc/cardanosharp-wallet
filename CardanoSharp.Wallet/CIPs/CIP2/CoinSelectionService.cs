@@ -148,7 +148,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         {
             foreach (var su in coinSelection.SelectedUtxos)
             {
-                coinSelection.Inputs.Add(new TransactionInput() { TransactionId = su.TxHash.HexToByteArray(), TransactionIndex = su.TxIndex });
+                coinSelection.Inputs.Add(new TransactionInput() { TransactionId = su.TxHash.HexToByteArray(), TransactionIndex = su.TxIndex, OutputAddress = su.OutputAddress });
             }
         }
     }
