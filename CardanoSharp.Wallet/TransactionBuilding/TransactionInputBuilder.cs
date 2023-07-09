@@ -4,12 +4,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface ITransactionInputBuilder : IABuilder<TransactionInput>
     {
-        ITransactionInputBuilder WithTransactionId(byte[] transactionId);
-
-        ITransactionInputBuilder WithTransactionIndex(uint transactionIndex);
+        ITransactionInputBuilder SetTransactionId(byte[] transactionId);
+        ITransactionInputBuilder SetTransactionIndex(uint transactionIndex);
+        ITransactionInputBuilder SetOutput(TransactionOutput output);
     }
 
-    public class TransactionInputBuilder: ABuilder<TransactionInput>, ITransactionInputBuilder
+    public class TransactionInputBuilder : ABuilder<TransactionInput>, ITransactionInputBuilder
     {
         public TransactionInputBuilder()
         {
@@ -30,15 +30,26 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return new TransactionInputBuilder(model);
         }
 
-        public ITransactionInputBuilder WithTransactionId(byte[] transactionId)
+        public static ITransactionInputBuilder Create
+        {
+            get => new TransactionInputBuilder();
+        }
+
+        public ITransactionInputBuilder SetTransactionId(byte[] transactionId)
         {
             _model.TransactionId = transactionId;
             return this;
         }
 
-        public ITransactionInputBuilder WithTransactionIndex(uint transactionIndex)
+        public ITransactionInputBuilder SetTransactionIndex(uint transactionIndex)
         {
             _model.TransactionIndex = transactionIndex;
+            return this;
+        }
+
+        public ITransactionInputBuilder SetOutput(TransactionOutput output)
+        {
+            _model.Output = output;
             return this;
         }
     }
