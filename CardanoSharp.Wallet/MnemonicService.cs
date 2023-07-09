@@ -25,17 +25,24 @@ namespace CardanoSharp.Wallet
         public Mnemonic Generate(int wordSize, WordLists wl = WordLists.English)
         {
             if (!allowedWordLengths.Contains(wordSize))
-                throw new ArgumentOutOfRangeException(nameof(wordSize), $"{nameof(wordSize)} must be one of the following values ({string.Join(", ", allowedWordLengths)})");
+                throw new ArgumentOutOfRangeException(
+                    nameof(wordSize),
+                    $"{nameof(wordSize)} must be one of the following values ({string.Join(", ", allowedWordLengths)})"
+                );
 
             var entropySize = allowedEntropyLengths[Array.FindIndex(allowedWordLengths, x => x == wordSize)];
             if (!allowedEntropyLengths.Contains(entropySize))
-                throw new ArgumentOutOfRangeException(nameof(entropySize), $"Derived entropy {entropySize} is not within the allowed values ({string.Join(", ", allowedEntropyLengths)})");
+                throw new ArgumentOutOfRangeException(
+                    nameof(entropySize),
+                    $"Derived entropy {entropySize} is not within the allowed values ({string.Join(", ", allowedEntropyLengths)})"
+                );
 
             var allWords = GetAllWords(wl);
 
             var entropy = new byte[entropySize];
-            var rng = new RNGCryptoServiceProvider();
-            rng.GetBytes(entropy);
+
+            using var randomNumberGenerator = RandomNumberGenerator.Create();
+            randomNumberGenerator.GetBytes(entropy);
             return CreateMnemonicFromEntropy(entropy, allWords);
         }
 
@@ -45,8 +52,7 @@ namespace CardanoSharp.Wallet
                 throw new ArgumentNullException(nameof(words), "Seed can not be null or empty!");
             var allWords = GetAllWords(wl);
 
-            string[] wordArr = words.Normalize(NormalizationForm.FormKD)
-                                     .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] wordArr = words.Normalize(NormalizationForm.FormKD).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (!wordArr.All(x => allWords.Contains(x)))
             {
                 throw new ArgumentException(nameof(wordArr), "Seed has invalid words.");
@@ -93,7 +99,7 @@ namespace CardanoSharp.Wallet
                     // Since items are only 32 bits there is no other possibility (8<32)
 
                     // To take 8 bits(*) out of [00000000 00000000 00000xxx xxxx****] [00000000 00000000 00000*** *xxxxxxx]:
-                    // Take first item at itemIndex [00000000 00000000 00000xxx xxxx****]: 
+                    // Take first item at itemIndex [00000000 00000000 00000xxx xxxx****]:
                     //    * At most 7 bits and at least 1 bit should be taken
                     // 1. Shift left [00000000 00000000 0xxxxxxx ****0000] (<< 8 - (maxBits - bitIndex)) 8-max+bi
                     // 2. Zero the rest of the bits (& (00000000 00000000 00000000 11111111))
@@ -104,8 +110,7 @@ namespace CardanoSharp.Wallet
                     // nuber of bits to take = toTake - (maxBits - bitIndex)
                     // Number of bits on the right to get rid of= maxBits - (toTake - (maxBits - bitIndex))
                     // 4. Add two values to each other using bitwise OR [****0000] | [0000****]
-                    entropy[i] = (byte)(((wordIndexes[itemIndex] << (bitIndex - 3)) & 0xff) |
-                                         (wordIndexes[itemIndex + 1] >> (14 - bitIndex)));
+                    entropy[i] = (byte)(((wordIndexes[itemIndex] << (bitIndex - 3)) & 0xff) | (wordIndexes[itemIndex + 1] >> (14 - bitIndex)));
                 }
 
                 bitIndex += toTake;
@@ -211,7 +216,7 @@ namespace CardanoSharp.Wallet
                     // Since items are only 32 bits there is no other possibility (11<32)
 
                     // To take astrix out of [xxxxxx**] [***xxxxx]:
-                    // Take first item at itemIndex [xxxxxx**]: 
+                    // Take first item at itemIndex [xxxxxx**]:
                     // 1. Shift left bitIndex times to to get rid of values on the right: **000000 (<< bitIndex)
                     // 2. Shift right the same amount to put bits back where they were: 000000** (>> bitIndex)
                     // 3. Shift left to open up room for remaining bits: 000**000 (<< toTake - (maxBits - bitIndex))
@@ -224,8 +229,8 @@ namespace CardanoSharp.Wallet
                     // Number of bits on the right to get rid of= maxBits - (toTake - (maxBits - bitIndex))
 
                     // 5. Add two values to each other using bitwise OR (000**000 | 00000*** = 000*****)
-                    wordIndexes[i] = ((bits[itemIndex] << bitIndex) >> (maxBits - toTake)) |
-                                     (bits[itemIndex + 1] >> (maxBits - toTake + maxBits - bitIndex));
+                    wordIndexes[i] =
+                        ((bits[itemIndex] << bitIndex) >> (maxBits - toTake)) | (bits[itemIndex + 1] >> (maxBits - toTake + maxBits - bitIndex));
                 }
 
                 bitIndex += toTake;

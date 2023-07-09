@@ -17,9 +17,9 @@ pub extern "C" fn apply_params_to_plutus_script(
 ) -> PlutusScriptResult {
     unsafe {
         let params_bytes: &[u8] = std::slice::from_raw_parts(params, params_length);
-        let plutus_script_bytes: &[u8] = std::slice::from_raw_parts(plutus_script, plutus_script_length);        
+        let plutus_script_bytes: &[u8] = std::slice::from_raw_parts(plutus_script, plutus_script_length);
         match uplc::tx::apply_params_to_script(params_bytes, plutus_script_bytes) {
-            Ok(script) => {                
+            Ok(script) => {
                 let (script_ptr, script_len, _cap) = script.into_raw_parts();
                 PlutusScriptResult {
                     success: true,
@@ -41,22 +41,24 @@ pub struct ExUnitsResult {
     success: bool,
     value: *const *const u8,
     length: usize,
-    length_value: *const usize
+    length_value: *const usize,
+    error: *const u8,
+    error_length: usize,
 }
 
 #[no_mangle]
 pub extern "C" fn get_ex_units(
     tx: *const u8, //&Transaction,
-    inputs: *const *const u8, //&TransactionUnspentOutputs,
-    outputs: *const *const u8, //&TransactionUnspentOutputs,
+    inputs: *const *const u8, //&TransactionUnspentOutputs, Inputs
+    outputs: *const *const u8, //&TransactionUnspentOutputs, Resolved Inputs (From previous Outputs)
     cost_mdls: *const u8, //&CostModels,
     initial_budget_mem: u64, //&ExUnits,
     initial_budget_step: u64, //&ExUnits,
     slot_config_zero_time: u64, // (BigNum, BigNum, u32),
     slot_config_zero_slot: u64, // (BigNum, BigNum, u32),
-    slot_config_slot_length: u32, // (BigNum, BigNum, u32),    
+    slot_config_slot_length: u32, // (BigNum, BigNum, u32),
     tx_length: usize,
-    inputs_outputs_length: usize, 
+    inputs_outputs_length: usize,
     inputs_length: *const usize,
     outputs_length: *const usize,
     cost_mdls_length: usize,
@@ -64,7 +66,7 @@ pub extern "C" fn get_ex_units(
     unsafe {
         let tx_bytes: &[u8] = std::slice::from_raw_parts(tx, tx_length);
         let converted_inputs_outputs: Vec<(Vec<u8>, Vec<u8>)> = convert_inputs_outputs(inputs, outputs, inputs_outputs_length, inputs_length, outputs_length);
-        let converted_inputs_outputs_slice: &[(Vec<u8>, Vec<u8>)] = &converted_inputs_outputs;        
+        let converted_inputs_outputs_slice: &[(Vec<u8>, Vec<u8>)] = &converted_inputs_outputs;
         let cost_mdls_bytes: &[u8] = std::slice::from_raw_parts(cost_mdls, cost_mdls_length);
         let initial_budget_tuple = (initial_budget_mem, initial_budget_step);
         let slot_config_tuple = (slot_config_zero_time, slot_config_zero_slot, slot_config_slot_length);
@@ -92,14 +94,16 @@ pub extern "C" fn get_ex_units(
 
                 // Convert the Vec<*const u8> into raw parts (redeemers_ptrs_ptr)
                 let (redeemers_ptrs_ptr, redeemers_ptrs_len, _) = redeemers_ptrs.into_raw_parts();
-                
+
                 // Convert the Vec<usize> into raw parts (length_value)
-                let (length_value, _, _) = inner_lengths.into_raw_parts();                
+                let (length_value_ptr, _, _) = inner_lengths.into_raw_parts();
                 ExUnitsResult {
                     success: true,
                     value: redeemers_ptrs_ptr,
                     length: redeemers_ptrs_len,
-                    length_value: length_value
+                    length_value: length_value_ptr,
+                    error: std::ptr::null(),
+                    error_length: 0,
                 }
             }
             Err(e) => {
@@ -107,18 +111,13 @@ pub extern "C" fn get_ex_units(
                 let error_bytes = error_string.as_bytes();
                 let error_ptr = error_bytes.as_ptr() as *const u8;
 
-                // Wrap the error pointer in a Box to ensure its memory is deallocated when
-                // the struct is dropped
-                let boxed_error_ptr = Box::new(error_ptr);
-
-                // Get the raw pointer from the Box
-                let raw_error_ptr = Box::into_raw(boxed_error_ptr);
-
                 ExUnitsResult {
                     success: false,
-                    value: raw_error_ptr as *const *const u8,
-                    length: error_bytes.len(),
+                    value: std::ptr::null(),
+                    length: 0,
                     length_value: std::ptr::null(),
+                    error: error_ptr,
+                    error_length: error_bytes.len(),
                 }
             }
         }

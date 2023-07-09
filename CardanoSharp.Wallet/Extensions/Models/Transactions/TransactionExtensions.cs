@@ -179,7 +179,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 uint index = redeemer.Index;
                 string combined = $"{tag}:{index.ToString()}";
 
-                if (exUnits != null && exUnits.TryGetValue(combined, out ExUnits exUnit))
+                if (exUnits != null && exUnits.TryGetValue(combined, out ExUnits? exUnit))
                 {
                     redeemer.ExUnits.Mem = (ulong)Math.Ceiling(exUnit.Mem * 1.05); // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
                     redeemer.ExUnits.Steps = (ulong)Math.Ceiling(exUnit.Steps * 1.05); // Increase Steps by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/

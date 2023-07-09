@@ -1,16 +1,19 @@
-﻿namespace CardanoSharp.Wallet.Models
+﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+
+namespace CardanoSharp.Wallet.Models
 {
     public class Utxo
     {
         public string TxHash { get; set; } = null!;
-
         public uint TxIndex { get; set; }
-
-        public string OutputAddress { get; set; } = null!;
-
         public Balance Balance { get; set; } = new Balance();
 
-        public override bool Equals(object obj)
+        // Data from previous transaction output
+        public string OutputAddress { get; set; } = null!;
+        public DatumOption? OutputDatumOption { get; set; }
+        public ScriptReference? OutputScriptReference { get; set; }
+
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
                 return false;

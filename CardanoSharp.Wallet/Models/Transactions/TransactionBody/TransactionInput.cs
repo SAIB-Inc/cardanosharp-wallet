@@ -11,14 +11,16 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public byte[] TransactionId { get; set; } = default!;
         public uint TransactionIndex { get; set; }
-        public string? OutputAddress { get; set; } = null; // Used to calculate the number of addresses in a transaction for fee estimation
+
+        // Previous output data from resolving the Transaction Input
+        public TransactionOutput? Output { get; set; } = null;
     }
 
     public class TransactionInputComparer : IComparer<TransactionInput>
     {
-        public int Compare(TransactionInput x, TransactionInput y)
+        public int Compare(TransactionInput? x, TransactionInput? y)
         {
-            int txCompare = string.Compare(x.TransactionId.ToStringHex(), y.TransactionId.ToStringHex());
+            int txCompare = string.Compare(x!.TransactionId.ToStringHex(), y!.TransactionId.ToStringHex());
             if (txCompare != 0)
                 return txCompare;
             else
@@ -28,7 +30,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
 
     public class TransactionEqualityInputComparer : IEqualityComparer<TransactionInput>
     {
-        public bool Equals(TransactionInput x, TransactionInput y)
+        public bool Equals(TransactionInput? x, TransactionInput? y)
         {
             if (x == null && y == null)
                 return true;

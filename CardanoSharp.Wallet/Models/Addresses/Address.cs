@@ -103,17 +103,21 @@ namespace CardanoSharp.Wallet.Models.Addresses
         public string Prefix { get; set; } = default!;
         public byte WitnessVersion { get; set; }
 
-        public bool Equals(string other)
+        public bool Equals(string? other)
         {
+            if (other == null)
+                return false;
             return _address.Equals(other);
         }
 
-        public bool Equals(byte[] other)
+        public bool Equals(byte[]? other)
         {
+            if (other == null)
+                return false;
             return _bytes.SequenceEqual(other);
         }
 
-        public bool Equals(Address other)
+        public bool Equals(Address? other)
         {
             if (other == null)
                 return false;
@@ -135,9 +139,9 @@ namespace CardanoSharp.Wallet.Models.Addresses
             return _bytes.ToStringHex();
         }
 
-        public bool Equals(Address x, Address y)
+        public bool Equals(Address? x, Address? y)
         {
-            return x.Equals(y);
+            return x!.Equals(y);
         }
 
         public int GetHashCode(Address obj)

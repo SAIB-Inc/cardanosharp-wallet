@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
@@ -24,7 +22,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             CBORObject cborTransactionOutput = CBORObject.NewMap().Add(0, transactionOutput.Address).Add(1, transactionOutput.Value.GetCBOR());
-
             if (transactionOutput.DatumOption is not null)
             {
                 cborTransactionOutput.Add(2, transactionOutput.DatumOption.GetCBOR());

@@ -1,5 +1,3 @@
-using System;
-
 public static class CardanoUtility
 {
     public static long adaToLovelace = 1000000;

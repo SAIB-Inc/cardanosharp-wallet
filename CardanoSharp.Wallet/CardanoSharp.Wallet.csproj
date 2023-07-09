@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;</TargetFrameworks>
     <PackageId>Orion.CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>6.0.19</Version>
+    <Version>6.1.0</Version>
     <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
@@ -22,11 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="cardanosharp_uplc.dll">
+    <None Include="cardanosharp_uplc.dll">
       <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+      <PackagePath>runtimes/win-x64/native</PackagePath>
+    </None>
+    <None Include="libcardanosharp_uplc.so">
+      <Pack>true</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>runtimes/linux-x64/native</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

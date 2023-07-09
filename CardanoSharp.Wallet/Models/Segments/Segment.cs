@@ -38,7 +38,7 @@ namespace CardanoSharp.Wallet.Models.Segments
 
         public override string ToString()
         {
-            return (IsRoot ? Value : Convert.ToInt32(Value)).ToString();
+            return (IsRoot ? Value : Convert.ToInt32(Value)).ToString()!;
         }
     }
 }

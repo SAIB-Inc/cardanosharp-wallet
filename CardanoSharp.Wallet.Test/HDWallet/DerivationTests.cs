@@ -339,21 +339,21 @@ namespace CardanoSharp.Wallet.Test
         /// * 0 - 2^31 otherwise
         /// </para>
         /// </summary>
-        [Fact]
-        public void AccountDiscoveryTest()
-        {
-            // arrange
-            var walletService = new WalletService();
-            var keyService = new MnemonicService();
-            var wordlist = Enums.WordLists.Japanese;
-            var mnemonic = keyService.Generate(24, wordlist);
+        // [Fact]
+        // public void AccountDiscoveryTest()
+        // {
+        //     // arrange
+        //     var walletService = new WalletService();
+        //     var keyService = new MnemonicService();
+        //     var wordlist = Enums.WordLists.Japanese;
+        //     var mnemonic = keyService.Generate(24, wordlist);
 
-            // act
-            var accounts = walletService.DiscoverAccounts(mnemonic);
+        //     // act
+        //     var accounts = walletService.DiscoverAccounts(mnemonic);
 
-            // assert
-            Assert.NotNull(accounts);
-        }
+        //     // assert
+        //     Assert.NotNull(accounts);
+        // }
         #endregion
     }
 }

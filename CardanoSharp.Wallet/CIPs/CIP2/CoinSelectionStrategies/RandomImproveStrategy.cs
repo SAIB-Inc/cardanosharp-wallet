@@ -12,7 +12,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset? asset = null, List<Utxo>? requiredUtxos = null, int limit = 20)
+        public void SelectInputs(
+            CoinSelection coinSelection,
+            List<Utxo> availableUtxos,
+            long amount,
+            Asset? asset = null,
+            List<Utxo>? requiredUtxos = null,
+            int limit = 20
+        )
         {
             //1. Randomly select UTxOs
             var rand = new Random();
@@ -66,7 +73,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                     (asset is null)
                         ? (long)randomUTxO.Balance.Lovelaces
                         : randomUTxO.Balance.Assets
-                            .FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))
+                            .FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))!
                             .Quantity;
 
                 // increment current amount by the UTxO quantity
@@ -108,7 +115,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 ? Math.Abs((long)(ideal - (long)v1.Balance.Lovelaces)) < Math.Abs((long)(ideal - (long)(v0.Balance?.Lovelaces ?? 0)))
                 : Math.Abs(
                     (long)(
-                        ideal - v1.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity
+                        ideal - v1.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))!.Quantity
                     )
                 )
                     < Math.Abs(
@@ -125,7 +132,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             // Condition 2: we have not exceeded the maximum value
             arrayToMatchConditions[1] = asset is null
                 ? (long)v1.Balance.Lovelaces <= max
-                : v1.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity <= max;
+                : v1.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))!.Quantity <= max;
 
             //Condition 3: when counting cumulatively across all outputs considered so far, we have not selected more than the maximum number of UTxO entries specified by Maximum Input Count.
             arrayToMatchConditions[2] = limit > utxos.Count;

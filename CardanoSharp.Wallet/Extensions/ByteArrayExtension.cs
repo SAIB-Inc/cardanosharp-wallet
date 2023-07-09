@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 namespace CardanoSharp.Wallet.Extensions
 {
     public static class ByteArrayExtension
-    {        
+    {
         /// <summary>
-        /// Concatinates two given byte arrays and returns a new byte array containing all the elements. 
+        /// Concatinates two given byte arrays and returns a new byte array containing all the elements.
         /// </summary>
         /// <remarks>
         /// This is a lot faster than Linq (~30 times)
@@ -24,13 +24,11 @@ namespace CardanoSharp.Wallet.Extensions
             if (secondArray == null)
                 throw new ArgumentNullException(nameof(secondArray), "Second array can not be null!");
 
-
             byte[] result = new byte[firstArray.Length + secondArray.Length];
             Buffer.BlockCopy(firstArray, 0, result, 0, firstArray.Length);
             Buffer.BlockCopy(secondArray, 0, result, firstArray.Length, secondArray.Length);
             return result;
         }
-
 
         /// <summary>
         /// Creates a new array from the given array by taking a specified number of items starting from a given index.
@@ -52,12 +50,10 @@ namespace CardanoSharp.Wallet.Extensions
             if (count > sourceArray.Length - index)
                 throw new IndexOutOfRangeException("Array is not long enough.");
 
-
             byte[] result = new byte[count];
             Buffer.BlockCopy(sourceArray, index, result, 0, count);
             return result;
         }
-
 
         /// <summary>
         /// Creates a new array from the given array by taking items starting from a given index.
@@ -86,7 +82,8 @@ namespace CardanoSharp.Wallet.Extensions
 
             // Return new array.
             var res = new T[len];
-            for (var i = 0; i < len; i++) res[i] = source[i + start];
+            for (var i = 0; i < len; i++)
+                res[i] = source[i + start];
             return res;
         }
 
@@ -121,9 +118,10 @@ namespace CardanoSharp.Wallet.Extensions
             //Or the two combined, but a bit slower:
             return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
+
         public static byte[] Encrypt(this byte[] bytesToEncrypt, string password)
         {
-            using var f = new RNGCryptoServiceProvider();
+            using var f = RandomNumberGenerator.Create();
             byte[] ivSeed = Guid.NewGuid().ToByteArray();
             f.GetBytes(ivSeed);
 
@@ -134,11 +132,10 @@ namespace CardanoSharp.Wallet.Extensions
             byte[] encrypted;
             using (var mstream = new MemoryStream())
             {
-                using (var aesProvider = new AesCryptoServiceProvider())
-                {
-                    using CryptoStream cryptoStream = new CryptoStream(mstream, aesProvider.CreateEncryptor(Key, IV), CryptoStreamMode.Write);
-                    cryptoStream.Write(bytesToEncrypt, 0, bytesToEncrypt.Length);
-                }
+                using var aes = Aes.Create();
+                using CryptoStream cryptoStream = new CryptoStream(mstream, aes.CreateEncryptor(Key, IV), CryptoStreamMode.Write);
+                cryptoStream.Write(bytesToEncrypt, 0, bytesToEncrypt.Length);
+
                 encrypted = mstream.ToArray();
             }
 
@@ -150,10 +147,11 @@ namespace CardanoSharp.Wallet.Extensions
 
             return encrypted;
         }
+
         public static byte[] Decrypt(this byte[] bytesToDecrypt, string password)
         {
             (byte[] messageLengthAs32Bits, byte[] bytesWithIv) = bytesToDecrypt.Shift(4); // get the message length
-            (byte[] ivSeed, byte[] encrypted) = bytesWithIv.Shift(16);                    // get the initialization vector
+            (byte[] ivSeed, byte[] encrypted) = bytesWithIv.Shift(16); // get the initialization vector
 
             var length = BitConverter.ToInt32(messageLengthAs32Bits, 0);
 
@@ -162,8 +160,9 @@ namespace CardanoSharp.Wallet.Extensions
             byte[] IV = rfc.GetBytes(16);
 
             using var mStream = new MemoryStream(encrypted);
-            using var aesProvider = new AesCryptoServiceProvider() { Padding = PaddingMode.None };
-            using var cryptoStream = new CryptoStream(mStream, aesProvider.CreateDecryptor(Key, IV), CryptoStreamMode.Read);
+            using var aes = Aes.Create();
+            aes.Padding = PaddingMode.None;
+            using var cryptoStream = new CryptoStream(mStream, aes.CreateDecryptor(Key, IV), CryptoStreamMode.Read);
             cryptoStream.Read(encrypted, 0, length);
             return mStream.ToArray().Take(length).ToArray();
         }

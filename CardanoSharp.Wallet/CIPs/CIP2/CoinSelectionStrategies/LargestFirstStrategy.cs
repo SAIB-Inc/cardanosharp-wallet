@@ -42,7 +42,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 var quantity =
                     (asset is null)
                         ? (long)ou.Balance.Lovelaces
-                        : ou.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity;
+                        : ou.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))!.Quantity;
 
                 // increment current amount by the UTxO quantity
                 currentAmount = currentAmount + quantity;

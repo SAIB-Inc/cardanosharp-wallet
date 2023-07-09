@@ -31,7 +31,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             return GetCBOR().EncodeToBytes();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
             {
@@ -72,7 +72,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             return GetCBOR().EncodeToBytes();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
             {
@@ -113,7 +113,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             return GetCBOR().EncodeToBytes();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is PlutusDataNInt))
             {
@@ -175,9 +175,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.CanFitInInt32())
             {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as int but number is larger than size int"
-                );
+                throw new ArgumentException("Attempting to deserialize dataCbor as int but number is larger than size int");
             }
 
             int data = (int)dataCbor.DecodeValueToInt32();
@@ -200,9 +198,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.CanFitInInt64())
             {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as uint but number is larger than size uint"
-                );
+                throw new ArgumentException("Attempting to deserialize dataCbor as uint but number is larger than size uint");
             }
 
             long data = (long)dataCbor.DecodeValueToInt64();
@@ -225,9 +221,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.IsNegative() || !number.CanFitInInt64())
             {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as nint but number is not negative"
-                );
+                throw new ArgumentException("Attempting to deserialize dataCbor as nint but number is not negative");
             }
 
             long data = (long)dataCbor.DecodeValueToInt64();

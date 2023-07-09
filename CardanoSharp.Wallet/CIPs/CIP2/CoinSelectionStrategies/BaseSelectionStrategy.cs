@@ -52,7 +52,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                                 is not null
                     )
                     .OrderByDescending(
-                        x => x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)).Quantity
+                        x => x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))!.Quantity
                     )
                     .ToList();
             }

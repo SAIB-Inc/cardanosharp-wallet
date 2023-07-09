@@ -4,19 +4,19 @@ using System.Runtime.InteropServices;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
-using CardanoSharp.Wallet.Utilities;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
-using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CsBindgen
 {
     public static class UPLCMethods
     {
-        public static string ApplyParamsToPlutusScript(PlutusDataArray parameters, string plutusScriptCbor) {
-            
+        public static string ApplyParamsToPlutusScript(PlutusDataArray parameters, string plutusScriptCbor)
+        {
             byte[] paramsArray = parameters.Serialize();
             byte[] plutusScriptBytes = plutusScriptCbor.HexToByteArray();
             nuint paramsLength = (nuint)paramsArray.Length;
@@ -24,52 +24,69 @@ namespace CsBindgen
 
             PlutusScriptResult result;
             string scriptHex;
-            unsafe {
+            unsafe
+            {
                 fixed (byte* paramsPtr = &paramsArray[0])
                 fixed (byte* plutusScriptPtr = &plutusScriptBytes[0])
-                
-                result = UPLCNativeMethods.apply_params_to_plutus_script(paramsPtr, plutusScriptPtr, paramsLength, plutusScriptLength);
+
+                    result = UPLCNativeMethods.apply_params_to_plutus_script(paramsPtr, plutusScriptPtr, paramsLength, plutusScriptLength);
                 if (!result.success)
                     return null!;
-                
+
                 byte[] byteArray = new byte[result.length];
                 Marshal.Copy((IntPtr)result.value, byteArray, 0, (int)result.length);
 
                 scriptHex = byteArray.ToStringHex();
-            };
+            }
+
             return scriptHex;
         }
 
-        // This function's Rust code needs to be debugged before it can be used
-        /*
-        public static List<Redeemer> GetExUnits(Transaction transaction, NetworkType networkType) 
+        public class RedeemerResult
+        {
+            public List<Redeemer>? Redeemers { get; set; }
+            public string? Error { get; set; }
+        }
+
+        public static RedeemerResult GetExUnits(Transaction transaction, NetworkType networkType)
         {
             byte[] txBytes = transaction.Serialize();
 
             List<byte[]> inputsList = new List<byte[]>();
             List<nuint> inputsLengthList = new List<nuint>();
+            List<byte[]> resolvedInputsList = new List<byte[]>();
+            List<nuint> resolvedInputsLengthList = new List<nuint>();
             foreach (TransactionInput input in transaction.TransactionBody.TransactionInputs)
             {
                 byte[] inputBytes = input.Serialize();
-                inputsList.Add(inputBytes); 
-                inputsLengthList.Add((nuint)inputBytes.Length);               
+                inputsList.Add(inputBytes);
+                inputsLengthList.Add((nuint)inputBytes.Length);
+
+                byte[] resolvedInputBytes = input.Output!.Serialize();
+                resolvedInputsList.Add(resolvedInputBytes);
+                resolvedInputsLengthList.Add((nuint)resolvedInputBytes.Length);
             }
+
+            if (transaction.TransactionBody.ReferenceInputs != null)
+            {
+                foreach (TransactionInput referenceInput in transaction.TransactionBody.ReferenceInputs)
+                {
+                    byte[] referenceInputBytes = referenceInput.Serialize();
+                    inputsList.Add(referenceInputBytes);
+                    inputsLengthList.Add((nuint)referenceInputBytes.Length);
+
+                    byte[] resolvedReferenceInputBytes = referenceInput.Output!.Serialize();
+                    resolvedInputsList.Add(resolvedReferenceInputBytes);
+                    resolvedInputsLengthList.Add((nuint)resolvedReferenceInputBytes.Length);
+                }
+            }
+
             byte[][] inputs = inputsList.ToArray();
             nuint[] inputsLength = inputsLengthList.ToArray();
+            byte[][] resolvedInputs = resolvedInputsList.ToArray();
+            nuint[] resolvedInputsLength = resolvedInputsLengthList.ToArray();
 
-            List<byte[]> outputsList = new List<byte[]>();
-            List<nuint> oyutputsLengthList = new List<nuint>();
-            foreach (TransactionOutput output in transaction.TransactionBody.TransactionOutputs)
-            {
-                byte[] outputBytes = output.Serialize();
-                outputsList.Add(outputBytes);   
-                oyutputsLengthList.Add((nuint)outputBytes.Length);             
-            }
-            byte[][] outputs = outputsList.ToArray();
-            nuint[] outputsLength = oyutputsLengthList.ToArray();
-
-            byte[] costMdls = new byte[CostModelUtility.PlutusV2CostModel.Costs.Length * sizeof(long)];
-            Buffer.BlockCopy(CostModelUtility.PlutusV2CostModel.Costs, 0, costMdls, 0, costMdls.Length);
+            byte[] costMdls = CostModelUtility.PlutusV2CostModel.Serialize();
 
             ulong initialBudgetMem = FeeStructure.MaxTxExMem;
             ulong initialBudgetStep = FeeStructure.MaxTxExSteps;
@@ -82,33 +99,63 @@ namespace CsBindgen
             nuint txLength = (nuint)txBytes.Length;
             nuint length = (nuint)inputs.Length;
             nuint costMdlsLength = (nuint)costMdls.Length;
-            
+
             ExUnitsResult result;
-            byte[][] redeemersByteArray;
-            unsafe {
+            byte[][] redeemersByteArray = null!;
+            byte[] errorByteArray = null!;
+            unsafe
+            {
                 byte** inputsPtr = ConvertByteArrayToByteArrayPointer(inputs);
-                byte** outputsPtr = ConvertByteArrayToByteArrayPointer(outputs);                
+                byte** resolvedInputsPtr = ConvertByteArrayToByteArrayPointer(resolvedInputs);
                 fixed (byte* txPtr = &txBytes[0])
                 fixed (byte* costMdlsPtr = &costMdls[0])
                 fixed (nuint* inputsLengthPtr = &inputsLength[0])
-                fixed (nuint* outputsLengthPtr = &outputsLength[0])
+                fixed (nuint* resolvedInputsLengthPtr = &resolvedInputsLength[0])
 
-                result = UPLCNativeMethods.get_ex_units(txPtr, inputsPtr, outputsPtr, costMdlsPtr, initialBudgetMem, initialBudgetStep, slotConfigZeroTime, slotConfigZeroSlot, slotConfigSlotLength, txLength, length, inputsLengthPtr, outputsLengthPtr, costMdlsLength);
+                    result = UPLCNativeMethods.get_ex_units(
+                        txPtr,
+                        inputsPtr,
+                        resolvedInputsPtr,
+                        costMdlsPtr,
+                        initialBudgetMem,
+                        initialBudgetStep,
+                        slotConfigZeroTime,
+                        slotConfigZeroSlot,
+                        slotConfigSlotLength,
+                        txLength,
+                        length,
+                        inputsLengthPtr,
+                        resolvedInputsLengthPtr,
+                        costMdlsLength
+                    );
                 if (!result.success)
-                    return null!;
-                redeemersByteArray = ConvertByteArrayPointerToByteArray(result.value, result.length, result.length_value);
-            };
-
-            List<Redeemer> redeemers = new List<Redeemer>();
-            foreach (byte[] redeemerByteArray in redeemersByteArray)
-            {
-                Redeemer redeemer = RedeemerExtensions.Deserialize(redeemerByteArray);
-                redeemers.Add(redeemer);
+                {
+                    errorByteArray = ConvertByteArrayPointerToByteArray(result.error, result.error_length);
+                }
+                else
+                {
+                    redeemersByteArray = ConvertByteArrayPointerToByteArray(result.value, result.length, result.length_value);
+                }
             }
 
-            return redeemers;
+            RedeemerResult RedeemerResult = new RedeemerResult();
+            if (redeemersByteArray != null)
+            {
+                List<Redeemer> redeemers = new List<Redeemer>();
+                foreach (byte[] redeemerByteArray in redeemersByteArray)
+                {
+                    Redeemer redeemer = RedeemerExtensions.Deserialize(redeemerByteArray);
+                    redeemers.Add(redeemer);
+                }
+                RedeemerResult.Redeemers = redeemers;
+            }
+            else if (errorByteArray != null)
+            {
+                RedeemerResult.Error = errorByteArray.ToStringUTF8();
+            }
+
+            return RedeemerResult;
         }
-        */
 
         public unsafe static byte** ConvertByteArrayToByteArrayPointer(byte[][] bytes)
         {
@@ -140,6 +187,14 @@ namespace CsBindgen
                 result[i] = new byte[rowLength];
                 Marshal.Copy((IntPtr)value[i], result[i], 0, rowLength);
             }
+
+            return result;
+        }
+
+        public unsafe static byte[] ConvertByteArrayPointerToByteArray(byte* value, nuint length)
+        {
+            byte[] result = new byte[length];
+            Marshal.Copy((IntPtr)value, result, 0, (int)length);
 
             return result;
         }
