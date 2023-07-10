@@ -17,9 +17,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         public CBORObject GetCBOR();
         public byte[] Serialize();
-    }    
+    }
 
-    public static partial class PlutusDataExtensions {
+    public static partial class PlutusDataExtensions
+    {
         public static IPlutusData GetPlutusData(this CBORObject dataCbor)
         {
             if (dataCbor == null)
@@ -36,7 +37,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 return dataCbor.GetPlutusDataBytes();
             }
             else if (dataCbor.Type == CBORType.Array)
-            {                
+            {
                 // If the dataCbor has a tag, it is a PlutusDataConstr
                 if (dataCbor.IsTagged)
                 {

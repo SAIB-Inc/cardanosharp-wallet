@@ -130,7 +130,7 @@ namespace CardanoSharp.Wallet.Test
             };
             transaction.TransactionBody.ReferenceInputs[0].Output = resolvedReferenceInput;
 
-            UPLCMethods.RedeemerResult redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
+            TransactionEvaluation redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
             List<Redeemer> redeemers = redeemerResult.Redeemers;
 
             Assert.True(redeemers != null);
@@ -178,7 +178,7 @@ namespace CardanoSharp.Wallet.Test
             };
             transaction.TransactionBody.ReferenceInputs[0].Output = resolvedReferenceInput;
 
-            UPLCMethods.RedeemerResult redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
+            TransactionEvaluation redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
 
             Assert.True(redeemerResult.Error != null);
             //Assert.Equal("Redeemer (Spend, 0): The provided Plutus code called 'error'.\n\nExBudget {\n    mem: 134,\n    cpu: 373554,\n}\n\nblob ? False", redeemerResult.Error);

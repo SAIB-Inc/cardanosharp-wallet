@@ -1,6 +1,6 @@
 using System;
-using CardanoSharp.Wallet.Utilities;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models
@@ -41,18 +41,14 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             if (datumOptionCbor.Count != 2)
             {
-                throw new ArgumentException(
-                    "datumOptionCbor has unexpected number of elements (expected 2)"
-                );
+                throw new ArgumentException("datumOptionCbor has unexpected number of elements (expected 2)");
             }
 
             DatumOption datumOption = new DatumOption();
             var datumType = datumOptionCbor[0].DecodeValueToInt32();
             if (datumType == 0)
             {
-                datumOption.Hash = (
-                    (string)datumOptionCbor[1].DecodeValueByCborType()
-                ).HexToByteArray();
+                datumOption.Hash = ((string)datumOptionCbor[1].DecodeValueByCborType()).HexToByteArray();
             }
             else if (datumType == 1)
             {
@@ -77,6 +73,24 @@ namespace CardanoSharp.Wallet.Extensions.Models
         public static DatumOption Deserialize(this byte[] bytes)
         {
             return CBORObject.DecodeFromBytes(bytes).GetDatumOption();
+        }
+
+        // Inline Datum Functions
+        public static CBORObject GetCBORFromInlineDatum(this byte[] bytes)
+        {
+            var cborDatum = CBORObject.NewArray();
+
+            //datum_option = [ 0, $hash32 // 1, data ]
+            var inlineDatum = CBORObject.FromObject(bytes);
+            cborDatum.Add(1);
+            cborDatum.Add(inlineDatum.WithTag(24));
+
+            return cborDatum;
+        }
+
+        public static DatumOption DeserializeFromInlineDatum(this byte[] bytes)
+        {
+            return bytes.GetCBORFromInlineDatum().GetDatumOption();
         }
     }
 }

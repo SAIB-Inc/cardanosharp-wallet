@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CsBindgen;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -165,6 +167,31 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 transaction.TransactionWitnessSet.RemoveMocks();
 
             return fee;
+        }
+
+        // This function sets ExUnits from the Aiken UPLC
+        public static void SetExUnits(this Transaction transaction, TransactionEvaluation evaluation)
+        {
+            if (transaction.TransactionWitnessSet.Redeemers == null || evaluation.Redeemers == null)
+                return;
+
+            List<Redeemer> redeemers = new List<Redeemer>();
+            foreach (Redeemer evaluatedRedeemer in evaluation.Redeemers)
+            {
+                Redeemer redeemer = new Redeemer
+                {
+                    Tag = evaluatedRedeemer.Tag,
+                    Index = evaluatedRedeemer.Index,
+                    PlutusData = evaluatedRedeemer.PlutusData,
+                    ExUnits = new ExUnits
+                    {
+                        Mem = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Mem * 1.05), // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                        Steps = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Steps * 1.05) // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                    }
+                };
+                redeemers.Add(redeemer);
+            }
+            transaction.TransactionWitnessSet.Redeemers = redeemers;
         }
 
         // This function sets ExUnits from the Ogmios / Blockfrost evaluation functions

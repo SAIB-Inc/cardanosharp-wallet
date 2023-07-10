@@ -42,13 +42,7 @@ namespace CsBindgen
             return scriptHex;
         }
 
-        public class RedeemerResult
-        {
-            public List<Redeemer>? Redeemers { get; set; }
-            public string? Error { get; set; }
-        }
-
-        public static RedeemerResult GetExUnits(Transaction transaction, NetworkType networkType)
+        public static TransactionEvaluation GetExUnits(Transaction transaction, NetworkType networkType)
         {
             byte[] txBytes = transaction.Serialize();
 
@@ -138,7 +132,7 @@ namespace CsBindgen
                 }
             }
 
-            RedeemerResult RedeemerResult = new RedeemerResult();
+            TransactionEvaluation RedeemerResult = new TransactionEvaluation();
             if (redeemersByteArray != null)
             {
                 List<Redeemer> redeemers = new List<Redeemer>();
@@ -197,6 +191,27 @@ namespace CsBindgen
             Marshal.Copy((IntPtr)value, result, 0, (int)length);
 
             return result;
+        }
+    }
+
+    public class TransactionEvaluation
+    {
+        public List<Redeemer>? Redeemers { get; set; }
+        public string? Error { get; set; }
+
+        public override string ToString()
+        {
+            if (Error != null)
+                return Error;
+
+            string returnString = "";
+            if (Redeemers != null)
+            {
+                foreach (Redeemer redeemer in Redeemers)
+                    returnString += $"Redeemer: {redeemer.Tag} {redeemer.Index} {{mem: {redeemer.ExUnits.Mem}, step: {redeemer.ExUnits.Steps}}} \n";
+            }
+
+            return returnString;
         }
     }
 }
