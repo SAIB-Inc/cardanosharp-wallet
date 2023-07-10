@@ -6,7 +6,6 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
-using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Utilities;
@@ -132,7 +131,7 @@ namespace CsBindgen
                 }
             }
 
-            TransactionEvaluation RedeemerResult = new TransactionEvaluation();
+            TransactionEvaluation evaluation = new TransactionEvaluation();
             if (redeemersByteArray != null)
             {
                 List<Redeemer> redeemers = new List<Redeemer>();
@@ -141,14 +140,14 @@ namespace CsBindgen
                     Redeemer redeemer = RedeemerExtensions.Deserialize(redeemerByteArray);
                     redeemers.Add(redeemer);
                 }
-                RedeemerResult.Redeemers = redeemers;
+                evaluation.Redeemers = redeemers;
             }
             else if (errorByteArray != null)
             {
-                RedeemerResult.Error = errorByteArray.ToStringUTF8();
+                evaluation.Error = errorByteArray.ToStringUTF8();
             }
 
-            return RedeemerResult;
+            return evaluation;
         }
 
         public unsafe static byte** ConvertByteArrayToByteArrayPointer(byte[][] bytes)
@@ -188,8 +187,9 @@ namespace CsBindgen
         public unsafe static byte[] ConvertByteArrayPointerToByteArray(byte* value, nuint length)
         {
             byte[] result = new byte[length];
-            Marshal.Copy((IntPtr)value, result, 0, (int)length);
-
+            IntPtr tempPtr = (IntPtr)value;
+            Marshal.Copy(tempPtr, result, 0, (int)length);
+            UPLCNativeMethods.free_rust_string((byte*)tempPtr); // free the memory allocated by Rust
             return result;
         }
     }

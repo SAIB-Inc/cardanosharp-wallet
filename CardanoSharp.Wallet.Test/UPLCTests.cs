@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
@@ -15,8 +15,6 @@ namespace CardanoSharp.Wallet.Test
 {
     public class UPLCTests
     {
-        // public UPLCTests() { }
-
         [Fact]
         public void NativeParameterizedContractTest()
         {
@@ -82,13 +80,10 @@ namespace CardanoSharp.Wallet.Test
         }
 
         private readonly ITestOutputHelper _output;
-        private StringWriter _stringWriter;
 
         public UPLCTests(ITestOutputHelper output)
         {
             _output = output;
-            _stringWriter = new StringWriter();
-            Console.SetOut(_stringWriter);
         }
 
         [Fact]
@@ -179,9 +174,11 @@ namespace CardanoSharp.Wallet.Test
             transaction.TransactionBody.ReferenceInputs[0].Output = resolvedReferenceInput;
 
             TransactionEvaluation redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
-
             Assert.True(redeemerResult.Error != null);
-            //Assert.Equal("Redeemer (Spend, 0): The provided Plutus code called 'error'.\n\nExBudget {\n    mem: 134,\n    cpu: 373554,\n}\n\nblob ? False", redeemerResult.Error);
+            Assert.Equal(
+                "Redeemer (Spend, 0): The provided Plutus code called 'error'.\n\nExBudget {\n    mem: 134,\n    cpu: 373554,\n}\n\nblob ? False",
+                redeemerResult.Error
+            );
         }
     }
 }

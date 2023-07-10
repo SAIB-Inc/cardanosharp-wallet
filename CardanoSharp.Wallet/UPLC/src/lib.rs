@@ -107,9 +107,12 @@ pub extern "C" fn get_ex_units(
                 }
             }
             Err(e) => {
+                // Wrap the error pointer in a Box to ensure its memory is deallocated when
                 let error_string = e.to_string();
-                let error_bytes = error_string.as_bytes();
-                let error_ptr = error_bytes.as_ptr() as *const u8;
+                let c_string = std::ffi::CString::new(error_string).unwrap();
+                let error_bytes_len = c_string.as_bytes().len();
+                let error_ptr = c_string.into_raw() as *const u8;
+                println!("Error: {:?}", e);
 
                 ExUnitsResult {
                     success: false,
@@ -117,7 +120,7 @@ pub extern "C" fn get_ex_units(
                     length: 0,
                     length_value: std::ptr::null(),
                     error: error_ptr,
-                    error_length: error_bytes.len(),
+                    error_length: error_bytes_len,
                 }
             }
         }
@@ -156,3 +159,10 @@ unsafe fn convert_inputs_outputs(
     combined_utxos
 }
 
+#[no_mangle]
+pub extern "C" fn free_rust_string(s: *mut std::ffi::c_char) {
+    unsafe {
+        if s.is_null() { return }
+        let _ = std::ffi::CString::from_raw(s);
+    }
+}

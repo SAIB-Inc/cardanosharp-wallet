@@ -19,6 +19,9 @@ namespace CsBindgen
         [DllImport(__DllName, EntryPoint = "get_ex_units", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern ExUnitsResult get_ex_units(byte* tx, byte** inputs, byte** outputs, byte* cost_mdls, ulong initial_budget_mem, ulong initial_budget_step, ulong slot_config_zero_time, ulong slot_config_zero_slot, uint slot_config_slot_length, nuint tx_length, nuint inputs_outputs_length, nuint* inputs_length, nuint* outputs_length, nuint cost_mdls_length);
 
+        [DllImport(__DllName, EntryPoint = "free_rust_string", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern void free_rust_string(byte* s);
+
 
     }
 
