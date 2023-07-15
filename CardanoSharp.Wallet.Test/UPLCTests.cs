@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.TransactionBuilding;
 using CsBindgen;
 using Xunit;
 using Xunit.Abstractions;
@@ -179,6 +179,73 @@ namespace CardanoSharp.Wallet.Test
                 "Redeemer (Spend, 0): The provided Plutus code called 'error'.\n\nExBudget {\n    mem: 134,\n    cpu: 373554,\n}\n\nblob ? False",
                 redeemerResult.Error
             );
+        }
+
+        [Fact]
+        public void LocalExUnitsTestTwo()
+        {
+            /*
+            Evaluation has {"memory":81180,"steps":30977210 }asdasd
+            */
+            string tx =
+                "84aa00828258205a46bc0cc168f1e3d83a374d39eb690373cd78bb8d83044f213120e3e524a04d00825820a399e577ef6706e54a8c12628aaed74c344e63cc9c62c083378ff8a47d2d9a8a01018382583900822e6c88ec6e1bf5358a3de9652c41f323dc2c0be9043afd213dc675aec396d617e9e377262302acfd8f7f86cad0b45dd102bec154c581af1a00989680a300581d702175cd0ced46e4388cb4247b5a16e801abdace48e15ab1356b00afa9011a00b71b00028201d81844d879810182583900822e6c88ec6e1bf5358a3de9652c41f323dc2c0be9043afd213dc675aec396d617e9e377262302acfd8f7f86cad0b45dd102bec154c581af821b0000000367783487a2581c713f4553aa0dc44da1e60c611631a25bc4b02a36f54808df26d9ec20a14288881a0001869f581c90592520b329fe08f0e93946ecd405e49b7480795e27cb618f002d88a142888801021a001a56cd031a02023bf5081a02022de50b58205c87b702651e9e31f087a3685e20f9c1f233c70ba296b927be337261c48858930d81825820a399e577ef6706e54a8c12628aaed74c344e63cc9c62c083378ff8a47d2d9a8a011082583900822e6c88ec6e1bf5358a3de9652c41f323dc2c0be9043afd213dc675aec396d617e9e377262302acfd8f7f86cad0b45dd102bec154c581af821b00000003680c9d54a2581c713f4553aa0dc44da1e60c611631a25bc4b02a36f54808df26d9ec20a14288881a0001869f581c90592520b329fe08f0e93946ecd405e49b7480795e27cb618f002d88a142888801111a003d09001281825820932ff882cb14f112fdfe306efcde152d09f902cd823154538b89f9ee1ce36c2100a2008182582047153df6f377305107ec04d588cb2efef05596b081f6ec7d486bec0d1e37aed6584087b0f8868be55029d3a11bfa17c8a191e69d7e5cb22f8e1639bc57e21d3001dd6c20054fb3f3f508cca1217fe22d55b0fb2bb28af45cb4a27dc90f57f77ead0a0581840000d879814412345678821a00d59f801b00000002540be400f5f6";
+            string scriptCbor =
+                "590305010000323232323232323232323232322223232533300b32323232533300f3370e6eb4cc02cc0340092000375a66016601a00a9000099b8f375c66016601a00c9000244104123456780014a060120026026002601464a66601a66e1d2004300c0011001153300e49012a4578706563746564206f6e20696e636f727265637420636f6e7374727563746f722076617269616e742e001633008300a33008300a0014800920043323223232323017001300e3253330113370e9000180800088008a998092492a4578706563746564206f6e20696e636f727265637420636f6e7374727563746f722076617269616e742e001633004375866018601c66018601c006900024000466ebccc034c03c00520000023015001300c32533300f3370e9001180700088008a998082492a4578706563746564206f6e20696e636f727265637420636f6e7374727563746f722076617269616e742e00163300a300c00148008c0040048894ccc0480085300103d87a8000132325333010300300213374a90001980a80125eb804ccc01401400400cc05800cc05000800c526163200530050043200332533300a3370e900000089919299980818098010a4c2a6601a921334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375c602200260100062a660169212b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300800223253330073370e900000089919299980698080010a4c2a66014921334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a601c002600a0042a660109212b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300500133001001480008888cccc01ccdc38008018069199980280299b8000448008c03c0040080088c018dd5000918021baa0015734ae7155ceaab9e5573eae815d0aba21";
+
+            // Create the transaction and resolved inputs
+            Transaction transaction = tx.HexToByteArray().DeserializeTransaction();
+
+            PlutusDataConstr constr = new PlutusDataConstr
+            {
+                Alternative = 0,
+                Value = new PlutusDataArray { Value = new IPlutusData[] { new PlutusDataInt { Value = 1 } } }
+            };
+            DatumOption datum = new DatumOption() { Data = constr };
+            TransactionOutput resolvedInput = new TransactionOutput()
+            {
+                Address = new Address("addr_test1wqshtngva4rwgwyvksj8kkskaqq6hkkwfrs44vf4dvq2l2g9f98xt").GetBytes(),
+                Value = new TransactionOutputValue { Coin = (ulong)(10 * CardanoUtility.adaToLovelace) },
+                DatumOption = datum
+            };
+            transaction.TransactionBody.TransactionInputs[0].Output = resolvedInput;
+
+            TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)
+                TokenBundleBuilder.Create
+                    .AddToken("90592520b329fe08f0e93946ecd405e49b7480795e27cb618f002d88".HexToByteArray(), "8888".HexToByteArray(), 1)
+                    .AddToken("713f4553aa0dc44da1e60c611631a25bc4b02a36f54808df26d9ec20".HexToByteArray(), "8888".HexToByteArray(), 99999);
+            TransactionOutput resolvedInput2 = new TransactionOutput()
+            {
+                Address = new Address(
+                    "addr_test1qzpzumyga3hphaf43g77jefvg8ej8hpvp05sgwhayy7uvadwcwtdv9lfudmjvgcz4n7c7luxetgtghw3q2lvz4x9sxhsctks99"
+                ).GetBytes(),
+                Value = new TransactionOutputValue
+                {
+                    Coin = (ulong)(14620.832903 * CardanoUtility.adaToLovelace),
+                    MultiAsset = tokenBundleBuilder.Build()
+                }
+            };
+            transaction.TransactionBody.TransactionInputs[1].Output = resolvedInput2;
+
+            // Resolve Reference Input
+            TransactionOutput resolvedReferenceInput = new TransactionOutput()
+            {
+                Address = new Address("addr_test1wqshtngva4rwgwyvksj8kkskaqq6hkkwfrs44vf4dvq2l2g9f98xt").GetBytes(),
+                Value = new TransactionOutputValue { Coin = (ulong)(50 * CardanoUtility.adaToLovelace) },
+                ScriptReference = new ScriptReference
+                {
+                    // CBOR here is NOT double encoded
+                    PlutusV2Script = new PlutusV2Script { script = scriptCbor.HexToByteArray() }
+                }
+            };
+            transaction.TransactionBody.ReferenceInputs[0].Output = resolvedReferenceInput;
+
+            TransactionEvaluation redeemerResult = UPLCMethods.GetExUnits(transaction, Enums.NetworkType.Preprod);
+            List<Redeemer> redeemers = redeemerResult.Redeemers;
+
+            Assert.True(redeemers != null);
+            Assert.True(redeemers.Count == 1);
+            Assert.True(redeemers[0].ExUnits.Mem == 81180);
+            Assert.True(redeemers[0].ExUnits.Steps == 30977210);
         }
     }
 }

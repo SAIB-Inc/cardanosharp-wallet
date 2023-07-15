@@ -68,7 +68,7 @@ pub extern "C" fn get_ex_units(
         let converted_inputs_outputs: Vec<(Vec<u8>, Vec<u8>)> = convert_inputs_outputs(inputs, outputs, inputs_outputs_length, inputs_length, outputs_length);
         let converted_inputs_outputs_slice: &[(Vec<u8>, Vec<u8>)] = &converted_inputs_outputs;
         let cost_mdls_bytes: &[u8] = std::slice::from_raw_parts(cost_mdls, cost_mdls_length);
-        let initial_budget_tuple = (initial_budget_mem, initial_budget_step);
+        let initial_budget_tuple = (initial_budget_step, initial_budget_mem);
         let slot_config_tuple = (slot_config_zero_time, slot_config_zero_slot, slot_config_slot_length);
 
         let result = uplc::tx::eval_phase_two_raw(
@@ -112,7 +112,6 @@ pub extern "C" fn get_ex_units(
                 let c_string = std::ffi::CString::new(error_string).unwrap();
                 let error_bytes_len = c_string.as_bytes().len();
                 let error_ptr = c_string.into_raw() as *const u8;
-                println!("Error: {:?}", e);
 
                 ExUnitsResult {
                     success: false,
@@ -133,7 +132,6 @@ unsafe fn convert_inputs_outputs(
     length: usize,
     inputs_length: *const usize,
     outputs_length: *const usize
-
 ) -> Vec<(Vec<u8>, Vec<u8>)> {
     // Convert the raw pointers to slices of raw pointers
     let inputs_ptrs: &[*const u8] = unsafe { std::slice::from_raw_parts(inputs, length) };
@@ -145,13 +143,19 @@ unsafe fn convert_inputs_outputs(
     let inputs_vecs: Vec<Vec<u8>> = inputs_ptrs
         .iter()
         .zip(inputs_lengths)
-        .map(|(&ptr, &len)| unsafe { Vec::from_raw_parts(ptr as *mut u8, len, len) })
+        .map(|(&ptr, &len)| {
+            let slice: &[u8] = unsafe { std::slice::from_raw_parts(ptr, len) };
+            slice.to_vec()
+        })
         .collect();
 
     let outputs_vecs: Vec<Vec<u8>> = outputs_ptrs
         .iter()
         .zip(outputs_lengths)
-        .map(|(&ptr, &len)| unsafe { Vec::from_raw_parts(ptr as *mut u8, len, len) })
+        .map(|(&ptr, &len)| {
+            let slice: &[u8] = unsafe { std::slice::from_raw_parts(ptr, len) };
+            slice.to_vec()
+        })
         .collect();
 
     // Combine the slices of Vec<u8> into a single slice of tuples
