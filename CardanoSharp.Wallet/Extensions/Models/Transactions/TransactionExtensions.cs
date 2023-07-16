@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 using CsBindgen;
 using PeterO.Cbor2;
 
@@ -13,6 +15,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
     public static class TransactionExtensions
     {
+        //---------------------------------------------------------------------------------------------------//
+        // Transaction Serialization Functions
+        //---------------------------------------------------------------------------------------------------//
         public static CBORObject GetCBOR(this Transaction transaction)
         {
             //create Transaction CBOR Object
@@ -82,9 +87,24 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 transaction.AuxiliaryData = auxiliaryDataCbor.GetAuxiliaryData();
             }
 
-            //return
             return transaction;
         }
+
+        public static byte[] Serialize(this Transaction transaction)
+        {
+            return transaction.GetCBOR().EncodeToBytes();
+        }
+
+        public static Transaction DeserializeTransaction(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetTransaction();
+        }
+
+        //---------------------------------------------------------------------------------------------------//
+
+        //---------------------------------------------------------------------------------------------------//
+        // Fee Functions
+        //---------------------------------------------------------------------------------------------------//
 
         public static uint CalculateFee(
             this Transaction transaction,
@@ -169,6 +189,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return fee;
         }
 
+        //---------------------------------------------------------------------------------------------------//
+
+        //---------------------------------------------------------------------------------------------------//
+        // Ex Units Functions
+        //---------------------------------------------------------------------------------------------------//
+
         // This function sets ExUnits from the Aiken UPLC
         public static void SetExUnits(this Transaction transaction, TransactionEvaluation evaluation)
         {
@@ -220,14 +246,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
         }
 
-        public static byte[] Serialize(this Transaction transaction)
-        {
-            return transaction.GetCBOR().EncodeToBytes();
-        }
+        //---------------------------------------------------------------------------------------------------//
 
-        public static Transaction DeserializeTransaction(this byte[] bytes)
-        {
-            return CBORObject.DecodeFromBytes(bytes).GetTransaction();
-        }
     }
 }
