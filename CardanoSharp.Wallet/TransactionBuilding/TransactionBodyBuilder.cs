@@ -396,7 +396,16 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             TransactionInput transactionInput = TransactionInputBuilder.Create
                 .SetTransactionId(utxo.TxHash.HexToByteArray())
                 .SetTransactionIndex(utxo.TxIndex)
-                .SetOutput(TransactionOutputBuilder.Create.SetOutputFromUtxo(new Address(utxo.OutputAddress).GetBytes(), utxo).Build())
+                .SetOutput(
+                    TransactionOutputBuilder.Create
+                        .SetOutputFromUtxo(
+                            new Address(utxo.OutputAddress).GetBytes(),
+                            utxo,
+                            datumOption: utxo.OutputDatumOption,
+                            scriptReference: utxo.OutputScriptReference
+                        )
+                        .Build()
+                )
                 .Build();
             return AddReferenceInput(transactionInput);
         }
