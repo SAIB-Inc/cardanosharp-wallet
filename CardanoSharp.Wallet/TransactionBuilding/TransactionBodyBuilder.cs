@@ -61,6 +61,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
         ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart);
         ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
+        ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
         ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
         ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums);
         ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews);
@@ -277,6 +278,30 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
         {
             _model.Mint = tokenBuilder.Build();
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddMint(ITokenBundleBuilder tokenBuilder)
+        {
+            if (_model.Mint is null)
+                return SetMint(tokenBuilder);
+
+            var mintBuild = _model.Mint;
+            Dictionary<byte[], NativeAsset> tokenBuild = tokenBuilder.Build();
+
+            // Send them both through the byte[] to hex dict converter            
+            Dictionary<string, Dictionary<string, long>> mintBuildStringDict = TokenUtility.ConvertKeysToHexStrings(mintBuild);
+            Dictionary<string, Dictionary<string, long>> tokenBuildStringDict = TokenUtility.ConvertKeysToHexStrings(tokenBuild);
+            
+            // Send them both to the merging function
+            var mergedStringDict = TokenUtility.MergeStringDictionaries(mintBuildStringDict!, tokenBuildStringDict!);
+
+            // Next reconvert the merged dict back to byte[] keys
+            var mergedByteDict = TokenUtility.ConvertStringKeysToByteArrays(mergedStringDict);
+
+            // Finally, add the merged byte dict to the model
+            _model.Mint = mergedByteDict;
+
             return this;
         }
 
