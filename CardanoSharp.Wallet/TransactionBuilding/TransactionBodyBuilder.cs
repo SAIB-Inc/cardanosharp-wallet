@@ -289,10 +289,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             var mintBuild = _model.Mint;
             Dictionary<byte[], NativeAsset> tokenBuild = tokenBuilder.Build();
 
-            // Send them both through the byte[] to hex dict converter            
+            // Send them both through the byte[] to hex dict converter
             Dictionary<string, Dictionary<string, long>> mintBuildStringDict = TokenUtility.ConvertKeysToHexStrings(mintBuild);
             Dictionary<string, Dictionary<string, long>> tokenBuildStringDict = TokenUtility.ConvertKeysToHexStrings(tokenBuild);
-            
+
             // Send them both to the merging function
             var mergedStringDict = TokenUtility.MergeStringDictionaries(mintBuildStringDict!, tokenBuildStringDict!);
 
