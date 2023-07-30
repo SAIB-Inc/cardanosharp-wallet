@@ -43,12 +43,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
             bool isSmartContractTx = transaction.TransactionWitnessSet.Redeemers.Count > 0;
             if (isSmartContractTx)
-                return CompleteSmartContractTransactionAsync(transactionBuilder, protocolParameters, networkType, signerCount);
+                return CompleteSmartContractTransaction(transactionBuilder, protocolParameters, networkType, signerCount);
 
             return CompleteSimpleTransaction(transactionBuilder, protocolParameters, signerCount);
         }
 
-        private static (Transaction, TransactionEvaluation) CompleteSmartContractTransactionAsync(
+        private static (Transaction, TransactionEvaluation) CompleteSmartContractTransaction(
             this ITransactionBuilder transactionBuilder,
             ProtocolParameters protocolParameters,
             NetworkType networkType,

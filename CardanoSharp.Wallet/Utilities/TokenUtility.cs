@@ -34,8 +34,9 @@ namespace CardanoSharp.Wallet.Utilities
         }
 
         public static Dictionary<string, Dictionary<string, long>> MergeStringDictionaries(
-            Dictionary<string, Dictionary<string, long>> dictOne, 
-            Dictionary<string, Dictionary<string, long>> dictTwo)
+            Dictionary<string, Dictionary<string, long>> dictOne,
+            Dictionary<string, Dictionary<string, long>> dictTwo
+        )
         {
             // Check if the input dictionaries are null
             if (dictOne == null && dictTwo == null)
@@ -47,9 +48,7 @@ namespace CardanoSharp.Wallet.Utilities
             if (dictTwo == null)
                 return new Dictionary<string, Dictionary<string, long>>(dictOne);
 
-            // Make a copy of the first dictionary so we don't modify the original.
             var result = new Dictionary<string, Dictionary<string, long>>(dictOne);
-
             foreach (var outerPair in dictTwo)
             {
                 var outerKey = outerPair.Key;
@@ -57,7 +56,7 @@ namespace CardanoSharp.Wallet.Utilities
 
                 if (!result.TryGetValue(outerKey, out var existingInnerDict))
                     result[outerKey] = new Dictionary<string, long>(innerDict);
-                else 
+                else
                 {
                     foreach (var innerPair in innerDict)
                     {
@@ -81,7 +80,7 @@ namespace CardanoSharp.Wallet.Utilities
             foreach (var outerPair in original)
             {
                 // Convert the outer string to a byte array
-                byte[] outerBytes = outerPair.Key.ToBytes();
+                byte[] outerBytes = outerPair.Key.HexToByteArray();
 
                 // Create a new NativeAsset
                 var newAsset = new NativeAsset();
@@ -89,7 +88,7 @@ namespace CardanoSharp.Wallet.Utilities
                 foreach (var innerPair in outerPair.Value)
                 {
                     // Convert the inner string to a byte array
-                    byte[] innerBytes = innerPair.Key.ToBytes();
+                    byte[] innerBytes = innerPair.Key.HexToByteArray();
 
                     // Add the converted byte array and value to the NativeAsset
                     newAsset.Token[innerBytes] = innerPair.Value;
