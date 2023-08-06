@@ -1,0 +1,11 @@
+[*.cs]
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = none
+# IDE0270: Naming Styles
+dotnet_diagnostic.IDE0270.severity = none
+# IDE0060: Naming Styles
+dotnet_diagnostic.IDE0060.severity = none
+# IDE0002: Naming Styles
+dotnet_diagnostic.IDE0002.severity = none
+# IDE0001: Naming Styles
+dotnet_diagnostic.IDE0001.severity = none
