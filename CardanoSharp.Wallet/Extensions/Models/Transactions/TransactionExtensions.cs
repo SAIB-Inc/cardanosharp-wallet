@@ -248,5 +248,47 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
         //---------------------------------------------------------------------------------------------------//
 
+        //---------------------------------------------------------------------------------------------------//
+        // Transaction Validity Functions
+        //---------------------------------------------------------------------------------------------------//
+
+        // This function checks if the size and evaluation are valid
+        public static bool IsTxSizeAndEvaluationValid(
+            this Transaction transaction,
+            TransactionEvaluation? evaluation,
+            ProtocolParameters protocolParameters
+        )
+        {
+            if (transaction == null || protocolParameters == null)
+                return false;
+
+            if (evaluation != null && evaluation.Error != null)
+                return false;
+
+            uint txSize = (uint)transaction.Serialize().Length;
+            uint maxTxSize = protocolParameters.MaxTxSize;
+            if (txSize > maxTxSize)
+                return false;
+
+            if (transaction.TransactionWitnessSet.Redeemers != null)
+            {
+                ulong totalMem = 0;
+                ulong totalSteps = 0;
+                foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers)
+                {
+                    totalMem += redeemer.ExUnits.Mem;
+                    totalSteps += redeemer.ExUnits.Steps;
+                }
+
+                if (totalMem > protocolParameters.MaxTxExMem)
+                    return false;
+
+                if (totalSteps > protocolParameters.MaxTxExSteps)
+                    return false;
+            }
+
+            return true;
+        }
+        //---------------------------------------------------------------------------------------------------//
     }
 }

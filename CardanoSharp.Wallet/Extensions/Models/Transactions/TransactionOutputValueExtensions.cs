@@ -1,4 +1,5 @@
 ﻿using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
@@ -16,8 +17,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionOutputValue.MultiAsset != null && transactionOutputValue.MultiAsset.Count > 0)
             {
                 //add any 'coin' aka ADA to the output
-                var cborAssetOutput = CBORObject.NewArray()
-                    .Add(transactionOutputValue.Coin);
+                var cborAssetOutput = CBORObject.NewArray().Add(transactionOutputValue.Coin);
 
                 var cborMultiAsset = CBORObject.NewMap();
                 //iterate over the multiassets
@@ -84,7 +84,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 var muliassetCbor = transactionOutputValueCbor[1];
                 outputValue.MultiAsset = new Dictionary<byte[], NativeAsset>();
-                foreach(var policyCborKey in muliassetCbor.Keys)
+                foreach (var policyCborKey in muliassetCbor.Keys)
                 {
                     var policyCbor = muliassetCbor[policyCborKey];
                     var policyId = ((string)policyCborKey.DecodeValueByCborType()).HexToByteArray();
@@ -114,6 +114,37 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         public static TransactionOutputValue DeserializeTransactionOutputValue(this byte[] bytes)
         {
             return CBORObject.DecodeFromBytes(bytes).GetTransactionOutputValue();
+        }
+
+        public static Balance GetBalance(this TransactionOutputValue transactionOutputValue)
+        {
+            Balance balance = new() { Lovelaces = transactionOutputValue.Coin, Assets = new List<Asset>() };
+            if (transactionOutputValue.MultiAsset is null)
+                return balance;
+
+            foreach (var ma in transactionOutputValue.MultiAsset)
+            {
+                foreach (var na in ma.Value.Token)
+                {
+                    var nativeAsset = balance.Assets.FirstOrDefault(
+                        x => x.PolicyId.SequenceEqual(ma.Key.ToStringHex()) && x.Name.Equals(na.Key.ToStringHex())
+                    );
+                    if (nativeAsset is null)
+                    {
+                        nativeAsset = new Asset()
+                        {
+                            PolicyId = ma.Key.ToStringHex(),
+                            Name = na.Key.ToStringHex(),
+                            Quantity = 0
+                        };
+                        balance.Assets.Add(nativeAsset);
+                    }
+
+                    nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
+                }
+            }
+
+            return balance;
         }
     }
 }

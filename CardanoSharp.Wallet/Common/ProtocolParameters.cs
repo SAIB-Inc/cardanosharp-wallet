@@ -5,6 +5,7 @@ namespace CardanoSharp.Wallet.Common
         // Constants taken from protocol params as of mainnet epoch 345
         public uint MinFeeA { get; set; } = 44;
         public uint MinFeeB { get; set; } = 155381;
+        public uint MaxTxSize { get; set; } = 16384;
         public ulong MaxTxExMem { get; set; } = 14000000;
         public ulong MaxTxExSteps { get; set; } = 10000000000;
         public double PriceMem { get; set; } = 0.0577;
