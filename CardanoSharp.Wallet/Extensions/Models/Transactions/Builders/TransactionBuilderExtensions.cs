@@ -81,11 +81,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             transaction.SetExUnits(evaluation);
 
             // Re-add the script data hash to account for updated redeemers
+            // Ensure the Redeemers are sorted by index, this is not required by the Node but Lucid automatically sorts them when signing so we need to be compatible
             datums = transaction.TransactionWitnessSet.PlutusDatas.ToList();
             redeemers = transaction.TransactionWitnessSet.Redeemers.ToList();
-            // redeemers.Sort((x, y) => x.Index.CompareTo(y.Index)); // 8-19-2023, removing this line of code as it is breaking Saturn token and stake utxos when used together
-            // Not sure why this is happening. This is a test to see if it breaks Levvy. If it does not break levvy when testing 20 utxos at once. Then this works
-            // and we can remove this comment
+            redeemers.Sort((x, y) => x.Index.CompareTo(y.Index));
+            transaction.TransactionWitnessSet.Redeemers = redeemers;
             transactionBodyBuilder.SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
 
             // Calculate and Set Fee
