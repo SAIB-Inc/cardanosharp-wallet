@@ -83,7 +83,9 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             // Re-add the script data hash to account for updated redeemers
             datums = transaction.TransactionWitnessSet.PlutusDatas.ToList();
             redeemers = transaction.TransactionWitnessSet.Redeemers.ToList();
-            redeemers.Sort((x, y) => x.Index.CompareTo(y.Index));
+            // redeemers.Sort((x, y) => x.Index.CompareTo(y.Index)); // 8-19-2023, removing this line of code as it is breaking Saturn token and stake utxos when used together
+            // Not sure why this is happening. This is a test to see if it breaks Levvy. If it does not break levvy when testing 20 utxos at once. Then this works
+            // and we can remove this comment
             transactionBodyBuilder.SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
 
             // Calculate and Set Fee
