@@ -17,6 +17,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         IRedeemerBuilder SetIndex(Transaction transaction, Utxo utxo);
         IRedeemerBuilder SetPlutusData(IPlutusData plutusData);
         IRedeemerBuilder SetExUnits(ExUnits exUnits);
+        IRedeemerBuilder SetSpendUtxo(Utxo utxo); // This will allow us to calculate the index in the Complete function
     }
 
     public class RedeemerBuilder : ABuilder<Redeemer>, IRedeemerBuilder
@@ -87,6 +88,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public IRedeemerBuilder SetExUnits(ExUnits exUnits)
         {
             _model.ExUnits = exUnits;
+            return this;
+        }
+
+        public IRedeemerBuilder SetSpendUtxo(Utxo utxo)
+        {
+            _model.Utxo = utxo;
             return this;
         }
     }

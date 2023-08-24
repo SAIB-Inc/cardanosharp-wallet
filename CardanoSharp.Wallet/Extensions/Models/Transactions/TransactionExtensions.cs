@@ -192,8 +192,20 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         //---------------------------------------------------------------------------------------------------//
 
         //---------------------------------------------------------------------------------------------------//
-        // Ex Units Functions
+        // Redeemer Functions
         //---------------------------------------------------------------------------------------------------//
+
+        public static void SetRedeemerIndices(this Transaction transaction)
+        {
+            if (transaction.TransactionWitnessSet.Redeemers == null)
+                return;
+
+            foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers)
+            {
+                if (redeemer.Utxo != null)
+                    redeemer.SetIndexFromUtxo(transaction);
+            }
+        }
 
         // This function sets ExUnits from the Aiken UPLC
         public static void SetExUnits(this Transaction transaction, TransactionEvaluation evaluation)

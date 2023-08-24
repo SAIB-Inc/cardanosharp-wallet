@@ -77,6 +77,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             transaction.TransactionBody.Fee = dummyFee;
 
             // Evaluation Transaction Ex Units
+            transaction.SetRedeemerIndices(); // Set Redeemer Indices if they have Utxos
             TransactionEvaluation evaluation = UPLCMethods.GetExUnits(transaction, networkType);
             transaction.SetExUnits(evaluation);
 
