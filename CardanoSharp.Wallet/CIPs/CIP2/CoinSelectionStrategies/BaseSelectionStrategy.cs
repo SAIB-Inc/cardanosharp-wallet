@@ -4,89 +4,85 @@ using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.Models.Transactions;
 
-namespace CardanoSharp.Wallet.CIPs.CIP2
+namespace CardanoSharp.Wallet.CIPs.CIP2;
+
+public abstract class BaseSelectionStrategy
 {
-    public abstract class BaseSelectionStrategy
+    protected long GetCurrentBalance(CoinSelection coinSelection, Asset? asset = null)
     {
-        protected long GetCurrentBalance(CoinSelection coinSelection, Asset? asset = null)
+        if (asset is null)
         {
-            if (asset is null)
+            ulong minLovelaces = 0;
+            if (coinSelection.ChangeOutputs.Any())
             {
-                ulong minLovelaces = 0;
-                if (coinSelection.ChangeOutputs.Any())
-                {
-                    minLovelaces = coinSelection.ChangeOutputs.First().CalculateMinUtxoLovelace();
-                    coinSelection.ChangeOutputs.First().Value.Coin = minLovelaces;
-                }
-                return coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - (long)minLovelaces;
+                minLovelaces = coinSelection.ChangeOutputs.First().CalculateMinUtxoLovelace();
+                coinSelection.ChangeOutputs.First().Value.Coin = minLovelaces;
             }
-            else
-            {
-                return coinSelection.SelectedUtxos
-                    .Where(x => x.Balance.Assets is not null)
-                    .Sum(
-                        x =>
-                            (long)(
-                                x.Balance.Assets
-                                    .FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
-                                    ?.Quantity ?? 0
-                            )
-                    );
-            }
+            return coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - (long)minLovelaces;
+        }
+        else
+        {
+            return coinSelection.SelectedUtxos
+                .Where(x => x.Balance.Assets is not null)
+                .Sum(
+                    x =>
+                        (long)(
+                            x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))?.Quantity
+                            ?? 0
+                        )
+                );
+        }
+    }
+
+    protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset? asset = null)
+    {
+        var orderedUtxos = new List<Utxo>();
+        if (asset is null)
+            orderedUtxos = utxos.OrderByDescending(x => x.Balance.Lovelaces).ToList();
+        else
+        {
+            orderedUtxos = utxos
+                .Where(
+                    x =>
+                        x.Balance.Assets is not null
+                        && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)) is not null
+                )
+                .OrderByDescending(
+                    x => x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))!.Quantity
+                )
+                .ToList();
         }
 
-        protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset? asset = null)
-        {
-            var orderedUtxos = new List<Utxo>();
-            if (asset is null)
-                orderedUtxos = utxos.OrderByDescending(x => x.Balance.Lovelaces).ToList();
-            else
-            {
-                orderedUtxos = utxos
-                    .Where(
-                        x =>
-                            x.Balance.Assets is not null
-                            && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
-                                is not null
-                    )
-                    .OrderByDescending(
-                        x => x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))!.Quantity
-                    )
-                    .ToList();
-            }
+        return orderedUtxos;
+    }
 
-            return orderedUtxos;
+    protected List<Utxo> OrderUTxOsByAscending(List<Utxo> utxos, Asset? asset = null)
+    {
+        var orderedUtxos = new List<Utxo>();
+        if (asset is null)
+            orderedUtxos = utxos.OrderBy(x => x.Balance.Lovelaces).ToList();
+        else
+        {
+            orderedUtxos = utxos
+                .Where(
+                    x =>
+                        x.Balance.Assets is not null
+                        && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)) is not null
+                )
+                .OrderBy(x => x.Balance.Assets.First(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)).Quantity)
+                .ToList();
         }
 
-        protected List<Utxo> OrderUTxOsByAscending(List<Utxo> utxos, Asset? asset = null)
-        {
-            var orderedUtxos = new List<Utxo>();
-            if (asset is null)
-                orderedUtxos = utxos.OrderBy(x => x.Balance.Lovelaces).ToList();
-            else
-            {
-                orderedUtxos = utxos
-                    .Where(
-                        x =>
-                            x.Balance.Assets is not null
-                            && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))
-                                is not null
-                    )
-                    .OrderBy(x => x.Balance.Assets.First(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)).Quantity)
-                    .ToList();
-            }
+        return orderedUtxos;
+    }
 
-            return orderedUtxos;
-        }
+    public void SelectRequiredUtxos(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
+    {
+        if (requiredUtxos == null)
+            return;
 
-        public void SelectRequiredUtxos(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
-        {
-            if (requiredUtxos == null) return;
-
-            foreach (var utxo in requiredUtxos)
-                coinSelection.SelectedUtxos.Add(utxo);
-        }
+        foreach (var utxo in requiredUtxos)
+            coinSelection.SelectedUtxos.Add(utxo);
     }
 }

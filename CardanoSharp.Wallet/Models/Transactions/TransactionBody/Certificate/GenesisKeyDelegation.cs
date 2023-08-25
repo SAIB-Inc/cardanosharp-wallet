@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.Models.Transactions
-{
-    public partial class GenesisKeyDelegation
-    {
-        public GenesisKeyDelegation()
-        {
-            GenesisHash = new HashSet<byte[]>();
-        }
+namespace CardanoSharp.Wallet.Models.Transactions;
 
-        public ICollection<byte[]> GenesisHash { get; set; }
-        public byte[] GenesisDelegateHash { get; set; } = default!;
-        public byte[] VRFKeyHash { get; set; } = default!;
+public partial class GenesisKeyDelegation
+{
+    public GenesisKeyDelegation()
+    {
+        GenesisHash = new HashSet<byte[]>();
     }
+
+    public ICollection<byte[]> GenesisHash { get; set; }
+    public byte[] GenesisDelegateHash { get; set; } = default!;
+    public byte[] VRFKeyHash { get; set; } = default!;
 }

@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using CardanoSharp.Wallet.CIPs.CIP2.Models;
+﻿using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.TransactionBuilding;
 
-namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
+namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
+
+public interface IChangeCreationStrategy
 {
-    public interface IChangeCreationStrategy
-    {
-        void CalculateChange(CoinSelection coinSelection, Balance balance, string changeAddress, ulong feeBuffer = 0);
-    }
+    void CalculateChange(CoinSelection coinSelection, Balance balance, string changeAddress, ulong feeBuffer = 0);
 }

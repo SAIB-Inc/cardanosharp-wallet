@@ -11,158 +11,155 @@ using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 
-namespace CardanoSharp.Wallet.CIPs.CIP2
+namespace CardanoSharp.Wallet.CIPs.CIP2;
+
+public interface ICoinSelectionService
 {
-    public interface ICoinSelectionService
+    CoinSelection GetCoinSelection(
+        IEnumerable<TransactionOutput> outputs,
+        IEnumerable<Utxo> utxos,
+        string changeAddress,
+        ITokenBundleBuilder? mint = null,
+        List<Utxo>? requiredUtxos = null,
+        int limit = 20,
+        ulong feeBuffer = 0
+    );
+}
+
+public class CoinSelectionService : ICoinSelectionService
+{
+    private readonly ICoinSelectionStrategy _coinSelection;
+    private readonly IChangeCreationStrategy _changeCreation;
+
+    public CoinSelectionService(ICoinSelectionStrategy coinSelection, IChangeCreationStrategy changeCreation)
     {
-        CoinSelection GetCoinSelection(
-            IEnumerable<TransactionOutput> outputs,
-            IEnumerable<Utxo> utxos,
-            string changeAddress,
-            ITokenBundleBuilder? mint = null,
-            List<Utxo>? requiredUtxos = null,
-            int limit = 20,
-            ulong feeBuffer = 0
-        );
+        _coinSelection = coinSelection;
+        _changeCreation = changeCreation;
     }
 
-    public class CoinSelectionService : ICoinSelectionService
+    public CoinSelection GetCoinSelection(
+        IEnumerable<TransactionOutput> outputs,
+        IEnumerable<Utxo> utxos,
+        string changeAddress,
+        ITokenBundleBuilder? mint = null,
+        List<Utxo>? requiredUtxos = null,
+        int limit = 20,
+        ulong feeBuffer = 0
+    )
     {
-        private readonly ICoinSelectionStrategy _coinSelection;
-        private readonly IChangeCreationStrategy _changeCreation;
+        var coinSelection = new CoinSelection();
+        var availableUTxOs = new List<Utxo>(utxos);
 
-        public CoinSelectionService(ICoinSelectionStrategy coinSelection, IChangeCreationStrategy changeCreation)
+        // Add Required UTXOs to selection
+        _coinSelection.SelectRequiredInputs(coinSelection, requiredUtxos);
+
+        //use balance with mint to select change outputs and balancing without mint to select inputs
+        var balance = outputs.AggregateAssets(mint, feeBuffer);
+
+        //perform initial selection of multi assets and ada
+        foreach (var asset in balance.Assets)
         {
-            _coinSelection = coinSelection;
-            _changeCreation = changeCreation;
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, requiredUtxos, limit);
+
+            if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset))
+                throw new Exception("UTxOs have insufficient balance");
         }
+        _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, requiredUtxos, limit);
+        if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
+            throw new Exception("UTxOs have insufficient balance");
 
-        public CoinSelection GetCoinSelection(
-            IEnumerable<TransactionOutput> outputs,
-            IEnumerable<Utxo> utxos,
-            string changeAddress,
-            ITokenBundleBuilder? mint = null,
-            List<Utxo>? requiredUtxos = null,
-            int limit = 20,
-            ulong feeBuffer = 0
-        )
+        //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
+        if (coinSelection.SelectedUtxos.Any() && _changeCreation is not null)
+            _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
+
+        //calculate change ada from ouputs (not the current change in the coinSelection) and the minium required change ada
+        long change = CalculateChangeADA(coinSelection, balance, feeBuffer);
+        long minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
+
+        //perform additional input selection until we have enough ada to cover the new min amounts (since they change each selction) or we run out of inputs
+        while (change < minChangeAdaRequired && availableUTxOs.Count > 0)
         {
-            var coinSelection = new CoinSelection();
-            var availableUTxOs = new List<Utxo>(utxos);
+            //feeBuffer is already in this calculation from minChangeAdaRequired
+            long minADA = minChangeAdaRequired - change + coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
 
-            // Add Required UTXOs to selection
-            _coinSelection.SelectRequiredInputs(coinSelection, requiredUtxos);
-
-            //use balance with mint to select change outputs and balancing without mint to select inputs
-            var balance = outputs.AggregateAssets(mint, feeBuffer);
-
-            //perform initial selection of multi assets and ada
-            foreach (var asset in balance.Assets)
-            {
-                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, requiredUtxos, limit);
-
-                if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset))
-                    throw new Exception("UTxOs have insufficient balance");
-            }
-            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, requiredUtxos, limit);
-            if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, minADA, null, requiredUtxos, limit);
+            if (!HasSufficientBalance(coinSelection.SelectedUtxos, minADA, null))
                 throw new Exception("UTxOs have insufficient balance");
 
-            //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
-            if (coinSelection.SelectedUtxos.Any() && _changeCreation is not null)
-                _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
+            _changeCreation?.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
 
-            //calculate change ada from ouputs (not the current change in the coinSelection) and the minium required change ada
-            long change = CalculateChangeADA(coinSelection, balance, feeBuffer);
-            long minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
-
-            //perform additional input selection until we have enough ada to cover the new min amounts (since they change each selction) or we run out of inputs
-            while (change < minChangeAdaRequired && availableUTxOs.Count > 0)
-            {
-                //feeBuffer is already in this calculation from minChangeAdaRequired
-                long minADA = (minChangeAdaRequired - change) + coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
-
-                _coinSelection.SelectInputs(coinSelection, availableUTxOs, minADA, null, requiredUtxos, limit);
-                if (!HasSufficientBalance(coinSelection.SelectedUtxos, minADA, null))
-                    throw new Exception("UTxOs have insufficient balance");
-
-                if (_changeCreation is not null)
-                    _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
-
-                change = CalculateChangeADA(coinSelection, balance, feeBuffer);
-                minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
-            }
-
-            //final check to ensure we have a valid transaction
-            if (change < minChangeAdaRequired && availableUTxOs.Count <= 0)
-                throw new Exception("UTxOs have insufficient balance");
-
-            PopulateInputList(coinSelection);
-
-            return coinSelection;
+            change = CalculateChangeADA(coinSelection, balance, feeBuffer);
+            minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
         }
 
-        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset? asset = null)
+        //final check to ensure we have a valid transaction
+        if (change < minChangeAdaRequired && availableUTxOs.Count <= 0)
+            throw new Exception("UTxOs have insufficient balance");
+
+        PopulateInputList(coinSelection);
+
+        return coinSelection;
+    }
+
+    private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset? asset = null)
+    {
+        long totalInput = 0;
+        foreach (var su in selectedUtxos)
         {
-            long totalInput = 0;
-            foreach (var su in selectedUtxos)
+            long quantity = 0;
+            if (asset is null)
             {
-                long quantity = 0;
-                if (asset is null)
+                quantity = (long)su.Balance.Lovelaces;
+            }
+            else
+            {
+                quantity =
+                    su.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))?.Quantity ?? 0;
+            }
+
+            totalInput += quantity;
+        }
+
+        return totalInput >= amount;
+    }
+
+    private long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0)
+    {
+        long inputADA = coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
+        long outputADA = (long)balance.Lovelaces - (long)feeBuffer; // Subtract feebuffer to get the real outputADA amount
+        long change = inputADA - outputADA;
+        if (change <= 0)
+            change = 0;
+        return change;
+    }
+
+    private long CalculateMinChangeADARequired(CoinSelection coinSelection, ulong feeBuffer = 0)
+    {
+        long minChangeADARequired = (long)feeBuffer; // Ensure we have enough ada equal to the min required + fee buffer
+        foreach (var changeOutput in coinSelection.ChangeOutputs)
+        {
+            minChangeADARequired += (long)changeOutput.CalculateMinUtxoLovelace();
+        }
+        return minChangeADARequired;
+    }
+
+    private void PopulateInputList(CoinSelection coinSelection)
+    {
+        foreach (var su in coinSelection.SelectedUtxos)
+        {
+            coinSelection.Inputs.Add(
+                new TransactionInput()
                 {
-                    quantity = (long)su.Balance.Lovelaces;
+                    TransactionId = su.TxHash.HexToByteArray(),
+                    TransactionIndex = su.TxIndex,
+                    Output =
+                        su.OutputAddress != null
+                            ? TransactionOutputBuilder.Create
+                                .SetOutputFromUtxo((new Address(su.OutputAddress)).GetBytes(), su, su.OutputDatumOption, su.OutputScriptReference)
+                                .Build()
+                            : null
                 }
-                else
-                {
-                    quantity = (long)(
-                        su.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name))?.Quantity ?? 0
-                    );
-                }
-
-                totalInput = totalInput + quantity;
-            }
-
-            return totalInput >= amount;
-        }
-
-        private long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0)
-        {
-            long inputADA = coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
-            long outputADA = (long)balance.Lovelaces - (long)feeBuffer; // Subtract feebuffer to get the real outputADA amount
-            long change = inputADA - outputADA;
-            if (change <= 0)
-                change = 0;
-            return change;
-        }
-
-        private long CalculateMinChangeADARequired(CoinSelection coinSelection, ulong feeBuffer = 0)
-        {
-            long minChangeADARequired = (long)feeBuffer; // Ensure we have enough ada equal to the min required + fee buffer
-            foreach (var changeOutput in coinSelection.ChangeOutputs)
-            {
-                minChangeADARequired += (long)changeOutput.CalculateMinUtxoLovelace();
-            }
-            return minChangeADARequired;
-        }
-
-        private void PopulateInputList(CoinSelection coinSelection)
-        {
-            foreach (var su in coinSelection.SelectedUtxos)
-            {
-                coinSelection.Inputs.Add(
-                    new TransactionInput()
-                    {
-                        TransactionId = su.TxHash.HexToByteArray(),
-                        TransactionIndex = su.TxIndex,
-                        Output =
-                            su.OutputAddress != null
-                                ? TransactionOutputBuilder.Create
-                                    .SetOutputFromUtxo((new Address(su.OutputAddress)).GetBytes(), su, su.OutputDatumOption, su.OutputScriptReference)
-                                    .Build()
-                                : null
-                    }
-                );
-            }
+            );
         }
     }
 }

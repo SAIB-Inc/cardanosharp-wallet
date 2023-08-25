@@ -1,9 +1,8 @@
-﻿namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums;
+
+public enum NativeScriptType
 {
-    public enum NativeScriptType
-    {
-        ScriptAll,
-        ScriptAny,
-        ScriptNofK
-    }
+    ScriptAll,
+    ScriptAny,
+    ScriptNofK
 }

@@ -1,9 +1,8 @@
-﻿namespace CardanoSharp.Wallet.CIPs.CIP30.Models
-{
-	public class CoseKey
-	{
-		public byte[] Key { get; set; } = null!;
+﻿namespace CardanoSharp.Wallet.CIPs.CIP30.Models;
 
-		public byte[]? Kid { get; set; }
-	}
+public class CoseKey
+{
+    public byte[] Key { get; set; } = null!;
+
+    public byte[]? Kid { get; set; }
 }

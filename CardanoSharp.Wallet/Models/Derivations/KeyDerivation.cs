@@ -4,67 +4,66 @@ using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Segments;
 using CardanoSharp.Wallet.Utilities;
 
-namespace CardanoSharp.Wallet.Models.Derivations
+namespace CardanoSharp.Wallet.Models.Derivations;
+
+public interface IPathDerivation
 {
-    public interface IPathDerivation
-    {
-        ISegment Segment { get; }
-        PrivateKey PrivateKey { get; }
-        PublicKey PublicKey { get; }
+    ISegment Segment { get; }
+    PrivateKey PrivateKey { get; }
+    PublicKey PublicKey { get; }
 
-        void SetPublicKey();
+    void SetPublicKey();
+}
+
+public abstract class AKeyDerivation : IPathDerivation
+{
+    protected AKeyDerivation(ISegment segment)
+    {
+        Segment = segment;
     }
 
-    public abstract class AKeyDerivation : IPathDerivation
+    public ISegment Segment { get; }
+    public PrivateKey PrivateKey { get; protected set; } = default!;
+    public PublicKey PublicKey { get; protected set; } = default!;
+
+    public void SetPublicKey()
     {
-        protected AKeyDerivation(ISegment segment)
+        if (PrivateKey == null)
+            throw new Exception("Private Key is not set");
+
+        PublicKey = PrivateKey.GetPublicKey(false);
+    }
+}
+
+public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
+{
+    const uint MinHardIndex = 0x80000000;
+
+    protected AChildKeyDerivation(PrivateKey key, ISegment segment) : base(segment)
+    {
+        if (key is null)
         {
-            Segment = segment;
+            throw new ArgumentNullException(nameof(key));
         }
 
-        public ISegment Segment { get; }
-        public PrivateKey PrivateKey { get; protected set; } = default!;
-        public PublicKey PublicKey { get; protected set; } = default!;
-
-        public void SetPublicKey()
-        {
-            if (PrivateKey == null)
-                throw new Exception("Private Key is not set");
-
-            PublicKey = PrivateKey.GetPublicKey(false);
-        }
+        var index = Convert.ToUInt32(segment.Value);
+        if (segment.IsHardened)
+            index += MinHardIndex;
+        PrivateKey = Bip32Utility.GetChildKeyDerivation(key, index);
+        PublicKey = PrivateKey.GetPublicKey(withZeroByte: false);
     }
 
-    public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
+    protected AChildKeyDerivation(PublicKey key, ISegment segment) : base(segment)
     {
-        const uint MinHardIndex = 0x80000000;
-
-        protected AChildKeyDerivation(PrivateKey key, ISegment segment) : base(segment)
+        if (key is null)
         {
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            var index = Convert.ToUInt32(segment.Value);
-            if (segment.IsHardened)
-                index += MinHardIndex;
-            PrivateKey = Bip32Utility.GetChildKeyDerivation(key, index);
-            PublicKey = PrivateKey.GetPublicKey(withZeroByte: false);
+            throw new ArgumentNullException(nameof(key));
         }
 
-        protected AChildKeyDerivation(PublicKey key, ISegment segment) : base(segment)
-        {
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            var index = Convert.ToUInt32(segment.Value);
-            if (segment.IsHardened)
-                throw new Exception("Public Keys cannot derive hardened paths");
-            PrivateKey = null!;
-            PublicKey = Bip32Utility.GetChildKeyDerivation(key, index);
-        }
+        var index = Convert.ToUInt32(segment.Value);
+        if (segment.IsHardened)
+            throw new Exception("Public Keys cannot derive hardened paths");
+        PrivateKey = null!;
+        PublicKey = Bip32Utility.GetChildKeyDerivation(key, index);
     }
 }

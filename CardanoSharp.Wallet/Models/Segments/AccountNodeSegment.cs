@@ -1,9 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Segments
+﻿namespace CardanoSharp.Wallet.Models.Segments;
+
+public class AccountNodeSegment : ASegment
 {
-    public class AccountNodeSegment : ASegment
-    {
-        public AccountNodeSegment(int value) : base(value)
-        {
-        }
-    }
+    public AccountNodeSegment(int value) : base(value) { }
 }

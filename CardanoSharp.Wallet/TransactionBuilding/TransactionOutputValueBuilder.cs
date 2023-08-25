@@ -1,46 +1,45 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
 using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
-{
-    public interface ITransactionOutputValueBuilder: IABuilder<TransactionOutputValue>
-    {
-        ITransactionOutputValueBuilder WithCoin(uint coin);
+namespace CardanoSharp.Wallet.TransactionBuilding;
 
-        ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset);
+public interface ITransactionOutputValueBuilder : IABuilder<TransactionOutputValue>
+{
+    ITransactionOutputValueBuilder WithCoin(uint coin);
+
+    ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset);
+}
+
+public class TransactionOutputValueBuilder : ABuilder<TransactionOutputValue>, ITransactionOutputValueBuilder
+{
+    public TransactionOutputValueBuilder()
+    {
+        _model = new TransactionOutputValue();
     }
 
-    public class TransactionOutputValueBuilder: ABuilder<TransactionOutputValue>, ITransactionOutputValueBuilder
+    private TransactionOutputValueBuilder(TransactionOutputValue model)
     {
-        public TransactionOutputValueBuilder()
-        {
-            _model = new TransactionOutputValue();
-        }
+        _model = model;
+    }
 
-        private TransactionOutputValueBuilder(TransactionOutputValue model)
+    public static ITransactionOutputValueBuilder GetBuilder(TransactionOutputValue model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new TransactionOutputValueBuilder();
         }
+        return new TransactionOutputValueBuilder(model);
+    }
 
-        public static ITransactionOutputValueBuilder GetBuilder(TransactionOutputValue model)
-        {
-            if (model == null)
-            {
-                return new TransactionOutputValueBuilder();
-            }
-            return new TransactionOutputValueBuilder(model);
-        }
+    public ITransactionOutputValueBuilder WithCoin(uint coin)
+    {
+        _model.Coin = coin;
+        return this;
+    }
 
-        public ITransactionOutputValueBuilder WithCoin(uint coin)
-        {
-            _model.Coin = coin;
-            return this;
-        }
-
-        public ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset)
-        {
-            _model.MultiAsset = multiAsset;
-            return this;
-        }
+    public ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset)
+    {
+        _model.MultiAsset = multiAsset;
+        return this;
     }
 }

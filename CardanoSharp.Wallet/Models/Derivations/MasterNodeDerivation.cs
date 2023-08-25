@@ -4,28 +4,27 @@ using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Segments;
 using System;
 
-namespace CardanoSharp.Wallet.Models.Derivations
+namespace CardanoSharp.Wallet.Models.Derivations;
+
+public interface IMasterNodeDerivation : IPathDerivation
 {
-    public interface IMasterNodeDerivation : IPathDerivation
+    IPurposeNodeDerivation Derive(PurposeType value = PurposeType.Shelley);
+}
+
+public class MasterNodeDerivation : AKeyDerivation, IMasterNodeDerivation
+{
+    public MasterNodeDerivation(PrivateKey key) : base(new MasterNodeSegment())
     {
-        IPurposeNodeDerivation Derive(PurposeType value = PurposeType.Shelley);
+        if (key is null)
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        PrivateKey = new(key.Key, key.Chaincode);
+        PublicKey = PrivateKey.GetPublicKey();
     }
 
-    public class MasterNodeDerivation : AKeyDerivation, IMasterNodeDerivation
+    public IPurposeNodeDerivation Derive(PurposeType value)
     {
-        public MasterNodeDerivation(PrivateKey key) : base(new MasterNodeSegment())
-        {
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-            PrivateKey = new(key.Key, key.Chaincode);
-            PublicKey = PrivateKey.GetPublicKey();
-        }
-
-        public IPurposeNodeDerivation Derive(PurposeType value)
-        {
-            return new PurposeNodeDerivation(PrivateKey, value);
-        }
+        return new PurposeNodeDerivation(PrivateKey, value);
     }
 }

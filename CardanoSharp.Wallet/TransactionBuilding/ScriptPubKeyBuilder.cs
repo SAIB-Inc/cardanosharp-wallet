@@ -1,37 +1,36 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IScriptPubKeyBuilder : IABuilder<ScriptPubKey>
 {
-    public interface IScriptPubKeyBuilder: IABuilder<ScriptPubKey>
+    IScriptPubKeyBuilder WithKeyHash(byte[] keyHash);
+}
+
+public class ScriptPubKeyBuilder : ABuilder<ScriptPubKey>, IScriptPubKeyBuilder
+{
+    public ScriptPubKeyBuilder()
     {
-        IScriptPubKeyBuilder WithKeyHash(byte[] keyHash);
+        _model = new ScriptPubKey();
     }
 
-    public class ScriptPubKeyBuilder: ABuilder<ScriptPubKey>, IScriptPubKeyBuilder
+    private ScriptPubKeyBuilder(ScriptPubKey model)
     {
-        public ScriptPubKeyBuilder()
-        {
-            _model = new ScriptPubKey();
-        }
+        _model = model;
+    }
 
-        private ScriptPubKeyBuilder(ScriptPubKey model)
+    public static IScriptPubKeyBuilder GetBuilder(ScriptPubKey model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new ScriptPubKeyBuilder();
         }
+        return new ScriptPubKeyBuilder(model);
+    }
 
-        public static IScriptPubKeyBuilder GetBuilder(ScriptPubKey model)
-        {
-            if (model == null)
-            {
-                return new ScriptPubKeyBuilder();
-            }
-            return new ScriptPubKeyBuilder(model);
-        }
-
-        public IScriptPubKeyBuilder WithKeyHash(byte[] keyHash)
-        {
-            _model.KeyHash = keyHash;
-            return this;
-        }
+    public IScriptPubKeyBuilder WithKeyHash(byte[] keyHash)
+    {
+        _model.KeyHash = keyHash;
+        return this;
     }
 }

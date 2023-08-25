@@ -11,536 +11,533 @@ using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Utilities;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
 {
-    public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
+    ITransactionBodyBuilder AddInput(TransactionInput transactionInput);
+    ITransactionBodyBuilder AddInput(Utxo utxo);
+    ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
+    ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
+    ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
+    ITransactionBodyBuilder AddOutput(
+        Address address,
+        ulong coin,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
+    ITransactionBodyBuilder AddOutput(
+        byte[] address,
+        ulong coin,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
+
+    // Advanced output functions
+    ITransactionBodyBuilder AddMinUtxoOutput(
+        byte[] address,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
+
+    ITransactionBodyBuilder AddOutputFromUtxo(
+        byte[] address,
+        Utxo utxo,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
+
+    ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
+    ITransactionBodyBuilder SetFee(ulong fee);
+    ITransactionBodyBuilder SetTtl(uint ttl);
+    ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
+    ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart);
+    ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
+    ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
+    ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
+    ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums);
+    ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews);
+    ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput);
+    ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex);
+    ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex);
+    ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner);
+    ITransactionBodyBuilder SetNetworkId(uint networkId);
+    ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput);
+    ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin);
+    ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin);
+    ITransactionBodyBuilder SetTotalCollateral(ulong TotalCollateral);
+    ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput);
+    ITransactionBodyBuilder AddReferenceInput(Utxo utxo);
+    ITransactionBodyBuilder AddReferenceInput(
+        byte[] transactionId,
+        uint transactionIndex,
+        Address? address = null,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null
+    );
+    ITransactionBodyBuilder AddReferenceInput(
+        string transactionIdStr,
+        uint transactionIndex,
+        Address? address = null,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null
+    );
+    ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null);
+}
+
+public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
+{
+    private TransactionBodyBuilder()
     {
-        ITransactionBodyBuilder AddInput(TransactionInput transactionInput);
-        ITransactionBodyBuilder AddInput(Utxo utxo);
-        ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
-        ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
-        ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
-        ITransactionBodyBuilder AddOutput(
-            Address address,
-            ulong coin,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        );
-        ITransactionBodyBuilder AddOutput(
-            byte[] address,
-            ulong coin,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        );
-
-        // Advanced output functions
-        ITransactionBodyBuilder AddMinUtxoOutput(
-            byte[] address,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        );
-
-        ITransactionBodyBuilder AddOutputFromUtxo(
-            byte[] address,
-            Utxo utxo,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        );
-
-        ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
-        ITransactionBodyBuilder SetFee(ulong fee);
-        ITransactionBodyBuilder SetTtl(uint ttl);
-        ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
-        ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart);
-        ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
-        ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
-        ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
-        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums);
-        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews);
-        ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput);
-        ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex);
-        ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex);
-        ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner);
-        ITransactionBodyBuilder SetNetworkId(uint networkId);
-        ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput);
-        ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin);
-        ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin);
-        ITransactionBodyBuilder SetTotalCollateral(ulong TotalCollateral);
-        ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput);
-        ITransactionBodyBuilder AddReferenceInput(Utxo utxo);
-        ITransactionBodyBuilder AddReferenceInput(
-            byte[] transactionId,
-            uint transactionIndex,
-            Address? address = null,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null
-        );
-        ITransactionBodyBuilder AddReferenceInput(
-            string transactionIdStr,
-            uint transactionIndex,
-            Address? address = null,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null
-        );
-        ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null);
+        _model = new TransactionBody();
     }
 
-    public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
+    private TransactionBodyBuilder(TransactionBody model)
     {
-        private TransactionBodyBuilder()
+        _model = model;
+    }
+
+    public static ITransactionBodyBuilder GetBuilder(TransactionBody model)
+    {
+        if (model == null)
         {
-            _model = new TransactionBody();
+            return new TransactionBodyBuilder();
         }
-
-        private TransactionBodyBuilder(TransactionBody model)
-        {
-            _model = model;
-        }
-
-        public static ITransactionBodyBuilder GetBuilder(TransactionBody model)
-        {
-            if (model == null)
-            {
-                return new TransactionBodyBuilder();
-            }
-            return new TransactionBodyBuilder(model);
-        }
-
-        public static ITransactionBodyBuilder Create
-        {
-            get => new TransactionBodyBuilder();
-        }
-
-        public ITransactionBodyBuilder AddInput(TransactionInput transactionInput)
-        {
-            _model.TransactionInputs.Add(transactionInput);
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddInput(Utxo utxo)
-        {
-            TransactionInput transactionInput = TransactionInputBuilder.Create
-                .SetTransactionId(utxo.TxHash.HexToByteArray())
-                .SetTransactionIndex(utxo.TxIndex)
-                .SetOutput(
-                    TransactionOutputBuilder.Create
-                        .SetOutputFromUtxo(new Address(utxo.OutputAddress).GetBytes(), utxo, utxo.OutputDatumOption, utxo.OutputScriptReference)
-                        .Build()
-                )
-                .Build();
-            return AddInput(transactionInput);
-        }
-
-        public ITransactionBodyBuilder AddInput(string transactionIdStr, uint transactionIndex, TransactionOutput? resolvedOutput = null)
-        {
-            return AddInput(transactionIdStr.HexToByteArray(), transactionIndex);
-        }
-
-        public ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null)
-        {
-            _model.TransactionInputs.Add(
-                new TransactionInput()
-                {
-                    TransactionId = transactionId,
-                    TransactionIndex = transactionIndex,
-                    Output = resolvedOutput
-                }
-            );
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput)
-        {
-            _model.TransactionOutputs.Add(transactionOutput);
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddOutput(
-            Address address,
-            ulong coin,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        )
-        {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
-        }
-
-        public ITransactionBodyBuilder AddOutput(
-            byte[] address,
-            ulong coin,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        )
-        {
-            var outputValue = new TransactionOutputValue() { Coin = coin };
-
-            if (tokenBundleBuilder != null)
-            {
-                outputValue.MultiAsset = tokenBundleBuilder.Build();
-            }
-
-            var output = new TransactionOutput()
-            {
-                Address = address,
-                Value = outputValue,
-                OutputPurpose = outputPurpose
-            };
-
-            if (datumOption is not null)
-                output.DatumOption = datumOption;
-
-            if (scriptReference is not null)
-                output.ScriptReference = scriptReference;
-
-            _model.TransactionOutputs.Add(output);
-            return this;
-        }
-
-        // This function will set the minUtxo or the coin, whichever is higher
-        public ITransactionBodyBuilder AddMinUtxoOutput(
-            byte[] address,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        )
-        {
-            TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-                TransactionOutputBuilder.Create.SetMinUtxoOutput(address, coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
-
-            _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddOutputFromUtxo(
-            byte[] address,
-            Utxo utxo,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null,
-            OutputPurpose outputPurpose = OutputPurpose.Spend
-        )
-        {
-            TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-                TransactionOutputBuilder.Create.SetOutputFromUtxo(address, utxo, datumOption, scriptReference, outputPurpose);
-
-            _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetFee(ulong fee)
-        {
-            _model.Fee = fee;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetTtl(uint ttl)
-        {
-            _model.Ttl = ttl;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
-        {
-            _model.Certificate = certificateBuilder.Build();
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder)
-        {
-            _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart)
-        {
-            // This is the current slot number, and is the lower bound where as ttl is the upper bound
-            _model.ValidityIntervalStart = validityIntervalStart;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
-        {
-            _model.Mint = tokenBuilder.Build();
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddMint(ITokenBundleBuilder tokenBuilder)
-        {
-            if (_model.Mint is null)
-                return SetMint(tokenBuilder);
-
-            var mintBuild = _model.Mint;
-            Dictionary<byte[], NativeAsset> tokenBuild = tokenBuilder.Build();
-
-            // Send them both through the byte[] to hex dict converter
-            Dictionary<string, Dictionary<string, long>> mintBuildStringDict = TokenUtility.ConvertKeysToHexStrings(mintBuild);
-            Dictionary<string, Dictionary<string, long>> tokenBuildStringDict = TokenUtility.ConvertKeysToHexStrings(tokenBuild);
-
-            // Send them both to the merging function
-            var mergedStringDict = TokenUtility.MergeStringDictionaries(mintBuildStringDict!, tokenBuildStringDict!);
-
-            // Next reconvert the merged dict back to byte[] keys
-            var mergedByteDict = TokenUtility.ConvertStringKeysToByteArrays(mergedStringDict);
-
-            // Finally, add the merged byte dict to the model
-            _model.Mint = mergedByteDict;
-
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash)
-        {
-            _model.ScriptDataHash = scriptDataHash;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums)
-        {
-            return SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
-        }
-
-        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews)
-        {
-            _model.ScriptDataHash = ScriptUtility.GenerateScriptDataHash(redeemers, datums, languageViews);
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput)
-        {
-            if (_model.Collateral is null)
-            {
-                _model.Collateral = new List<TransactionInput>();
-            }
-
-            _model.Collateral.Add(transactionInput);
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex)
-        {
-            if (_model.Collateral is null)
-            {
-                _model.Collateral = new List<TransactionInput>();
-            }
-
-            _model.Collateral.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex)
-        {
-            if (_model.Collateral is null)
-            {
-                _model.Collateral = new List<TransactionInput>();
-            }
-
-            byte[] transactionId = transactionIdStr.HexToByteArray();
-            _model.Collateral.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner)
-        {
-            if (_model.RequiredSigners is null)
-                _model.RequiredSigners = new List<byte[]>();
-
-            if (!_model.RequiredSigners.Any(existingSigner => existingSigner.SequenceEqual(requiredSigner)))
-                _model.RequiredSigners.Add(requiredSigner);
-
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetNetworkId(uint networkId)
-        {
-            _model.NetworkId = networkId;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput)
-        {
-            _model.CollateralReturn = transactionOutput;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin)
-        {
-            return SetCollateralOutput(address.GetBytes(), coin);
-        }
-
-        public ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin)
-        {
-            var outputValue = new TransactionOutputValue() { Coin = coin };
-
-            var output = new TransactionOutput()
-            {
-                Address = address,
-                Value = outputValue,
-                OutputPurpose = OutputPurpose.Collateral
-            };
-
-            _model.CollateralReturn = output;
-            return this;
-        }
-
-        public ITransactionBodyBuilder SetTotalCollateral(ulong totalCollateral)
-        {
-            _model.TotalCollateral = totalCollateral;
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput)
-        {
-            if (_model.ReferenceInputs is null)
-                _model.ReferenceInputs = new List<TransactionInput>();
-
-            if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
-                _model.ReferenceInputs.Add(transactionInput);
-
-            return this;
-        }
-
-        public ITransactionBodyBuilder AddReferenceInput(Utxo utxo)
-        {
-            TransactionInput transactionInput = TransactionInputBuilder.Create
-                .SetTransactionId(utxo.TxHash.HexToByteArray())
-                .SetTransactionIndex(utxo.TxIndex)
-                .SetOutput(
-                    TransactionOutputBuilder.Create
-                        .SetOutputFromUtxo(
-                            new Address(utxo.OutputAddress).GetBytes(),
-                            utxo,
-                            datumOption: utxo.OutputDatumOption,
-                            scriptReference: utxo.OutputScriptReference
-                        )
-                        .Build()
-                )
-                .Build();
-            return AddReferenceInput(transactionInput);
-        }
-
-        public ITransactionBodyBuilder AddReferenceInput(
-            string transactionIdStr,
-            uint transactionIndex,
-            Address? address = null,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null
-        )
-        {
-            return AddReferenceInput(
-                transactionIdStr.HexToByteArray(),
-                transactionIndex,
-                address,
-                coin,
-                tokenBundleBuilder,
-                datumOption,
-                scriptReference
-            );
-        }
-
-        public ITransactionBodyBuilder AddReferenceInput(
-            byte[] transactionId,
-            uint transactionIndex,
-            Address? address = null,
-            ulong coin = 0,
-            ITokenBundleBuilder? tokenBundleBuilder = null,
-            DatumOption? datumOption = null,
-            ScriptReference? scriptReference = null
-        )
-        {
-            if (_model.ReferenceInputs is null)
-                _model.ReferenceInputs = new List<TransactionInput>();
-
-            TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)TransactionOutputBuilder.Create;
-            if (address is not null)
-                transactionOutputBuilder.SetAddress(address.GetBytes());
-
-            if (tokenBundleBuilder is not null)
-                transactionOutputBuilder.SetTransactionOutputValue(
-                    new TransactionOutputValue { Coin = coin, MultiAsset = tokenBundleBuilder.Build() }
-                );
-            else
-                transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = coin });
-
-            if (datumOption is not null)
-                transactionOutputBuilder.SetDatumOption(datumOption);
-            if (scriptReference is not null)
-                transactionOutputBuilder.SetScriptReference(scriptReference);
-
-            TransactionInput transactionInput = TransactionInputBuilder.Create
-                .SetTransactionId(transactionId)
-                .SetTransactionIndex(transactionIndex)
-                .SetOutput(transactionOutputBuilder.Build())
-                .Build();
-
-            if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
-                _model.ReferenceInputs.Add(transactionInput);
-
-            return this;
-        }
-
-        // Helper Functions
-        public ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null)
-        {
-            if (fee is null)
-                fee = _model.Fee;
-
-            //get count of change outputs to deduct fee from evenly
-            //note we are selecting only ones that dont have assets
-            //  this is to respect minimum ada required for token bundles
-            IEnumerable<TransactionOutput> changeOutputs;
-            if (
-                _model.TransactionOutputs.Any(
-                    x =>
-                        x.OutputPurpose == OutputPurpose.Change
-                        && (x.Value.MultiAsset is null || (x.Value.MultiAsset is not null && !x.Value.MultiAsset.Any()))
-                )
+        return new TransactionBodyBuilder(model);
+    }
+
+    public static ITransactionBodyBuilder Create
+    {
+        get => new TransactionBodyBuilder();
+    }
+
+    public ITransactionBodyBuilder AddInput(TransactionInput transactionInput)
+    {
+        _model.TransactionInputs.Add(transactionInput);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddInput(Utxo utxo)
+    {
+        TransactionInput transactionInput = TransactionInputBuilder.Create
+            .SetTransactionId(utxo.TxHash.HexToByteArray())
+            .SetTransactionIndex(utxo.TxIndex)
+            .SetOutput(
+                TransactionOutputBuilder.Create
+                    .SetOutputFromUtxo(new Address(utxo.OutputAddress).GetBytes(), utxo, utxo.OutputDatumOption, utxo.OutputScriptReference)
+                    .Build()
             )
+            .Build();
+        return AddInput(transactionInput);
+    }
+
+    public ITransactionBodyBuilder AddInput(string transactionIdStr, uint transactionIndex, TransactionOutput? resolvedOutput = null)
+    {
+        return AddInput(transactionIdStr.HexToByteArray(), transactionIndex);
+    }
+
+    public ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null)
+    {
+        _model.TransactionInputs.Add(
+            new TransactionInput()
             {
-                changeOutputs = _model.TransactionOutputs.Where(
-                    x =>
-                        x.OutputPurpose == OutputPurpose.Change
-                        && (x.Value.MultiAsset is null || (x.Value.MultiAsset is not null && !x.Value.MultiAsset.Any()))
-                );
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex,
+                Output = resolvedOutput
+            }
+        );
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput)
+    {
+        _model.TransactionOutputs.Add(transactionOutput);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddOutput(
+        Address address,
+        ulong coin,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
+    {
+        return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
+    }
+
+    public ITransactionBodyBuilder AddOutput(
+        byte[] address,
+        ulong coin,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
+    {
+        var outputValue = new TransactionOutputValue() { Coin = coin };
+
+        if (tokenBundleBuilder != null)
+        {
+            outputValue.MultiAsset = tokenBundleBuilder.Build();
+        }
+
+        var output = new TransactionOutput()
+        {
+            Address = address,
+            Value = outputValue,
+            OutputPurpose = outputPurpose
+        };
+
+        if (datumOption is not null)
+            output.DatumOption = datumOption;
+
+        if (scriptReference is not null)
+            output.ScriptReference = scriptReference;
+
+        _model.TransactionOutputs.Add(output);
+        return this;
+    }
+
+    // This function will set the minUtxo or the coin, whichever is higher
+    public ITransactionBodyBuilder AddMinUtxoOutput(
+        byte[] address,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
+    {
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
+            TransactionOutputBuilder.Create.SetMinUtxoOutput(address, coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
+
+        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddOutputFromUtxo(
+        byte[] address,
+        Utxo utxo,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
+    {
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
+            TransactionOutputBuilder.Create.SetOutputFromUtxo(address, utxo, datumOption, scriptReference, outputPurpose);
+
+        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetFee(ulong fee)
+    {
+        _model.Fee = fee;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetTtl(uint ttl)
+    {
+        _model.Ttl = ttl;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
+    {
+        _model.Certificate = certificateBuilder.Build();
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder)
+    {
+        _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart)
+    {
+        // This is the current slot number, and is the lower bound where as ttl is the upper bound
+        _model.ValidityIntervalStart = validityIntervalStart;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
+    {
+        _model.Mint = tokenBuilder.Build();
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddMint(ITokenBundleBuilder tokenBuilder)
+    {
+        if (_model.Mint is null)
+            return SetMint(tokenBuilder);
+
+        var mintBuild = _model.Mint;
+        Dictionary<byte[], NativeAsset> tokenBuild = tokenBuilder.Build();
+
+        // Send them both through the byte[] to hex dict converter
+        Dictionary<string, Dictionary<string, long>> mintBuildStringDict = TokenUtility.ConvertKeysToHexStrings(mintBuild);
+        Dictionary<string, Dictionary<string, long>> tokenBuildStringDict = TokenUtility.ConvertKeysToHexStrings(tokenBuild);
+
+        // Send them both to the merging function
+        var mergedStringDict = TokenUtility.MergeStringDictionaries(mintBuildStringDict!, tokenBuildStringDict!);
+
+        // Next reconvert the merged dict back to byte[] keys
+        var mergedByteDict = TokenUtility.ConvertStringKeysToByteArrays(mergedStringDict);
+
+        // Finally, add the merged byte dict to the model
+        _model.Mint = mergedByteDict;
+
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash)
+    {
+        _model.ScriptDataHash = scriptDataHash;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums)
+    {
+        return SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
+    }
+
+    public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews)
+    {
+        _model.ScriptDataHash = ScriptUtility.GenerateScriptDataHash(redeemers, datums, languageViews);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput)
+    {
+        if (_model.Collateral is null)
+        {
+            _model.Collateral = new List<TransactionInput>();
+        }
+
+        _model.Collateral.Add(transactionInput);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex)
+    {
+        if (_model.Collateral is null)
+        {
+            _model.Collateral = new List<TransactionInput>();
+        }
+
+        _model.Collateral.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex)
+    {
+        if (_model.Collateral is null)
+        {
+            _model.Collateral = new List<TransactionInput>();
+        }
+
+        byte[] transactionId = transactionIdStr.HexToByteArray();
+        _model.Collateral.Add(new TransactionInput() { TransactionId = transactionId, TransactionIndex = transactionIndex });
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner)
+    {
+        if (_model.RequiredSigners is null)
+            _model.RequiredSigners = new List<byte[]>();
+
+        if (!_model.RequiredSigners.Any(existingSigner => existingSigner.SequenceEqual(requiredSigner)))
+            _model.RequiredSigners.Add(requiredSigner);
+
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetNetworkId(uint networkId)
+    {
+        _model.NetworkId = networkId;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput)
+    {
+        _model.CollateralReturn = transactionOutput;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin)
+    {
+        return SetCollateralOutput(address.GetBytes(), coin);
+    }
+
+    public ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin)
+    {
+        var outputValue = new TransactionOutputValue() { Coin = coin };
+
+        var output = new TransactionOutput()
+        {
+            Address = address,
+            Value = outputValue,
+            OutputPurpose = OutputPurpose.Collateral
+        };
+
+        _model.CollateralReturn = output;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetTotalCollateral(ulong totalCollateral)
+    {
+        _model.TotalCollateral = totalCollateral;
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput)
+    {
+        if (_model.ReferenceInputs is null)
+            _model.ReferenceInputs = new List<TransactionInput>();
+
+        if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
+            _model.ReferenceInputs.Add(transactionInput);
+
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddReferenceInput(Utxo utxo)
+    {
+        TransactionInput transactionInput = TransactionInputBuilder.Create
+            .SetTransactionId(utxo.TxHash.HexToByteArray())
+            .SetTransactionIndex(utxo.TxIndex)
+            .SetOutput(
+                TransactionOutputBuilder.Create
+                    .SetOutputFromUtxo(
+                        new Address(utxo.OutputAddress).GetBytes(),
+                        utxo,
+                        datumOption: utxo.OutputDatumOption,
+                        scriptReference: utxo.OutputScriptReference
+                    )
+                    .Build()
+            )
+            .Build();
+        return AddReferenceInput(transactionInput);
+    }
+
+    public ITransactionBodyBuilder AddReferenceInput(
+        string transactionIdStr,
+        uint transactionIndex,
+        Address? address = null,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null
+    )
+    {
+        return AddReferenceInput(
+            transactionIdStr.HexToByteArray(),
+            transactionIndex,
+            address,
+            coin,
+            tokenBundleBuilder,
+            datumOption,
+            scriptReference
+        );
+    }
+
+    public ITransactionBodyBuilder AddReferenceInput(
+        byte[] transactionId,
+        uint transactionIndex,
+        Address? address = null,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null
+    )
+    {
+        if (_model.ReferenceInputs is null)
+            _model.ReferenceInputs = new List<TransactionInput>();
+
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)TransactionOutputBuilder.Create;
+        if (address is not null)
+            transactionOutputBuilder.SetAddress(address.GetBytes());
+
+        if (tokenBundleBuilder is not null)
+            transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = coin, MultiAsset = tokenBundleBuilder.Build() });
+        else
+            transactionOutputBuilder.SetTransactionOutputValue(new TransactionOutputValue { Coin = coin });
+
+        if (datumOption is not null)
+            transactionOutputBuilder.SetDatumOption(datumOption);
+        if (scriptReference is not null)
+            transactionOutputBuilder.SetScriptReference(scriptReference);
+
+        TransactionInput transactionInput = TransactionInputBuilder.Create
+            .SetTransactionId(transactionId)
+            .SetTransactionIndex(transactionIndex)
+            .SetOutput(transactionOutputBuilder.Build())
+            .Build();
+
+        if (!_model.ReferenceInputs.Contains(transactionInput, new TransactionEqualityInputComparer()))
+            _model.ReferenceInputs.Add(transactionInput);
+
+        return this;
+    }
+
+    // Helper Functions
+    public ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null)
+    {
+        if (fee is null)
+            fee = _model.Fee;
+
+        //get count of change outputs to deduct fee from evenly
+        //note we are selecting only ones that dont have assets
+        //  this is to respect minimum ada required for token bundles
+        IEnumerable<TransactionOutput> changeOutputs;
+        if (
+            _model.TransactionOutputs.Any(
+                x =>
+                    x.OutputPurpose == OutputPurpose.Change
+                    && (x.Value.MultiAsset is null || (x.Value.MultiAsset is not null && !x.Value.MultiAsset.Any()))
+            )
+        )
+        {
+            changeOutputs = _model.TransactionOutputs.Where(
+                x =>
+                    x.OutputPurpose == OutputPurpose.Change
+                    && (x.Value.MultiAsset is null || (x.Value.MultiAsset is not null && !x.Value.MultiAsset.Any()))
+            );
+        }
+        else
+        {
+            changeOutputs = _model.TransactionOutputs.Where(x => x.OutputPurpose == OutputPurpose.Change);
+        }
+
+        ulong feePerChangeOutput = fee.Value / (ulong)changeOutputs.Count();
+        ulong feeRemaining = fee.Value % (ulong)changeOutputs.Count();
+        bool needToApplyRemaining = true;
+        foreach (var o in changeOutputs)
+        {
+            if (needToApplyRemaining)
+            {
+                o.Value.Coin = o.Value.Coin - feePerChangeOutput - feeRemaining;
+                needToApplyRemaining = false;
             }
             else
-            {
-                changeOutputs = _model.TransactionOutputs.Where(x => x.OutputPurpose == OutputPurpose.Change);
-            }
-
-            ulong feePerChangeOutput = fee.Value / (ulong)changeOutputs.Count();
-            ulong feeRemaining = fee.Value % (ulong)changeOutputs.Count();
-            bool needToApplyRemaining = true;
-            foreach (var o in changeOutputs)
-            {
-                if (needToApplyRemaining)
-                {
-                    o.Value.Coin = o.Value.Coin - feePerChangeOutput - feeRemaining;
-                    needToApplyRemaining = false;
-                }
-                else
-                    o.Value.Coin = o.Value.Coin - feePerChangeOutput;
-            }
-
-            return this;
+                o.Value.Coin = o.Value.Coin - feePerChangeOutput;
         }
+
+        return this;
     }
 }

@@ -1,17 +1,16 @@
-﻿namespace CardanoSharp.Wallet.TransactionBuilding
+﻿namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IABuilder<T>
 {
-    public interface IABuilder<T>
-    {
-        T Build();
-    }
+    T Build();
+}
 
-    public abstract class ABuilder<T> : IABuilder<T>
-    {
-        protected T _model = default!;
+public abstract class ABuilder<T> : IABuilder<T>
+{
+    protected T _model = default!;
 
-        public virtual T Build()
-        {
-            return _model;
-        }
+    public virtual T Build()
+    {
+        return _model;
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace CardanoSharp.Wallet.Common
+﻿namespace CardanoSharp.Wallet.Common;
+
+public static class FeeStructure
 {
-    public static class FeeStructure
-    {
-        // Constants taken from protocol params as of mainnet epoch 345
-        public const uint Coefficient = 44;
-        public const uint Constant = 155381;
-        public const ulong MaxTxExMem = 14000000;
-        public const ulong MaxTxExSteps = 10000000000;
-        public const double PriceMem = 0.0577;
-        public const double PriceStep = 0.0000721;
-    }
+    // Constants taken from protocol params as of mainnet epoch 345
+    public const uint Coefficient = 44;
+    public const uint Constant = 155381;
+    public const ulong MaxTxExMem = 14000000;
+    public const ulong MaxTxExSteps = 10000000000;
+    public const double PriceMem = 0.0577;
+    public const double PriceStep = 0.0000721;
 }

@@ -1,45 +1,44 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
-{
-    public interface IStakeDelegationBuilder: IABuilder<StakeDelegation>
-    {
-        IStakeDelegationBuilder WithStakeCredential(byte[] stakeCredential);
+namespace CardanoSharp.Wallet.TransactionBuilding;
 
-        IStakeDelegationBuilder WithPoolHash(byte[] poolHash);
+public interface IStakeDelegationBuilder : IABuilder<StakeDelegation>
+{
+    IStakeDelegationBuilder WithStakeCredential(byte[] stakeCredential);
+
+    IStakeDelegationBuilder WithPoolHash(byte[] poolHash);
+}
+
+public class StakeDelegationBuilder : ABuilder<StakeDelegation>, IStakeDelegationBuilder
+{
+    public StakeDelegationBuilder()
+    {
+        _model = new StakeDelegation();
     }
 
-    public class StakeDelegationBuilder: ABuilder<StakeDelegation>, IStakeDelegationBuilder
+    private StakeDelegationBuilder(StakeDelegation model)
     {
-        public StakeDelegationBuilder()
-        {
-            _model = new StakeDelegation();
-        }
+        _model = model;
+    }
 
-        private StakeDelegationBuilder(StakeDelegation model)
+    public static IStakeDelegationBuilder GetBuilder(StakeDelegation model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new StakeDelegationBuilder();
         }
+        return new StakeDelegationBuilder(model);
+    }
 
-        public static IStakeDelegationBuilder GetBuilder(StakeDelegation model)
-        {
-            if (model == null)
-            {
-                return new StakeDelegationBuilder();
-            }
-            return new StakeDelegationBuilder(model);
-        }
+    public IStakeDelegationBuilder WithStakeCredential(byte[] stakeCredential)
+    {
+        _model.StakeCredential = stakeCredential;
+        return this;
+    }
 
-        public IStakeDelegationBuilder WithStakeCredential(byte[] stakeCredential)
-        {
-            _model.StakeCredential = stakeCredential;
-            return this;
-        }
-
-        public IStakeDelegationBuilder WithPoolHash(byte[] poolHash)
-        {
-            _model.PoolHash = poolHash;
-            return this;
-        }
+    public IStakeDelegationBuilder WithPoolHash(byte[] poolHash)
+    {
+        _model.PoolHash = poolHash;
+        return this;
     }
 }

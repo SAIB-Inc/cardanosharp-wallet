@@ -1,8 +1,7 @@
-namespace CardanoSharp.Wallet.Enums
+namespace CardanoSharp.Wallet.Enums;
+
+public enum Language
 {
-    public enum Language
-    {
-        PlutusV1,
-        PlutusV2
-    }
+    PlutusV1,
+    PlutusV2
 }

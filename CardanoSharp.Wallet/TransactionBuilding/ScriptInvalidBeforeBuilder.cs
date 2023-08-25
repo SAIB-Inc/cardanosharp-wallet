@@ -1,37 +1,36 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IScriptInvalidBeforeBuilder : IABuilder<ScriptInvalidBefore>
 {
-    public interface IScriptInvalidBeforeBuilder: IABuilder<ScriptInvalidBefore>
+    IScriptInvalidBeforeBuilder WithBefore(uint before);
+}
+
+public class ScriptInvalidBeforeBuilder : ABuilder<ScriptInvalidBefore>, IScriptInvalidBeforeBuilder
+{
+    public ScriptInvalidBeforeBuilder()
     {
-        IScriptInvalidBeforeBuilder WithBefore(uint before);
+        _model = new ScriptInvalidBefore();
     }
 
-    public class ScriptInvalidBeforeBuilder: ABuilder<ScriptInvalidBefore>, IScriptInvalidBeforeBuilder
+    private ScriptInvalidBeforeBuilder(ScriptInvalidBefore model)
     {
-        public ScriptInvalidBeforeBuilder()
-        {
-            _model = new ScriptInvalidBefore();
-        }
+        _model = model;
+    }
 
-        private ScriptInvalidBeforeBuilder(ScriptInvalidBefore model)
+    public static IScriptInvalidBeforeBuilder GetBuilder(ScriptInvalidBefore model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new ScriptInvalidBeforeBuilder();
         }
+        return new ScriptInvalidBeforeBuilder(model);
+    }
 
-        public static IScriptInvalidBeforeBuilder GetBuilder(ScriptInvalidBefore model)
-        {
-            if (model == null)
-            {
-                return new ScriptInvalidBeforeBuilder();
-            }
-            return new ScriptInvalidBeforeBuilder(model);
-        }
-
-        public IScriptInvalidBeforeBuilder WithBefore(uint before)
-        {
-            _model.Before = before;
-            return this;
-        }
+    public IScriptInvalidBeforeBuilder WithBefore(uint before)
+    {
+        _model.Before = before;
+        return this;
     }
 }

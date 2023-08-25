@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.Models
+namespace CardanoSharp.Wallet.Models;
+
+public class Balance
 {
-    public class Balance
-    {
-        public ulong Lovelaces { get; set; }
-        public IList<Asset> Assets { get; set; } = new List<Asset>();
-    }
+    public ulong Lovelaces { get; set; }
+    public IList<Asset> Assets { get; set; } = new List<Asset>();
 }

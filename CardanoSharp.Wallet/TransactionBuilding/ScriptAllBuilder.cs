@@ -2,50 +2,49 @@
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IScriptAllBuilder : IABuilder<ScriptAll>
 {
-    public interface IScriptAllBuilder: IABuilder<ScriptAll>
+    IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
+    IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts);
+}
+
+public class ScriptAllBuilder : ABuilder<ScriptAll>, IScriptAllBuilder
+{
+    public ScriptAllBuilder()
     {
-        IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
-        IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts);
+        _model = new ScriptAll();
     }
 
-    public class ScriptAllBuilder: ABuilder<ScriptAll>, IScriptAllBuilder
+    private ScriptAllBuilder(ScriptAll model)
     {
-        public ScriptAllBuilder()
-        {
-            _model = new ScriptAll();
-        }
+        _model = model;
+    }
 
-        private ScriptAllBuilder(ScriptAll model)
+    public static IScriptAllBuilder GetBuilder(ScriptAll model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new ScriptAllBuilder();
         }
+        return new ScriptAllBuilder(model);
+    }
 
-        public static IScriptAllBuilder GetBuilder(ScriptAll model)
-        {
-            if (model == null)
-            {
-                return new ScriptAllBuilder();
-            }
-            return new ScriptAllBuilder(model);
-        }
+    public static IScriptAllBuilder Create
+    {
+        get => new ScriptAllBuilder();
+    }
 
-        public static IScriptAllBuilder Create
-        {
-            get => new ScriptAllBuilder();
-        }
+    public IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
+    {
+        _model.NativeScripts.Add(nativeScriptBuilder.Build());
+        return this;
+    }
 
-        public IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
-        {
-            _model.NativeScripts.Add(nativeScriptBuilder.Build());
-            return this;
-        }
-
-        public IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts)
-        {
-            _model.NativeScripts = nativeScripts;
-            return this;
-        }
+    public IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts)
+    {
+        _model.NativeScripts = nativeScripts;
+        return this;
     }
 }

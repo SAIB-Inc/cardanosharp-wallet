@@ -1,13 +1,12 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions;
+
+//    pub struct UnitInterval
+//    {
+//        numerator: BigNum,
+//    denominator: BigNum,
+//}
+public partial class Margin
 {
-    //    pub struct UnitInterval
-    //    {
-    //        numerator: BigNum,
-    //    denominator: BigNum,
-    //}
-    public partial class Margin
-    {
-        public long Numerator { get; set; }
-        public long Denominator { get; set; }
-    }
+    public long Numerator { get; set; }
+    public long Denominator { get; set; }
 }

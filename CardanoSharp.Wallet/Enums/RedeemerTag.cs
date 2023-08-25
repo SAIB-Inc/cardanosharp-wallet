@@ -1,10 +1,9 @@
-﻿namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums;
+
+public enum RedeemerTag
 {
-    public enum RedeemerTag
-    {
-        Spend = 0,
-        Mint = 1,
-        Cert = 2, 
-        Reward = 3
-    }
+    Spend = 0,
+    Mint = 1,
+    Cert = 2,
+    Reward = 3
 }

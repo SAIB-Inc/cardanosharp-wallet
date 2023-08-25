@@ -1,22 +1,21 @@
 ﻿using Blake2Fast;
 
-namespace CardanoSharp.Wallet.Utilities
+namespace CardanoSharp.Wallet.Utilities;
+
+public static class HashUtility
 {
-    public static class HashUtility
+    public static byte[] Blake2b224(byte[] data)
     {
-        public static byte[] Blake2b224(byte[] data)
-        {
-            return Blake2b.ComputeHash(28, data);
-        }
+        return Blake2b.ComputeHash(28, data);
+    }
 
-        public static byte[] Blake2b256(byte[] data)
-        {
-            return Blake2b.ComputeHash(32, data);
-        }
+    public static byte[] Blake2b256(byte[] data)
+    {
+        return Blake2b.ComputeHash(32, data);
+    }
 
-        public static byte[] Blake2b160(byte[] data)
-        {
-            return Blake2b.ComputeHash(20, data);
-        }
+    public static byte[] Blake2b160(byte[] data)
+    {
+        return Blake2b.ComputeHash(20, data);
     }
 }

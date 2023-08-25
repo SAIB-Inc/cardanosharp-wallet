@@ -5,148 +5,147 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Utilities;
 
-namespace CardanoSharp.Wallet.Models.Addresses
+namespace CardanoSharp.Wallet.Models.Addresses;
+
+public class Address : IEqualityComparer<Address>, IEquatable<Address>, IEquatable<string>, IEquatable<byte[]>
 {
-    public class Address : IEqualityComparer<Address>, IEquatable<Address>, IEquatable<string>, IEquatable<byte[]>
+    private byte[] _bytes = default!;
+    private string _address = default!;
+    public AddressType AddressType { get; }
+    public NetworkType NetworkType { get; }
+
+    public Address() { }
+
+    public Address(byte[] address)
     {
-        private byte[] _bytes = default!;
-        private string _address = default!;
-        public AddressType AddressType { get; }
-        public NetworkType NetworkType { get; }
+        _bytes = address;
+        AddressType = GetAddressType();
+        NetworkType = GetNetworkType();
+        Prefix = AddressUtility.GetPrefix(AddressType, NetworkType);
+        _address = Bech32.Encode(address, Prefix);
+    }
 
-        public Address() { }
+    public Address(string prefix, byte[] address)
+    {
+        _bytes = address;
+        _address = Bech32.Encode(address, prefix);
 
-        public Address(byte[] address)
+        Prefix = prefix;
+        AddressType = GetAddressType();
+        NetworkType = GetNetworkType();
+    }
+
+    public Address(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            throw new ArgumentNullException(nameof(address));
+
+        _address = address;
+        try
         {
-            _bytes = address;
-            AddressType = GetAddressType();
-            NetworkType = GetNetworkType();
-            Prefix = AddressUtility.GetPrefix(AddressType, NetworkType);
-            _address = Bech32.Encode(address, Prefix);
-        }
-
-        public Address(string prefix, byte[] address)
-        {
-            _bytes = address;
-            _address = Bech32.Encode(address, prefix);
-
+            _bytes = Bech32.Decode(_address, out byte witVer, out string prefix);
             Prefix = prefix;
+            WitnessVersion = witVer;
             AddressType = GetAddressType();
             NetworkType = GetNetworkType();
         }
-
-        public Address(string address)
+        catch
         {
-            if (string.IsNullOrWhiteSpace(address))
-                throw new ArgumentNullException(nameof(address));
-
-            _address = address;
-            try
-            {
-                _bytes = Bech32.Decode(_address, out byte witVer, out string prefix);
-                Prefix = prefix;
-                WitnessVersion = witVer;
-                AddressType = GetAddressType();
-                NetworkType = GetNetworkType();
-            }
-            catch
-            {
-                NetworkType = NetworkType.Unknown;
-            }
+            NetworkType = NetworkType.Unknown;
         }
+    }
 
-        /// <summary>
-        /// Returns <see cref="AddressType"/> as defined in https://github.com/cardano-foundation/CIPs/blob/master/CIP-0019/CIP-0019.md
-        /// </summary>
-        /// <returns>
-        ///     <para><see cref="AddressType.Base"/> if AddressType header is 0x01</para>
-        ///     <para><see cref="AddressType.Enterprise"/> if AddressType header is 0x06</para>
-        ///     <para>otherwise <see cref="AddressType.Base"/></para>
-        /// </returns>
-        /// <returns></returns>
-        private AddressType GetAddressType()
+    /// <summary>
+    /// Returns <see cref="AddressType"/> as defined in https://github.com/cardano-foundation/CIPs/blob/master/CIP-0019/CIP-0019.md
+    /// </summary>
+    /// <returns>
+    ///     <para><see cref="AddressType.Base"/> if AddressType header is 0x01</para>
+    ///     <para><see cref="AddressType.Enterprise"/> if AddressType header is 0x06</para>
+    ///     <para>otherwise <see cref="AddressType.Base"/></para>
+    /// </returns>
+    /// <returns></returns>
+    private AddressType GetAddressType()
+    {
+        return (_bytes[0] >> 4) switch
         {
-            return (_bytes[0] >> 4) switch
-            {
-                0x00 => AddressType.Base,
-                0x01 => AddressType.Script,
-                0x02 => AddressType.BaseWithScriptDelegation,
-                0x03 => AddressType.ScriptWithScriptDelegation,
-                0x04 => AddressType.BaseWithPtrDelegation,
-                0x05 => AddressType.BaseWithPtrDelegation,
-                0x06 => AddressType.Enterprise,
-                0x07 => AddressType.EnterpriseScript,
-                0x0e => AddressType.Stake,
-                0x0f => AddressType.ScriptStake,
-                _ => AddressType.Base
-            };
-        }
+            0x00 => AddressType.Base,
+            0x01 => AddressType.Script,
+            0x02 => AddressType.BaseWithScriptDelegation,
+            0x03 => AddressType.ScriptWithScriptDelegation,
+            0x04 => AddressType.BaseWithPtrDelegation,
+            0x05 => AddressType.BaseWithPtrDelegation,
+            0x06 => AddressType.Enterprise,
+            0x07 => AddressType.EnterpriseScript,
+            0x0e => AddressType.Stake,
+            0x0f => AddressType.ScriptStake,
+            _ => AddressType.Base
+        };
+    }
 
-        /// <summary>
-        /// Returns <see cref="NetworkType"/> as defined in https://github.com/cardano-foundation/CIPs/blob/master/CIP-0019/CIP-0019.md
-        /// </summary>
-        /// <returns>
-        ///     <para><see cref="NetworkType.Testnet"/> if Metwork header is 0x00</para>
-        ///     <para><see cref="NetworkType.Mainnet"/> if Network header is 0x01</para>
-        /// </returns>
-        /// <exception cref="InvalidOperationException">If LSB is </exception>"
-        private NetworkType GetNetworkType()
+    /// <summary>
+    /// Returns <see cref="NetworkType"/> as defined in https://github.com/cardano-foundation/CIPs/blob/master/CIP-0019/CIP-0019.md
+    /// </summary>
+    /// <returns>
+    ///     <para><see cref="NetworkType.Testnet"/> if Metwork header is 0x00</para>
+    ///     <para><see cref="NetworkType.Mainnet"/> if Network header is 0x01</para>
+    /// </returns>
+    /// <exception cref="InvalidOperationException">If LSB is </exception>"
+    private NetworkType GetNetworkType()
+    {
+        return (_bytes[0] & 0x0f) switch
         {
-            return (_bytes[0] & 0x0f) switch
-            {
-                0x00 => NetworkType.Testnet,
-                0x01 => NetworkType.Mainnet,
-                _ => NetworkType.Unknown,
-            };
-        }
+            0x00 => NetworkType.Testnet,
+            0x01 => NetworkType.Mainnet,
+            _ => NetworkType.Unknown,
+        };
+    }
 
-        public string Prefix { get; set; } = default!;
-        public byte WitnessVersion { get; set; }
+    public string Prefix { get; set; } = default!;
+    public byte WitnessVersion { get; set; }
 
-        public bool Equals(string? other)
-        {
-            if (other == null)
-                return false;
-            return _address.Equals(other);
-        }
+    public bool Equals(string? other)
+    {
+        if (other == null)
+            return false;
+        return _address.Equals(other);
+    }
 
-        public bool Equals(byte[]? other)
-        {
-            if (other == null)
-                return false;
-            return _bytes.SequenceEqual(other);
-        }
+    public bool Equals(byte[]? other)
+    {
+        if (other == null)
+            return false;
+        return _bytes.SequenceEqual(other);
+    }
 
-        public bool Equals(Address? other)
-        {
-            if (other == null)
-                return false;
-            return Equals(other.GetBytes());
-        }
+    public bool Equals(Address? other)
+    {
+        if (other == null)
+            return false;
+        return Equals(other.GetBytes());
+    }
 
-        public byte[] GetBytes()
-        {
-            return _bytes;
-        }
+    public byte[] GetBytes()
+    {
+        return _bytes;
+    }
 
-        public override string ToString()
-        {
-            return _address;
-        }
+    public override string ToString()
+    {
+        return _address;
+    }
 
-        public string ToStringHex()
-        {
-            return _bytes.ToStringHex();
-        }
+    public string ToStringHex()
+    {
+        return _bytes.ToStringHex();
+    }
 
-        public bool Equals(Address? x, Address? y)
-        {
-            return x!.Equals(y);
-        }
+    public bool Equals(Address? x, Address? y)
+    {
+        return x!.Equals(y);
+    }
 
-        public int GetHashCode(Address obj)
-        {
-            return obj.GetBytes().GetHashCode();
-        }
+    public int GetHashCode(Address obj)
+    {
+        return obj.GetBytes().GetHashCode();
     }
 }
