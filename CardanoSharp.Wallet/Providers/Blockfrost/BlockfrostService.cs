@@ -68,7 +68,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
             int pageNumber = 1;
             int countPerPage = 1;
             var blockfrostAddresses = await _accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
-            if (blockfrostAddresses.Content?.Length <= 0)
+            if (blockfrostAddresses.Content == null || blockfrostAddresses.Content.Length <= 0)
                 return null;
 
             string? mainAddress = blockfrostAddresses.Content?[0].Address;
@@ -80,6 +80,21 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
             return null;
         }
     }
+
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Address Functions
+    //---------------------------------------------------------------------------------------------------//
+    public async Task<List<Utxo>> GetSingleAddressUtxos(string address)
+    {
+        return await GetUtxosHelper(address);
+    }
+
+    // public static async Task<List<Utxo>> GetUtxos(string address, bool filterSmartContractAddresses = false)
+    // {
+    //     return await GetUtxosParallelized(address, filterSmartContractAddresses);
+    // }
 
     //---------------------------------------------------------------------------------------------------//
 

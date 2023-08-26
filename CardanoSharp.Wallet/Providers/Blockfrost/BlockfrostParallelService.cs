@@ -6,6 +6,7 @@ using CardanoSharp.Blockfrost.Sdk.Contracts;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
@@ -13,8 +14,33 @@ namespace CardanoSharp.Wallet.Providers.Blockfrost;
 public partial class BlockfrostService
 {
     //---------------------------------------------------------------------------------------------------//
-    // Utxo Functions
+    // Helper Functions
     //---------------------------------------------------------------------------------------------------//
+    public async Task<List<string>> GetAddressesHelper(string address, int pageNumber = 1, string order = "asc")
+    {
+        List<string> addresses = new();
+        try
+        {
+            Address addr = new(address);
+            Address stakeAddr = addr.GetStakeAddress();
+            string stakeAddress = stakeAddr.ToString();
+
+            int countPerPage = 100;
+            var blockfrostAddresses = await _accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            if (blockfrostAddresses.Content == null)
+                return addresses;
+
+            foreach (var blockfrostAddress in blockfrostAddresses.Content)
+                addresses.Add(blockfrostAddress.Address);
+            return addresses;
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.ToString());
+            return addresses;
+        }
+    }
+
     public async Task<List<Utxo>> GetUtxosHelper(string address)
     {
         List<Utxo> utxos = new();
