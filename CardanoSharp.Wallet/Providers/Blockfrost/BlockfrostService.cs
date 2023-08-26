@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
-using CardanoSharp.Blockfrost.Sdk.Common;
-using CardanoSharp.Wallet.Enums;
-using Microsoft.Extensions.DependencyInjection;
-
-//using CardanoSharp.Blockfrost.Sdk;
+using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Addresses;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
@@ -13,41 +13,103 @@ public interface IBlockfrostService : IAProviderService { }
 
 public partial class BlockfrostService : AProviderService, IBlockfrostService
 {
-    private readonly INetworkClient _networkClient;
-    private readonly ITransactionsClient _transactionsClient;
+    private readonly IAccountClient _accountClient;
+    private readonly IAddressesClient _addressesClient;
     private readonly IAssetsClient _assetsClient;
-    private readonly IScriptsClient _scriptsClient;
     private readonly IBlocksClient _blocksClient;
     private readonly IEpochsClient _epochsClient;
-    private readonly IAddressesClient _addressesClient;
+    private readonly INetworkClient _networkClient;
     private readonly IPoolsClient _poolsClient;
-    private readonly IAccountClient _accountClient;
+    private readonly IScriptsClient _scriptsClient;
+    private readonly ITransactionsClient _transactionsClient;
 
     public BlockfrostService(
-        INetworkClient networkClient,
-        ITransactionsClient transactionsClient,
+        IAccountClient accountClient,
+        IAddressesClient addressesClient,
         IAssetsClient assetsClient,
-        IScriptsClient scriptsClient,
         IBlocksClient blocksClient,
         IEpochsClient epochsClient,
-        IAddressesClient addressesClient,
+        INetworkClient networkClient,
         IPoolsClient poolsClient,
-        IAccountClient accountClient
+        IScriptsClient scriptsClient,
+        ITransactionsClient transactionsClient
     )
     {
-        _networkClient = networkClient;
-        _transactionsClient = transactionsClient;
+        _accountClient = accountClient;
+        _addressesClient = addressesClient;
         _assetsClient = assetsClient;
-        _scriptsClient = scriptsClient;
         _blocksClient = blocksClient;
         _epochsClient = epochsClient;
-        _addressesClient = addressesClient;
+        _networkClient = networkClient;
         _poolsClient = poolsClient;
-        _accountClient = accountClient;
+        _scriptsClient = scriptsClient;
+        _transactionsClient = transactionsClient;
     }
 
     public override Task Initialize()
     {
         throw new System.NotImplementedException();
     }
+
+    //---------------------------------------------------------------------------------------------------//
+    // Account Functions
+    //---------------------------------------------------------------------------------------------------//
+    public async Task<string?> GetMainAddress(string? address, string order = "asc")
+    {
+        try
+        {
+            if (address == null)
+                return null;
+
+            Address addr = new(address);
+            Address stakeAddr = addr.GetStakeAddress();
+            string stakeAddress = stakeAddr.ToString();
+
+            int pageNumber = 1;
+            int countPerPage = 1;
+            var blockfrostAddresses = await _accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            if (blockfrostAddresses.Content?.Length <= 0)
+                return null;
+
+            string? mainAddress = blockfrostAddresses.Content?[0].Address;
+            return mainAddress;
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine($"Error in the GetMainAddress Function: {exception}");
+            return null;
+        }
+    }
+
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Helper Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static Balance GetBalance(List<Amount> amounts)
+    {
+        ulong lovelaces = 0;
+        List<Asset> assets = new();
+        foreach (Amount amount in amounts)
+        {
+            if (amount.Unit == "lovelace")
+            {
+                lovelaces = ulong.Parse(amount.Quantity);
+            }
+            else
+            {
+                Asset asset =
+                    new()
+                    {
+                        PolicyId = amount.Unit[..56],
+                        Name = amount.Unit[56..],
+                        Quantity = long.Parse(amount.Quantity)
+                    };
+                assets.Add(asset);
+            }
+        }
+
+        return new Balance() { Lovelaces = lovelaces, Assets = assets };
+    }
+    //---------------------------------------------------------------------------------------------------//
 }
