@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;</TargetFrameworks>
-    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
+    <TargetFrameworks>net6.0;</TargetFrameworks>
+    <PackageId>CardanoSharp.Wallet</PackageId>
     <LangVersion>11.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>6.1.14</Version>
@@ -17,6 +17,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="CardanoSharp.Blockfrost.SDK" Version="0.0.14" />
     <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
     <PackageReference Include="CardanoSharp.CBOR" Version="0.1.0" />
   </ItemGroup>
