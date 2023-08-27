@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
+using CardanoSharp.Blockfrost.Sdk.Common;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
@@ -14,6 +17,30 @@ public interface IBlockfrostService : IAProviderService { }
 
 public partial class BlockfrostService : AProviderService, IBlockfrostService
 {
+    public BlockfrostService(NetworkType networkType, string apiKey)
+    {
+        // Add Blockfrost Service
+        string url = "https://cardano-mainnet.blockfrost.io";
+        if (networkType == NetworkType.Preprod)
+            url = "https://cardano-preprod.blockfrost.io";
+
+        var authConfig = new AuthHeaderConfiguration(apiKey, url);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddBlockfrost(authConfig);
+
+        this.provider = serviceCollection.BuildServiceProvider();
+        this.AccountClient = provider.GetRequiredService<IAccountClient>();
+        this.AddressesClient = provider.GetRequiredService<IAddressesClient>();
+        this.AssetsClient = provider.GetRequiredService<IAssetsClient>();
+        this.BlocksClient = provider.GetRequiredService<IBlocksClient>();
+        this.EpochsClient = provider.GetRequiredService<IEpochsClient>();
+        this.MempoolClient = provider.GetRequiredService<IMempoolClient>();
+        this.NetworkClient = provider.GetRequiredService<INetworkClient>();
+        this.PoolsClient = provider.GetRequiredService<IPoolsClient>();
+        this.ScriptsClient = provider.GetRequiredService<IScriptsClient>();
+        this.TransactionsClient = provider.GetRequiredService<ITransactionsClient>();
+    }
+
     public BlockfrostService(
         IAccountClient accountClient,
         IAddressesClient addressesClient,
