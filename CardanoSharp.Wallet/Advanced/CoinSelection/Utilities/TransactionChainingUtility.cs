@@ -87,7 +87,7 @@ public static class TransactionChainingUtility
         return (inputUtxos, outputUtxos);
     }
 
-    private static (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) GetUtxosFromMempoolTransactions(MempoolTransaction[] mempoolTransactions)
+    public static (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) GetUtxosFromMempoolTransactions(MempoolTransaction[] mempoolTransactions)
     {
         HashSet<Utxo> inputUtxos = new();
         HashSet<Utxo> outputUtxos = new();
