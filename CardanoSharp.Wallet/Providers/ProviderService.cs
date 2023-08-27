@@ -44,7 +44,6 @@ public class ProviderData
 
 public abstract class AProviderService : IAProviderService
 {
-    public ServiceProvider provider { get; set; } = default!;
     public IAccountClient AccountClient { get; set; } = default!;
     public IAddressesClient AddressesClient { get; set; } = default!;
     public IAssetsClient AssetsClient { get; set; } = default!;
