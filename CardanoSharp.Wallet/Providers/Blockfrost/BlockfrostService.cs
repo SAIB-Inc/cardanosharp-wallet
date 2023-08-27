@@ -4,11 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
-using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
-using Refit;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
@@ -69,6 +67,11 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
             Console.WriteLine($"Error in the GetMainAddress Function: {exception}");
             return null;
         }
+    }
+
+    public async Task<List<Asset>> GetAccountAssets(string mainAddress)
+    {
+        return await GetAccountAssetsParallelized(mainAddress);
     }
 
     //---------------------------------------------------------------------------------------------------//

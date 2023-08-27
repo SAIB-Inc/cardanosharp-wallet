@@ -1,6 +1,6 @@
 namespace CardanoSharp.Wallet.Utilities;
 
-public static class AssetService
+public static class AssetUtility
 {
     public static string GetHexPolicyId(string hexAsset)
     {

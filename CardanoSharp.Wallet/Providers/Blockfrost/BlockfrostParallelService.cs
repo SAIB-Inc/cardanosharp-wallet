@@ -72,8 +72,8 @@ public partial class BlockfrostService
             Asset asset =
                 new()
                 {
-                    PolicyId = AssetService.GetHexPolicyId(addressAsset.Unit),
-                    Name = AssetService.GetHexAssetName(addressAsset.Unit),
+                    PolicyId = AssetUtility.GetHexPolicyId(addressAsset.Unit),
+                    Name = AssetUtility.GetHexAssetName(addressAsset.Unit),
                     Quantity = long.Parse(addressAsset.Quantity)
                 };
             assets.Add(asset);
