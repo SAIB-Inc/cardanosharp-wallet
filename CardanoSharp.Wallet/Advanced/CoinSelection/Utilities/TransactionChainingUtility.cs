@@ -3,21 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
-using CardanoSharp.Wallet.CIPs.CIP2;
-using CardanoSharp.Wallet.CIPs.CIP2.Models;
-using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
-using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.Models.Addresses;
-using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Providers;
-using CardanoSharp.Wallet.Providers.Blockfrost;
-using CardanoSharp.Wallet.TransactionBuilding;
 using CardanoSharp.Wallet.Utilities;
-using CoinSelection = CardanoSharp.Wallet.CIPs.CIP2.Models.CoinSelection;
 
 namespace CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Utilities;
 
