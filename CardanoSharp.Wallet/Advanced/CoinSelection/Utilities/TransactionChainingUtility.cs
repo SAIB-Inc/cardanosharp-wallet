@@ -134,8 +134,8 @@ public static class TransactionChainingUtility
                     assets.Add(
                         new Asset
                         {
-                            PolicyId = AssetService.GetHexPolicyId(amount.Unit),
-                            Name = AssetService.GetHexAssetName(amount.Unit),
+                            PolicyId = AssetUtility.GetHexPolicyId(amount.Unit),
+                            Name = AssetUtility.GetHexAssetName(amount.Unit),
                             Quantity = long.Parse(amount.Quantity)
                         }
                     );

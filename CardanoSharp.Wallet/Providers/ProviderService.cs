@@ -86,6 +86,11 @@ public abstract class AProviderService : IAProviderService
         throw new System.NotImplementedException();
     }
 
+    public virtual Task<List<Asset>> GetAccountAssets(string mainAddress)
+    {
+        throw new System.NotImplementedException();
+    }
+
     //---------------------------------------------------------------------------------------------------//
 
     //---------------------------------------------------------------------------------------------------//

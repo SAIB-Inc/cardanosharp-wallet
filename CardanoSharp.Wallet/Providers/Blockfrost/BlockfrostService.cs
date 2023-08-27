@@ -69,7 +69,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
         }
     }
 
-    public async Task<List<Asset>> GetAccountAssets(string mainAddress)
+    public override async Task<List<Asset>> GetAccountAssets(string mainAddress)
     {
         return await GetAccountAssetsParallelized(mainAddress);
     }
