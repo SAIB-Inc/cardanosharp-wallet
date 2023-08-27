@@ -17,13 +17,8 @@ public interface IBlockfrostService : IAProviderService { }
 
 public partial class BlockfrostService : AProviderService, IBlockfrostService
 {
-    public BlockfrostService(NetworkType networkType, string apiKey)
+    public BlockfrostService(string apiKey, string url)
     {
-        // Add Blockfrost Service
-        string url = "https://cardano-mainnet.blockfrost.io";
-        if (networkType == NetworkType.Preprod)
-            url = "https://cardano-preprod.blockfrost.io";
-
         var authConfig = new AuthHeaderConfiguration(apiKey, url);
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddBlockfrost(authConfig);

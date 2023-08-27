@@ -31,7 +31,7 @@ public interface IAProviderService
     //---------------------------------------------------------------------------------------------------//
     // Mempool Functions
     //---------------------------------------------------------------------------------------------------//
-    Task<MempoolTransaction[]> GetMempoolTransactions(List<string> txHash);
+    public Task<MempoolTransaction[]> GetMempoolTransactions(List<string> txHash);
     //---------------------------------------------------------------------------------------------------//
 }
 
