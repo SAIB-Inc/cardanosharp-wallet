@@ -41,13 +41,6 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
         this.TransactionsClient = transactionsClient;
     }
 
-    public override async Task Initialize(NetworkType networkType = NetworkType.Mainnet)
-    {
-        this.ProviderData.NetworkType = networkType;
-        this.ProviderData.Block = (await BlocksClient.GetLatestBlockAsync())?.Content!;
-        this.ProviderData.ProtocolParameters = (await EpochsClient.GetLatestParamtersAsync())?.Content!;
-    }
-
     //---------------------------------------------------------------------------------------------------//
     // Account Functions
     //---------------------------------------------------------------------------------------------------//

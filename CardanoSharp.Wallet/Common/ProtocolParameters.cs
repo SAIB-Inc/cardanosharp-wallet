@@ -1,3 +1,5 @@
+using System;
+
 namespace CardanoSharp.Wallet.Common;
 
 public class ProtocolParameters

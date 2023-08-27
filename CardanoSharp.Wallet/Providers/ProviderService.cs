@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models;
 
@@ -36,8 +37,8 @@ public interface IAProviderService
 public class ProviderData
 {
     public NetworkType NetworkType { get; set; } = NetworkType.Mainnet;
-    public Block? Block { get; set; } = default!;
-    public EpochParameters? ProtocolParameters { get; set; } = default!;
+    public ulong Tip { get; set; } = default!;
+    public ProtocolParameters? ProtocolParameters { get; set; } = default!;
 }
 
 public abstract class AProviderService : IAProviderService
@@ -59,8 +60,22 @@ public abstract class AProviderService : IAProviderService
     public virtual async Task Initialize(NetworkType networkType = NetworkType.Mainnet)
     {
         this.ProviderData.NetworkType = networkType;
-        this.ProviderData.Block = (await BlocksClient.GetLatestBlockAsync())?.Content!;
-        this.ProviderData.ProtocolParameters = (await EpochsClient.GetLatestParamtersAsync())?.Content!;
+        this.ProviderData.Tip = (ulong)((await BlocksClient.GetLatestBlockAsync())?.Content?.Slot)!;
+
+        EpochParameters epochParameters = (await EpochsClient.GetLatestParamtersAsync())?.Content!;
+        ProtocolParameters protocolParameters =
+            new()
+            {
+                MinFeeA = epochParameters.MinFeeA,
+                MinFeeB = epochParameters.MinFeeB,
+                MaxTxSize = epochParameters.MaxTxSize,
+                MaxTxExMem = ulong.Parse(epochParameters.MaxTxExMem!),
+                MaxTxExSteps = ulong.Parse(epochParameters.MaxTxExSteps!),
+                PriceMem = (double)epochParameters.PriceMem!,
+                PriceStep = (double)epochParameters.PriceStep!
+            };
+
+        this.ProviderData.ProtocolParameters = protocolParameters;
     }
 
     //---------------------------------------------------------------------------------------------------//
