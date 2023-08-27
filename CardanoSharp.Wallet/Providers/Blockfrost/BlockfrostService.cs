@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
@@ -28,21 +29,23 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
         ITransactionsClient transactionsClient
     )
     {
-        this.accountClient = accountClient;
-        this.addressesClient = addressesClient;
-        this.assetsClient = assetsClient;
-        this.blocksClient = blocksClient;
-        this.epochsClient = epochsClient;
-        this.mempoolClient = mempoolClient;
-        this.networkClient = networkClient;
-        this.poolsClient = poolsClient;
-        this.scriptsClient = scriptsClient;
-        this.transactionsClient = transactionsClient;
+        this.AccountClient = accountClient;
+        this.AddressesClient = addressesClient;
+        this.AssetsClient = assetsClient;
+        this.BlocksClient = blocksClient;
+        this.EpochsClient = epochsClient;
+        this.MempoolClient = mempoolClient;
+        this.NetworkClient = networkClient;
+        this.PoolsClient = poolsClient;
+        this.ScriptsClient = scriptsClient;
+        this.TransactionsClient = transactionsClient;
     }
 
-    public override Task Initialize()
+    public override async Task Initialize(NetworkType networkType = NetworkType.Mainnet)
     {
-        throw new System.NotImplementedException();
+        this.ProviderData.NetworkType = networkType;
+        this.ProviderData.Block = (await BlocksClient.GetLatestBlockAsync())?.Content!;
+        this.ProviderData.ProtocolParameters = (await EpochsClient.GetLatestParamtersAsync())?.Content!;
     }
 
     //---------------------------------------------------------------------------------------------------//
@@ -61,7 +64,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
 
             int pageNumber = 1;
             int countPerPage = 1;
-            var blockfrostAddresses = await accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            var blockfrostAddresses = await AccountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
             if (blockfrostAddresses.Content == null || blockfrostAddresses.Content.Length <= 0)
                 return null;
 
@@ -97,7 +100,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
     //---------------------------------------------------------------------------------------------------//
     public override async Task<MempoolTransaction[]> GetMempoolTransactions(List<string> txHash)
     {
-        var mempoolTransactionTasks = txHash.Select(hash => mempoolClient.GetMempoolTransactionAsync(hash)).ToList();
+        var mempoolTransactionTasks = txHash.Select(hash => MempoolClient.GetMempoolTransactionAsync(hash)).ToList();
         var mempoolTransactionContents = await Task.WhenAll(mempoolTransactionTasks);
         var mempoolTransactions = mempoolTransactionContents.Where(content => content.Content != null).Select(content => content.Content!).ToArray();
         return mempoolTransactions;
