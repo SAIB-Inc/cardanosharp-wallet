@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
+using Refit;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
@@ -13,37 +15,29 @@ public interface IBlockfrostService : IAProviderService { }
 
 public partial class BlockfrostService : AProviderService, IBlockfrostService
 {
-    private readonly IAccountClient _accountClient;
-    private readonly IAddressesClient _addressesClient;
-    private readonly IAssetsClient _assetsClient;
-    private readonly IBlocksClient _blocksClient;
-    private readonly IEpochsClient _epochsClient;
-    private readonly INetworkClient _networkClient;
-    private readonly IPoolsClient _poolsClient;
-    private readonly IScriptsClient _scriptsClient;
-    private readonly ITransactionsClient _transactionsClient;
-
     public BlockfrostService(
         IAccountClient accountClient,
         IAddressesClient addressesClient,
         IAssetsClient assetsClient,
         IBlocksClient blocksClient,
         IEpochsClient epochsClient,
+        IMempoolClient mempoolClient,
         INetworkClient networkClient,
         IPoolsClient poolsClient,
         IScriptsClient scriptsClient,
         ITransactionsClient transactionsClient
     )
     {
-        _accountClient = accountClient;
-        _addressesClient = addressesClient;
-        _assetsClient = assetsClient;
-        _blocksClient = blocksClient;
-        _epochsClient = epochsClient;
-        _networkClient = networkClient;
-        _poolsClient = poolsClient;
-        _scriptsClient = scriptsClient;
-        _transactionsClient = transactionsClient;
+        this.accountClient = accountClient;
+        this.addressesClient = addressesClient;
+        this.assetsClient = assetsClient;
+        this.blocksClient = blocksClient;
+        this.epochsClient = epochsClient;
+        this.mempoolClient = mempoolClient;
+        this.networkClient = networkClient;
+        this.poolsClient = poolsClient;
+        this.scriptsClient = scriptsClient;
+        this.transactionsClient = transactionsClient;
     }
 
     public override Task Initialize()
@@ -54,7 +48,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
     //---------------------------------------------------------------------------------------------------//
     // Account Functions
     //---------------------------------------------------------------------------------------------------//
-    public async Task<string?> GetMainAddress(string? address, string order = "asc")
+    public override async Task<string?> GetMainAddress(string? address, string order = "asc")
     {
         try
         {
@@ -67,7 +61,7 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
 
             int pageNumber = 1;
             int countPerPage = 1;
-            var blockfrostAddresses = await _accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            var blockfrostAddresses = await accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
             if (blockfrostAddresses.Content == null || blockfrostAddresses.Content.Length <= 0)
                 return null;
 
@@ -86,45 +80,27 @@ public partial class BlockfrostService : AProviderService, IBlockfrostService
     //---------------------------------------------------------------------------------------------------//
     // Address Functions
     //---------------------------------------------------------------------------------------------------//
-    public async Task<List<Utxo>> GetSingleAddressUtxos(string address)
+    public override async Task<List<Utxo>> GetSingleAddressUtxos(string address)
     {
         return await GetUtxosHelper(address);
     }
 
-    // public static async Task<List<Utxo>> GetUtxos(string address, bool filterSmartContractAddresses = false)
-    // {
-    //     return await GetUtxosParallelized(address, filterSmartContractAddresses);
-    // }
-
-    //---------------------------------------------------------------------------------------------------//
-
-    //---------------------------------------------------------------------------------------------------//
-    // Helper Functions
-    //---------------------------------------------------------------------------------------------------//
-    public static Balance GetBalance(List<Amount> amounts)
+    public override async Task<List<Utxo>> GetUtxos(string address, bool filterSmartContractAddresses = false)
     {
-        ulong lovelaces = 0;
-        List<Asset> assets = new();
-        foreach (Amount amount in amounts)
-        {
-            if (amount.Unit == "lovelace")
-            {
-                lovelaces = ulong.Parse(amount.Quantity);
-            }
-            else
-            {
-                Asset asset =
-                    new()
-                    {
-                        PolicyId = amount.Unit[..56],
-                        Name = amount.Unit[56..],
-                        Quantity = long.Parse(amount.Quantity)
-                    };
-                assets.Add(asset);
-            }
-        }
+        return await GetUtxosParallelized(address, filterSmartContractAddresses);
+    }
 
-        return new Balance() { Lovelaces = lovelaces, Assets = assets };
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Mempool Functions
+    //---------------------------------------------------------------------------------------------------//
+    public override async Task<MempoolTransaction[]> GetMempoolTransactions(List<string> txHash)
+    {
+        var mempoolTransactionTasks = txHash.Select(hash => mempoolClient.GetMempoolTransactionAsync(hash)).ToList();
+        var mempoolTransactionContents = await Task.WhenAll(mempoolTransactionTasks);
+        var mempoolTransactions = mempoolTransactionContents.Where(content => content.Content != null).Select(content => content.Content!).ToArray();
+        return mempoolTransactions;
     }
     //---------------------------------------------------------------------------------------------------//
 }

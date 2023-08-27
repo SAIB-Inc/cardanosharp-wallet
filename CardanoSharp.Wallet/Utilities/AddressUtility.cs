@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
@@ -276,6 +277,33 @@ public static class AddressUtility
         Buffer.BlockCopy(stakeEncoded, 0, addressArray, 1, stakeEncoded.Length);
 
         return new Address(prefix, addressArray);
+    }
+
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Smart Contract Address Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static bool IsSmartContractAddress(string address)
+    {
+        Address addressObj = new(address);
+        return addressObj.AddressType == AddressType.Script
+            || addressObj.AddressType == AddressType.ScriptWithScriptDelegation
+            || addressObj.AddressType == AddressType.ScriptWithPtrDelegation
+            || addressObj.AddressType == AddressType.EnterpriseScript
+            || addressObj.AddressType == AddressType.ScriptStake;
+    }
+
+    public static List<string> FilterSmartContractAddresses(List<string> addresses)
+    {
+        List<string> filteredAddresses = new();
+        foreach (string address in addresses)
+        {
+            if (!IsSmartContractAddress(address))
+                filteredAddresses.Add(address);
+        }
+
+        return filteredAddresses;
     }
     //---------------------------------------------------------------------------------------------------//
 }

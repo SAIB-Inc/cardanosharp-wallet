@@ -1,4 +1,4 @@
-namespace CardanoSharp.Wallet.Advanced.CoinSelection.Enums;
+namespace CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
 
 public enum TxChainingType
 {

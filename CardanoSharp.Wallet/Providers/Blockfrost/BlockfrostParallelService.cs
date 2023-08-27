@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -8,15 +9,66 @@ using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
 public partial class BlockfrostService
 {
     //---------------------------------------------------------------------------------------------------//
-    // Helper Functions
+    // Address Functions
     //---------------------------------------------------------------------------------------------------//
-    public async Task<List<string>> GetAddressesHelper(string address, int pageNumber = 1, string order = "asc")
+    public async Task<List<string>> GetAddressesParallelized(string addressParam)
+    {
+        List<string> addresses = new();
+        List<string> initialList = await GetAddressesHelper(addressParam, 1);
+
+        // Check if there are 100 or less addresses first to handle low address wallets quickly
+        if (initialList.Count < 100)
+        {
+            foreach (string address in initialList)
+                addresses.Add(address);
+        }
+        else
+        {
+            int loopAddressCount = 0;
+            int itemsPerPage = 100;
+
+            //Get's 500 addresses at once, can sometimes throw strange results in local build,
+            //if this occurs in staging and production use, will be reverted back to old method.
+            var data = new int[] { 1, 2, 3, 4, 5 };
+            do
+            {
+                loopAddressCount = 0;
+                var result = new ConcurrentBag<List<string>>();
+                var tasks = new List<Task>();
+                Parallel.ForEach(
+                    data,
+                    (pageNumber) =>
+                    {
+                        tasks.Add(CallGetAddressesHelperAsync(addressParam, pageNumber, result));
+                    }
+                );
+
+                await Task.WhenAll(tasks);
+                foreach (List<string> stringList in result)
+                {
+                    foreach (string address in stringList)
+                    {
+                        loopAddressCount += 1;
+                        addresses.Add(address);
+                    }
+                }
+
+                // Increment all data items by the data length to get new items from new pages
+                for (int i = 0; i < data.Length; i++)
+                    data[i] = data[i] + data.Length;
+            } while (loopAddressCount == data.Length * itemsPerPage);
+        }
+        return addresses;
+    }
+
+    private async Task<List<string>> GetAddressesHelper(string address, int pageNumber = 1, string order = "asc")
     {
         List<string> addresses = new();
         try
@@ -26,7 +78,7 @@ public partial class BlockfrostService
             string stakeAddress = stakeAddr.ToString();
 
             int countPerPage = 100;
-            var blockfrostAddresses = await _accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            var blockfrostAddresses = await accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
             if (blockfrostAddresses.Content == null)
                 return addresses;
 
@@ -41,7 +93,118 @@ public partial class BlockfrostService
         }
     }
 
-    public async Task<List<Utxo>> GetUtxosHelper(string address)
+    private async Task CallGetAddressesHelperAsync(string address, int pageNumber, ConcurrentBag<List<string>> results)
+    {
+        List<string> addresses = await GetAddressesHelper(address, pageNumber);
+        results.Add(addresses);
+    }
+
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Utxo Functions
+    //---------------------------------------------------------------------------------------------------//
+    public async Task<List<Utxo>> GetUtxosParallelized(string address, bool filterSmartContractAddresses = false)
+    {
+        List<Utxo> utxos = new();
+        List<string> addresses = await GetAddressesParallelized(address);
+        if (filterSmartContractAddresses)
+            addresses = AddressUtility.FilterSmartContractAddresses(addresses);
+
+        int maxAddressCount = 1200;
+        if (addresses.Count < maxAddressCount)
+        {
+            List<string> totalCheckedAddresses = new(); //The addresses that you have done + the addresses you are about to do.
+            List<string> loopAddresses = new(); //the addresses you are about to do.
+            int addressesPerLoop = 300;
+            do
+            {
+                loopAddresses.Clear();
+                int addressCheckCount = addresses.Count - totalCheckedAddresses.Count;
+                if (addressCheckCount >= addressesPerLoop)
+                    addressCheckCount = addressesPerLoop;
+
+                int totalAddressCount = totalCheckedAddresses.Count;
+                for (int i = totalAddressCount; i < (addressCheckCount + totalAddressCount); i++)
+                {
+                    totalCheckedAddresses.Add(addresses[i]);
+                    loopAddresses.Add(addresses[i]);
+                }
+
+                var resultUTXO = new ConcurrentBag<List<Utxo>>();
+
+                var tasksUTXOS = new List<Task>();
+                Parallel.ForEach(
+                    loopAddresses,
+                    (address) =>
+                    {
+                        tasksUTXOS.Add(CallGetUtxosHelperAsync(address, resultUTXO));
+                    }
+                );
+
+                var cutTasksUTXOS = new List<Task>();
+                for (int i = 0; i < tasksUTXOS.Count; i++)
+                {
+                    if (tasksUTXOS[i] != null)
+                    {
+                        cutTasksUTXOS.Add(tasksUTXOS[i]);
+                    }
+                }
+
+                await Task.WhenAll(cutTasksUTXOS);
+
+                foreach (List<Utxo> utxoList in resultUTXO)
+                {
+                    foreach (Utxo utxo in utxoList)
+                    {
+                        utxos.Add(utxo);
+                    }
+                }
+            } while (addresses.Count != totalCheckedAddresses.Count);
+        }
+        else
+        {
+            // If there are an extreme number of addresses, just check the first 100 and last 100
+            List<string> firstAndLast100Addresses = new();
+            for (int i = 0; i < 100; i++)
+                firstAndLast100Addresses.Add(addresses[i]);
+
+            for (int i = (addresses.Count - 1); i >= (addresses.Count - 100); i--)
+                firstAndLast100Addresses.Add(addresses[i]);
+
+            var resultUTXO = new ConcurrentBag<List<Utxo>>();
+            var tasksUTXOS = new List<Task>();
+            Parallel.ForEach(
+                firstAndLast100Addresses,
+                (address) =>
+                {
+                    tasksUTXOS.Add(CallGetUtxosHelperAsync(address, resultUTXO));
+                }
+            );
+
+            var cutTasksUTXOS = new List<Task>();
+            for (int i = 0; i < tasksUTXOS.Count; i++)
+            {
+                if (tasksUTXOS[i] != null)
+                {
+                    cutTasksUTXOS.Add(tasksUTXOS[i]);
+                }
+            }
+
+            await Task.WhenAll(cutTasksUTXOS);
+
+            foreach (List<Utxo> utxoList in resultUTXO)
+            {
+                foreach (Utxo utxo in utxoList)
+                {
+                    utxos.Add(utxo);
+                }
+            }
+        }
+        return utxos;
+    }
+
+    private async Task<List<Utxo>> GetUtxosHelper(string address)
     {
         List<Utxo> utxos = new();
         try
@@ -52,7 +215,7 @@ public partial class BlockfrostService
             AddressUtxo[]? blockfrostAddressUtxos;
             do
             {
-                blockfrostAddressUtxos = (await _addressesClient.GetAddressUtxosAsync(address, countPerPage, pageNumber, order))?.Content;
+                blockfrostAddressUtxos = (await addressesClient.GetAddressUtxosAsync(address, countPerPage, pageNumber, order))?.Content;
                 if (blockfrostAddressUtxos == null)
                     break;
 
@@ -62,7 +225,7 @@ public partial class BlockfrostService
                     uint txIndex = blockfrostAddressUtxo.OutputIndex;
                     var amountObjects = JsonSerializer.Serialize(blockfrostAddressUtxo.Amount);
                     List<Amount> amounts = JsonSerializer.Deserialize<List<Amount>>(amountObjects)!;
-                    Balance balance = GetBalance(amounts);
+                    Balance balance = ValueUtility.GetBalance(amounts);
 
                     string outputAddress = blockfrostAddressUtxo.Address!;
                     DatumOption? datumOption =
@@ -89,6 +252,12 @@ public partial class BlockfrostService
             Console.WriteLine(exception.ToString());
         }
         return utxos;
+    }
+
+    private async Task CallGetUtxosHelperAsync(string address, ConcurrentBag<List<Utxo>> results)
+    {
+        var utxos = await GetUtxosHelper(address);
+        results.Add(utxos);
     }
     //---------------------------------------------------------------------------------------------------//
 }
