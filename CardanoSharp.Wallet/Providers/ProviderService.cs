@@ -39,7 +39,7 @@ public class ProviderData
 {
     public NetworkType NetworkType { get; set; } = NetworkType.Mainnet;
     public ulong Tip { get; set; } = default!;
-    public ProtocolParameters? ProtocolParameters { get; set; } = default!;
+    public ProtocolParameters? ProtocolParameters { get; set; } = new()!;
 }
 
 public abstract class AProviderService : IAProviderService
@@ -56,7 +56,7 @@ public abstract class AProviderService : IAProviderService
     public ITransactionsClient TransactionsClient { get; set; } = default!;
 
     // Provider Data
-    public ProviderData ProviderData { get; set; } = default!;
+    public ProviderData ProviderData { get; set; } = new()!;
 
     public virtual async Task Initialize(NetworkType networkType = NetworkType.Mainnet)
     {
