@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
@@ -15,6 +16,74 @@ namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
 public partial class BlockfrostService
 {
+    //---------------------------------------------------------------------------------------------------//
+    // Account Functions
+    //---------------------------------------------------------------------------------------------------//
+    public async Task<List<Asset>> GetAccountAssetsParallelized(string mainAddress)
+    {
+        try
+        {
+            Address addr = new(mainAddress);
+            Address stakeAddr = addr.GetStakeAddress();
+            string stakeAddress = stakeAddr.ToString();
+
+            int countPerPage = 100;
+            string order = "desc";
+            int batchCount = 4;
+            int initialPage = 1;
+
+            List<Asset> allAssets = new();
+            while (true)
+            {
+                // Prepare a batch of tasks
+                var batchTasks = new List<Task<List<Asset>>>();
+                for (int i = 0; i < batchCount; i++)
+                {
+                    int pageNumber = initialPage + i;
+                    batchTasks.Add(GetAccountAssetsHelper(stakeAddress, countPerPage, pageNumber, order));
+                }
+
+                // Fetch the batch
+                var batchResults = await Task.WhenAll(batchTasks);
+                allAssets.AddRange(batchResults.SelectMany(x => x));
+
+                // If any page in the batch has less than countPerPage, we've reached the last page
+                if (batchResults.Any(x => x.Count < countPerPage))
+                    break;
+                else
+                    initialPage += batchCount;
+            }
+
+            return allAssets;
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.ToString());
+            return new List<Asset>();
+        }
+    }
+
+    private async Task<List<Asset>> GetAccountAssetsHelper(string stakeAddress, int countPerPage, int pageNumber, string order = "desc")
+    {
+        List<Asset> assets = new();
+        var addressAssets = (await AccountClient.GetAccountAssociatedAddressesAssets(stakeAddress, countPerPage, pageNumber, order))?.Content!;
+        foreach (var addressAsset in addressAssets)
+        {
+            Asset asset =
+                new()
+                {
+                    PolicyId = AssetService.GetHexPolicyId(addressAsset.Unit),
+                    Name = AssetService.GetHexAssetName(addressAsset.Unit),
+                    Quantity = long.Parse(addressAsset.Quantity)
+                };
+            assets.Add(asset);
+        }
+
+        return assets;
+    }
+
+    //---------------------------------------------------------------------------------------------------//
+
     //---------------------------------------------------------------------------------------------------//
     // Address Functions
     //---------------------------------------------------------------------------------------------------//
@@ -78,7 +147,7 @@ public partial class BlockfrostService
             string stakeAddress = stakeAddr.ToString();
 
             int countPerPage = 100;
-            var blockfrostAddresses = await accountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
+            var blockfrostAddresses = await AccountClient.GetAccountAssociatedAddresses(stakeAddress, countPerPage, pageNumber, order);
             if (blockfrostAddresses.Content == null)
                 return addresses;
 
@@ -215,7 +284,7 @@ public partial class BlockfrostService
             AddressUtxo[]? blockfrostAddressUtxos;
             do
             {
-                blockfrostAddressUtxos = (await addressesClient.GetAddressUtxosAsync(address, countPerPage, pageNumber, order))?.Content;
+                blockfrostAddressUtxos = (await AddressesClient.GetAddressUtxosAsync(address, countPerPage, pageNumber, order))?.Content;
                 if (blockfrostAddressUtxos == null)
                     break;
 

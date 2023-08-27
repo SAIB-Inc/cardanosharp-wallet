@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models;
 
 namespace CardanoSharp.Wallet.Providers;
 
 public interface IAProviderService
 {
-    Task Initialize();
+    Task Initialize(NetworkType networkType = NetworkType.Mainnet);
 
     //---------------------------------------------------------------------------------------------------//
     // Account Functions
@@ -34,30 +35,32 @@ public interface IAProviderService
 
 public class ProviderData
 {
-    public Block Block { get; set; } = default!;
+    public NetworkType NetworkType { get; set; } = NetworkType.Mainnet;
+    public Block? Block { get; set; } = default!;
     public EpochParameters? ProtocolParameters { get; set; } = default!;
 }
 
 public abstract class AProviderService : IAProviderService
 {
-    public IAccountClient accountClient { get; set; } = default!;
-    public IAddressesClient addressesClient { get; set; } = default!;
-    public IAssetsClient assetsClient { get; set; } = default!;
-    public IBlocksClient blocksClient { get; set; } = default!;
-    public IEpochsClient epochsClient { get; set; } = default!;
-    public IMempoolClient mempoolClient { get; set; } = default!;
-    public INetworkClient networkClient { get; set; } = default!;
-    public IPoolsClient poolsClient { get; set; } = default!;
-    public IScriptsClient scriptsClient { get; set; } = default!;
-    public ITransactionsClient transactionsClient { get; set; } = default!;
+    public IAccountClient AccountClient { get; set; } = default!;
+    public IAddressesClient AddressesClient { get; set; } = default!;
+    public IAssetsClient AssetsClient { get; set; } = default!;
+    public IBlocksClient BlocksClient { get; set; } = default!;
+    public IEpochsClient EpochsClient { get; set; } = default!;
+    public IMempoolClient MempoolClient { get; set; } = default!;
+    public INetworkClient NetworkClient { get; set; } = default!;
+    public IPoolsClient PoolsClient { get; set; } = default!;
+    public IScriptsClient ScriptsClient { get; set; } = default!;
+    public ITransactionsClient TransactionsClient { get; set; } = default!;
 
     // Provider Data
-    public ProviderData ProviderData { get; set; } = new();
+    public ProviderData ProviderData { get; set; } = default!;
 
-    public virtual async Task Initialize()
+    public virtual async Task Initialize(NetworkType networkType = NetworkType.Mainnet)
     {
-        this.ProviderData.Block = (await blocksClient.GetLatestBlockAsync())?.Content!;
-        this.ProviderData.ProtocolParameters = (await epochsClient.GetLatestParamtersAsync())?.Content!;
+        this.ProviderData.NetworkType = networkType;
+        this.ProviderData.Block = (await BlocksClient.GetLatestBlockAsync())?.Content!;
+        this.ProviderData.ProtocolParameters = (await EpochsClient.GetLatestParamtersAsync())?.Content!;
     }
 
     //---------------------------------------------------------------------------------------------------//

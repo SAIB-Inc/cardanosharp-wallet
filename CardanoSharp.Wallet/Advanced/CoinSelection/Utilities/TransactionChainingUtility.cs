@@ -67,7 +67,7 @@ public static class TransactionChainingUtility
     )
     {
         // Determine if the wallet has any pending transactions
-        MempoolTransactionHash[]? mempoolTxHashes = (await providerService.mempoolClient.GetMempoolAddressTransactionsAsync(address))?.Content;
+        MempoolTransactionHash[]? mempoolTxHashes = (await providerService.MempoolClient.GetMempoolAddressTransactionsAsync(address))?.Content;
         List<string> pendingTxHashes = mempoolTxHashes?.Select(mempoolTxHash => mempoolTxHash.TxHash).ToList()!;
 
         HashSet<Utxo> inputUtxos = new();

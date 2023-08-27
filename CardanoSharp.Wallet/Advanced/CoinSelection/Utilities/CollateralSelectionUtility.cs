@@ -67,7 +67,7 @@ public static class CollateralSelectionUtility
         return transactionBodyBuilder;
     }
 
-    public static ulong GetTotalCollateral(CoinSelection coinSelection)
+    private static ulong GetTotalCollateral(CoinSelection coinSelection)
     {
         ulong totalCollateral = 0;
         foreach (Utxo utxo in coinSelection.SelectedUtxos)

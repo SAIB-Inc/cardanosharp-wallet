@@ -394,35 +394,7 @@ public static class CoinSelectionUtility
         return coinSelection;
     }
 
-    public static CoinSelection UseLargestFirst(
-        TransactionBodyBuilder transactionBodyBuilder,
-        List<Utxo> utxos,
-        string changeAddress,
-        TokenBundleBuilder? mint = null,
-        List<Utxo>? requiredUtxos = null,
-        int limit = 50,
-        ulong feeBuffer = 0
-    )
-    {
-        CoinSelection coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
-        return coinSelection;
-    }
-
-    public static CoinSelection UseRandomImprove(
-        TransactionBodyBuilder transactionBodyBuilder,
-        List<Utxo> utxos,
-        string changeAddress,
-        TokenBundleBuilder? mint = null,
-        List<Utxo>? requiredUtxos = null,
-        int limit = 50,
-        ulong feeBuffer = 0
-    )
-    {
-        CoinSelection coinSelection = transactionBodyBuilder.UseRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
-        return coinSelection;
-    }
-
-    public static long GetCoinSelectionSize(CoinSelection coinSelection)
+    private static long GetCoinSelectionSize(CoinSelection coinSelection)
     {
         long totalSize = 0;
         foreach (TransactionInput transactionInput in coinSelection.Inputs)
@@ -439,19 +411,18 @@ public static class CoinSelectionUtility
     //---------------------------------------------------------------------------------------------------//
     // Helper Functions
     //---------------------------------------------------------------------------------------------------//
-
     public async static Task<List<Utxo>> CalculateInitialCandidates(
-        BlockfrostService blockfrostService,
+        AProviderService providerService,
         string paymentAddress,
         List<Utxo>? spentUtxos = null
     )
     {
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(blockfrostService, paymentAddress);
+        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress);
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
 
-        List<Utxo> blockfrostUtxos = await blockfrostService.GetSingleAddressUtxos(paymentAddress);
+        List<Utxo> blockfrostUtxos = await providerService.GetSingleAddressUtxos(paymentAddress);
         List<Utxo> initialCandidateUtxos = TransactionChainingUtility.TxChainingUtxos(
             paymentAddress,
             blockfrostUtxos,
