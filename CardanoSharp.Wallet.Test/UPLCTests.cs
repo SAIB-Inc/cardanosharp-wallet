@@ -7,6 +7,7 @@ using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 using CsBindgen;
 using Xunit;
 using Xunit.Abstractions;

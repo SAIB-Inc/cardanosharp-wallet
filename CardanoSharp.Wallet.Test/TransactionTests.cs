@@ -20,7 +20,6 @@ namespace CardanoSharp.Wallet.Test
 {
     public class TransactionTests
     {
-        private readonly TransactionSerializer _transactionSerializer;
         private readonly IMnemonicService _keyService;
         private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
@@ -29,7 +28,6 @@ namespace CardanoSharp.Wallet.Test
         public TransactionTests()
         {
             _keyService = new MnemonicService();
-            _transactionSerializer = new TransactionSerializer();
             DirectoryInfo dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         }
 
@@ -1337,9 +1335,8 @@ namespace CardanoSharp.Wallet.Test
 
             // Asset the metadata hash before and after are equal
             Assert.Equal(transactionDeserialized.TransactionBody.MetadataHash.ToLower(), metadata_hash);
-Assert.Equal(transaction2Deserialized.TransactionBody.MetadataHash.ToLower(), metadata_hash);
-Assert.Equal("e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da48", metadata_hash);
-
+            Assert.Equal(transaction2Deserialized.TransactionBody.MetadataHash.ToLower(), metadata_hash);
+            Assert.Equal("e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da48", metadata_hash);
         }
 
         private byte[] getGenesisTransaction()
