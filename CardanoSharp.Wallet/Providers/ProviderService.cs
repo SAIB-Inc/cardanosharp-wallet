@@ -5,7 +5,6 @@ using CardanoSharp.Blockfrost.Sdk.Contracts;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CardanoSharp.Wallet.Providers;
 
