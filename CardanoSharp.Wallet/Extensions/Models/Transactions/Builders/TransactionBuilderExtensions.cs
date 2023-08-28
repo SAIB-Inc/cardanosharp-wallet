@@ -1,12 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
+using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Utilities;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Providers;
 using CardanoSharp.Wallet.Utilities;
 using CsBindgen;
 
@@ -17,6 +24,48 @@ public static class TransactionBuilderExtensions
     //---------------------------------------------------------------------------------------------------//
     // Transaction Creation Functions
     //---------------------------------------------------------------------------------------------------//
+    public static async Task<(Transaction, TransactionEvaluation)> Complete(
+        this ITransactionBuilder transactionBuilder,
+        AProviderService providerService,
+        Address address,
+        TokenBundleBuilder? mint = null,
+        List<Utxo>? candidateUtxos = null,
+        List<Utxo>? requiredUtxos = null,
+        List<Utxo>? spentUtxos = null,
+        int limit = 50,
+        ulong feeBuffer = 1000000,
+        long maxTxSize = 12000,
+        TxChainingType txChainingType = TxChainingType.Filter,
+        bool isSmartContract = false,
+        int signerCount = 1
+    )
+    {
+        TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)transactionBuilder.transactionBodyBuilder;
+        await transactionBodyBuilder.UseCoinSelection(
+            providerService: providerService,
+            address: address,
+            mint: mint,
+            candidateUtxos: candidateUtxos,
+            requiredUtxos: requiredUtxos,
+            spentUtxos: spentUtxos,
+            limit: limit,
+            feeBuffer: feeBuffer,
+            maxTxSize: maxTxSize,
+            txChainingType: txChainingType,
+            isSmartContract: isSmartContract
+        );
+
+        Transaction transaction = transactionBuilder.Build();
+        if (transaction.TransactionBody.Ttl <= 0)
+            transactionBodyBuilder.SetTtl((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
+        if (transaction.TransactionBody.ValidityIntervalStart <= 0)
+            transactionBodyBuilder.SetValidityIntervalStart((uint)providerService.ProviderData.Tip);
+        transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
+
+        var fullTransaction = transactionBuilder.Complete(providerService.ProviderData.ProtocolParameters!, providerService.ProviderData.NetworkType);
+        return fullTransaction;
+    }
+
     public static (Transaction, TransactionEvaluation) Complete(
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,

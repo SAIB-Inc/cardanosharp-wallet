@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CardanoSharp.Blockfrost.Sdk;
+using CardanoSharp.Blockfrost.Sdk.Common;
 using CardanoSharp.Blockfrost.Sdk.Contracts;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CardanoSharp.Wallet.Providers.Blockfrost;
 
