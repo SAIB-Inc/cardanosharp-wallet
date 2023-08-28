@@ -19,26 +19,7 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     ITransactionBodyBuilder AddInput(Utxo utxo);
     ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
     ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex, TransactionOutput? resolvedOutput = null);
-    ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
     ITransactionBodyBuilder AddOutput(
-        Address address,
-        ulong coin,
-        ITokenBundleBuilder? tokenBundleBuilder = null,
-        DatumOption? datumOption = null,
-        ScriptReference? scriptReference = null,
-        OutputPurpose outputPurpose = OutputPurpose.Spend
-    );
-    ITransactionBodyBuilder AddOutput(
-        byte[] address,
-        ulong coin,
-        ITokenBundleBuilder? tokenBundleBuilder = null,
-        DatumOption? datumOption = null,
-        ScriptReference? scriptReference = null,
-        OutputPurpose outputPurpose = OutputPurpose.Spend
-    );
-
-    // Advanced output functions
-    ITransactionBodyBuilder AddMinUtxoOutput(
         byte[] address,
         ulong coin = 0,
         ITokenBundleBuilder? tokenBundleBuilder = null,
@@ -46,7 +27,15 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
         ScriptReference? scriptReference = null,
         OutputPurpose outputPurpose = OutputPurpose.Spend
     );
-
+    ITransactionBodyBuilder AddOutput(
+        Address address,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
+    ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
     ITransactionBodyBuilder AddOutputFromUtxo(
         byte[] address,
         Utxo utxo,
@@ -54,7 +43,14 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
         ScriptReference? scriptReference = null,
         OutputPurpose outputPurpose = OutputPurpose.Spend
     );
-
+    ITransactionBodyBuilder AddBaseOutput(
+        byte[] address,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    );
     ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
     ITransactionBodyBuilder SetFee(ulong fee);
     ITransactionBodyBuilder SetTtl(uint ttl);
@@ -161,15 +157,26 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return this;
     }
 
-    public ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput)
+    // Add output functions will automatically calculate the minUtxo
+    public ITransactionBodyBuilder AddOutput(
+        byte[] address,
+        ulong coin = 0,
+        ITokenBundleBuilder? tokenBundleBuilder = null,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
     {
-        _model.TransactionOutputs.Add(transactionOutput);
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
+            TransactionOutputBuilder.Create.SetOutput(address, coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
+
+        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
         return this;
     }
 
     public ITransactionBodyBuilder AddOutput(
         Address address,
-        ulong coin,
+        ulong coin = 0,
         ITokenBundleBuilder? tokenBundleBuilder = null,
         DatumOption? datumOption = null,
         ScriptReference? scriptReference = null,
@@ -179,7 +186,42 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
     }
 
-    public ITransactionBodyBuilder AddOutput(
+    public ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput)
+    {
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)TransactionOutputBuilder.GetBuilder(transactionOutput);
+        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)TokenBundleBuilder.GetBuilder(transactionOutput.Value.MultiAsset);
+        TransactionOutput minUtxoTransactionOutput = transactionOutputBuilder
+            .SetOutput(
+                transactionOutput.Address,
+                transactionOutput.Value.Coin,
+                tokenBundleBuilder,
+                transactionOutput.DatumOption,
+                transactionOutput.ScriptReference,
+                transactionOutput.OutputPurpose
+            )
+            .Build();
+
+        _model.TransactionOutputs.Add(minUtxoTransactionOutput);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddOutputFromUtxo(
+        byte[] address,
+        Utxo utxo,
+        DatumOption? datumOption = null,
+        ScriptReference? scriptReference = null,
+        OutputPurpose outputPurpose = OutputPurpose.Spend
+    )
+    {
+        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
+            TransactionOutputBuilder.Create.SetOutputFromUtxo(address, utxo, datumOption, scriptReference, outputPurpose);
+
+        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
+        return this;
+    }
+
+    // Base Output does not calculate minUtxo
+    public ITransactionBodyBuilder AddBaseOutput(
         byte[] address,
         ulong coin,
         ITokenBundleBuilder? tokenBundleBuilder = null,
@@ -209,38 +251,6 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
             output.ScriptReference = scriptReference;
 
         _model.TransactionOutputs.Add(output);
-        return this;
-    }
-
-    // This function will set the minUtxo or the coin, whichever is higher
-    public ITransactionBodyBuilder AddMinUtxoOutput(
-        byte[] address,
-        ulong coin = 0,
-        ITokenBundleBuilder? tokenBundleBuilder = null,
-        DatumOption? datumOption = null,
-        ScriptReference? scriptReference = null,
-        OutputPurpose outputPurpose = OutputPurpose.Spend
-    )
-    {
-        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-            TransactionOutputBuilder.Create.SetMinUtxoOutput(address, coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
-
-        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
-        return this;
-    }
-
-    public ITransactionBodyBuilder AddOutputFromUtxo(
-        byte[] address,
-        Utxo utxo,
-        DatumOption? datumOption = null,
-        ScriptReference? scriptReference = null,
-        OutputPurpose outputPurpose = OutputPurpose.Spend
-    )
-    {
-        TransactionOutputBuilder transactionOutputBuilder = (TransactionOutputBuilder)
-            TransactionOutputBuilder.Create.SetOutputFromUtxo(address, utxo, datumOption, scriptReference, outputPurpose);
-
-        _model.TransactionOutputs.Add(transactionOutputBuilder.Build());
         return this;
     }
 

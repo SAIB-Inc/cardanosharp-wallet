@@ -19,8 +19,7 @@ public interface ITransactionOutputBuilder : IABuilder<TransactionOutput>
     ITransactionOutputBuilder SetOutputPurpose(OutputPurpose outputPurpose);
 
     // Advanced Helper Functions
-    ITransactionOutputBuilder SetMinUtxo(ulong coin);
-    ITransactionOutputBuilder SetMinUtxoOutput(
+    ITransactionOutputBuilder SetOutput(
         byte[] address,
         ulong coin = 0,
         ITokenBundleBuilder? tokenBundleBuilder = null,
@@ -95,21 +94,7 @@ public class TransactionOutputBuilder : ABuilder<TransactionOutput>, ITransactio
     }
 
     // Advanced Helper Functions
-    public ITransactionOutputBuilder SetMinUtxo(ulong coin)
-    {
-        // Now we calculate the correct minUtxo coin value
-        var transactionOutput = this.Build();
-        ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
-
-        // Set the correct minUtxo value
-        if (transactionOutput.Value.MultiAsset is not null)
-            this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin, MultiAsset = transactionOutput.Value.MultiAsset });
-        else
-            this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin });
-        return this;
-    }
-
-    public ITransactionOutputBuilder SetMinUtxoOutput(
+    public ITransactionOutputBuilder SetOutput(
         byte[] address,
         ulong coin = 0,
         ITokenBundleBuilder? tokenBundleBuilder = null,
@@ -185,6 +170,21 @@ public class TransactionOutputBuilder : ABuilder<TransactionOutput>, ITransactio
             this.SetScriptReference(scriptReference);
 
         this.SetMinUtxo(utxo.Balance.Lovelaces);
+        return this;
+    }
+
+    // MinUtxo Helper Function
+    private ITransactionOutputBuilder SetMinUtxo(ulong coin)
+    {
+        // Now we calculate the correct minUtxo coin value
+        var transactionOutput = this.Build();
+        ulong finalCoin = Math.Max(transactionOutput.CalculateMinUtxoLovelace(), coin);
+
+        // Set the correct minUtxo value
+        if (transactionOutput.Value.MultiAsset is not null)
+            this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin, MultiAsset = transactionOutput.Value.MultiAsset });
+        else
+            this.SetTransactionOutputValue(new TransactionOutputValue { Coin = finalCoin });
         return this;
     }
 }
