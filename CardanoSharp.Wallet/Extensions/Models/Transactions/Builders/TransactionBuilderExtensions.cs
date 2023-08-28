@@ -37,8 +37,6 @@ public static class TransactionBuilderExtensions
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.Filter,
         bool isSmartContract = false,
-        uint ttl = 0,
-        uint validityIntervalStart = 0,
         int signerCount = 1
     )
     {
@@ -57,9 +55,10 @@ public static class TransactionBuilderExtensions
             isSmartContract: isSmartContract
         );
 
-        if (ttl <= 0)
+        Transaction transaction = transactionBuilder.Build();
+        if (transaction.TransactionBody.Ttl <= 0)
             transactionBodyBuilder.SetTtl((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
-        if (validityIntervalStart <= 0)
+        if (transaction.TransactionBody.ValidityIntervalStart <= 0)
             transactionBodyBuilder.SetValidityIntervalStart((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
 
