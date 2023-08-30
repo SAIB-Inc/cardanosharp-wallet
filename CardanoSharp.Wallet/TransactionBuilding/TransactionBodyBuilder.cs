@@ -51,6 +51,8 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
         ScriptReference? scriptReference = null,
         OutputPurpose outputPurpose = OutputPurpose.Spend
     );
+
+    ITransactionBodyBuilder AddBaseOutput(TransactionOutput transactionOutput);
     ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
     ITransactionBodyBuilder SetFee(ulong fee);
     ITransactionBodyBuilder SetTtl(uint ttl);
@@ -251,6 +253,12 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
             output.ScriptReference = scriptReference;
 
         _model.TransactionOutputs.Add(output);
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddBaseOutput(TransactionOutput transactionOutput)
+    {
+        _model.TransactionOutputs.Add(transactionOutput);
         return this;
     }
 
