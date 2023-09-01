@@ -70,7 +70,7 @@ public static class DatumOptionExtension
         return datumOption.GetCBOR().EncodeToBytes();
     }
 
-    public static DatumOption Deserialize(this byte[] bytes)
+    public static DatumOption DeserializeDatumOption(this byte[] bytes)
     {
         return CBORObject.DecodeFromBytes(bytes).GetDatumOption();
     }
