@@ -24,6 +24,10 @@ public static class TransactionBuilderExtensions
     //---------------------------------------------------------------------------------------------------//
     // Transaction Creation Functions
     //---------------------------------------------------------------------------------------------------//
+
+    // Complete function with simplified interface
+
+    // Complete function with all parameters
     public static async Task<(Transaction, TransactionEvaluation)> Complete(
         this ITransactionBuilder transactionBuilder,
         AProviderService providerService,
@@ -32,7 +36,7 @@ public static class TransactionBuilderExtensions
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
-        int limit = 50,
+        int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.Filter,
@@ -66,6 +70,7 @@ public static class TransactionBuilderExtensions
         return fullTransaction;
     }
 
+    // Complete Function for when coin selection has already occured
     public static (Transaction, TransactionEvaluation) Complete(
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,
@@ -79,7 +84,7 @@ public static class TransactionBuilderExtensions
         List<TransactionInput>? collateralInputs = (List<TransactionInput>?)transaction.TransactionBody.Collateral;
 
         // Calculate the number of payment keys used
-        HashSet<string> uniqueAddresses = new HashSet<string>();
+        HashSet<string> uniqueAddresses = new();
         foreach (TransactionInput transactionInput in transactionInputs)
             if (transactionInput?.Output?.Address != null)
                 uniqueAddresses.Add(transactionInput.Output.Address.ToString()!);

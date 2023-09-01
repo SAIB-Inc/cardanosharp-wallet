@@ -38,6 +38,8 @@ public static class TransactionChainingUtility
                 utxos.Add(utxo);
             }
         }
+        else
+            utxos.AddRange(candidateUtxos);
 
         // Add all Utxos that are outputs of the previous tx to this address
         if (txChainingType == TxChainingType.Chain)

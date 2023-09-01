@@ -92,6 +92,11 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
         DatumOption? datumOption = null,
         ScriptReference? scriptReference = null
     );
+
+    // Get Functions
+    ITokenBundleBuilder GetMint();
+
+    // Helper Functions
     ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null);
 }
 
@@ -511,6 +516,12 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
             _model.ReferenceInputs.Add(transactionInput);
 
         return this;
+    }
+
+    // Get Functions
+    public ITokenBundleBuilder GetMint()
+    {
+        return TokenBundleBuilder.GetBuilder(_model.Mint);
     }
 
     // Helper Functions
