@@ -25,35 +25,8 @@ public static class TransactionBuilderExtensions
     // Transaction Creation Functions
     //---------------------------------------------------------------------------------------------------//
 
-    // Complete function with simplified interface, the goal of this function is to eventually have no parameters
-    public static async Task<(Transaction, TransactionEvaluation)> Complete(
-        this ITransactionBuilder transactionBuilder,
-        AProviderService providerService,
-        Address address,
-        List<Utxo>? candidateUtxos = null,
-        List<Utxo>? requiredUtxos = null,
-        List<Utxo>? spentUtxos = null,
-        TxChainingType txChainingType = TxChainingType.Filter
-    )
-    {
-        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
-        List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
-
-        return await Complete(
-            transactionBuilder,
-            providerService,
-            address,
-            tokenBundleBuilder,
-            candidateUtxos,
-            requiredUtxos,
-            spentUtxos,
-            txChainingType: txChainingType,
-            isSmartContract: redeemers.Count > 0
-        );
-    }
-
     // Complete function with all parameters
-    public static async Task<(Transaction, TransactionEvaluation)> Complete(
+    public static async Task<(Transaction, TransactionEvaluation)> FullComplete(
         this ITransactionBuilder transactionBuilder,
         AProviderService providerService,
         Address address,
@@ -93,6 +66,33 @@ public static class TransactionBuilderExtensions
 
         var fullTransaction = transactionBuilder.Complete(providerService.ProviderData.ProtocolParameters!, providerService.ProviderData.NetworkType);
         return fullTransaction;
+    }
+
+    // Complete function with simplified interface, the goal of this function is to eventually have no parameters
+    public static async Task<(Transaction, TransactionEvaluation)> Complete(
+        this ITransactionBuilder transactionBuilder,
+        AProviderService providerService,
+        Address address,
+        List<Utxo>? candidateUtxos = null,
+        List<Utxo>? requiredUtxos = null,
+        List<Utxo>? spentUtxos = null,
+        TxChainingType txChainingType = TxChainingType.Filter
+    )
+    {
+        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
+        List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
+
+        return await FullComplete(
+            transactionBuilder,
+            providerService,
+            address,
+            tokenBundleBuilder,
+            candidateUtxos,
+            requiredUtxos,
+            spentUtxos,
+            txChainingType: txChainingType,
+            isSmartContract: redeemers.Count > 0
+        );
     }
 
     // Complete Function for when coin selection has already occured
