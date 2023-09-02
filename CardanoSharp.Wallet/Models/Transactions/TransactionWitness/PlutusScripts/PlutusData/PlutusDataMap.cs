@@ -12,17 +12,14 @@ public class PlutusDataMap : IPlutusData
     public CBORObject GetCBOR()
     {
         var cborDatum = CBORObject.NewMap();
-        if (Value != null)
-        {
-            foreach (var dataPair in Value)
-            {
-                cborDatum.Add(dataPair.Key.GetCBOR(), dataPair.Value.GetCBOR());
-            }
-        }
+        if (Value == null)
+            return cborDatum;
+
+        foreach (var dataPair in Value)
+            cborDatum.Add(dataPair.Key.GetCBOR(), dataPair.Value.GetCBOR());
+
         return cborDatum;
     }
-
-    //public PlutusDataMap GetPlutusDataMap
 
     public byte[] Serialize()
     {
@@ -35,14 +32,10 @@ public static partial class PlutusDataExtensions
     public static PlutusDataMap GetPlutusDataMap(this CBORObject dataCbor)
     {
         if (dataCbor == null)
-        {
             throw new ArgumentNullException(nameof(dataCbor));
-        }
 
         if (dataCbor.Type != CBORType.Map)
-        {
             throw new ArgumentException("dataCbor is not expected type CBORType.Map");
-        }
 
         PlutusDataMap plutusDataMap = new PlutusDataMap();
         Dictionary<IPlutusData, IPlutusData> plutusDatas = new Dictionary<IPlutusData, IPlutusData>();

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models;
 using PeterO.Cbor2;
 
@@ -29,6 +30,8 @@ public class PlutusDataConstr : IPlutusData
         if (cborTag != null)
         {
             cbor = Value.GetCBOR().WithTag(cborTag);
+            if (Value.Value != null && Value.Value.Length > 0)
+                cbor = cbor.SetEncoding(CBOREncodeOptions.UseIndefiniteLengthArrays);
         }
         else
         {
@@ -50,13 +53,9 @@ public class PlutusDataConstr : IPlutusData
     public static long? alternativeToCompactCborTag(long alt)
     {
         if (alt <= 6)
-        {
             return 121 + alt;
-        }
         else if (alt >= 7 && alt <= 127)
-        {
             return 1280 - 7 + alt;
-        }
         else
             return null;
     }
@@ -64,13 +63,9 @@ public class PlutusDataConstr : IPlutusData
     public static long? compactCborTagToAlternative(long cborTag)
     {
         if (cborTag >= 121 && cborTag <= 127)
-        {
             return cborTag - 121;
-        }
         else if (cborTag >= 1280 && cborTag <= 1400)
-        {
             return cborTag - 1280 + 7;
-        }
         else
             return null;
     }
@@ -81,14 +76,10 @@ public static partial class PlutusDataExtensions
     public static PlutusDataConstr GetPlutusDataConstr(this CBORObject dataCbor)
     {
         if (dataCbor == null)
-        {
             throw new ArgumentNullException(nameof(dataCbor));
-        }
 
         if (dataCbor.Type != CBORType.Array)
-        {
             throw new ArgumentException("dataCbor is not expected type CBORType.Array (with constr tag)");
-        }
 
         long alternative;
         PlutusDataArray plutusDataArray;
