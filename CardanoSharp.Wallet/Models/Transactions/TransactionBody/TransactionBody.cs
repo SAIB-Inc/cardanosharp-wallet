@@ -14,12 +14,12 @@ public partial class TransactionBody
     public virtual IList<TransactionInput> TransactionInputs { get; set; }
     public virtual IList<TransactionOutput> TransactionOutputs { get; set; }
     public ulong Fee { get; set; }
-    public uint? Ttl { get; set; }
+    public uint? ValidBefore { get; set; } // Ttl
     public Certificate? Certificate { get; set; }
     public Dictionary<byte[], uint>? Withdrawls { get; set; }
     public Update? Update { get; set; }
     public string? MetadataHash { get; set; }
-    public uint? ValidityIntervalStart { get; set; }
+    public uint? ValidAfter { get; set; } // ValidityIntervalStart
     public Dictionary<byte[], NativeAsset> Mint { get; set; }
     public byte[]? ScriptDataHash { get; set; }
     public virtual IList<TransactionInput>? Collateral { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
@@ -55,9 +56,11 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     ITransactionBodyBuilder AddBaseOutput(TransactionOutput transactionOutput);
     ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
     ITransactionBodyBuilder SetFee(ulong fee);
-    ITransactionBodyBuilder SetTtl(uint ttl);
+    ITransactionBodyBuilder SetValidBefore(uint validBeforeSlot);
+    ITransactionBodyBuilder SetValidAfter(uint validAfterSlot);
+    ITransactionBodyBuilder SetValidBefore(long validBeforeSeconds, NetworkType networkType);
+    ITransactionBodyBuilder SetValidAfter(long validAfterSeconds, NetworkType networkType);
     ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
-    ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart);
     ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
     ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
@@ -273,9 +276,29 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return this;
     }
 
-    public ITransactionBodyBuilder SetTtl(uint ttl)
+    public ITransactionBodyBuilder SetValidBefore(uint validBeforeSlot)
     {
-        _model.Ttl = ttl;
+        _model.ValidBefore = validBeforeSlot;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetValidAfter(uint validAfterSlot)
+    {
+        // This is the current slot number, and is the lower bound where as ttl (valid before) is the upper bound
+        _model.ValidAfter = validAfterSlot;
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetValidBefore(long validBeforeSeconds, NetworkType networkType)
+    {
+        _model.ValidBefore = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validBeforeSeconds);
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetValidAfter(long validAfterSeconds, NetworkType networkType)
+    {
+        // This is the current slot number, and is the lower bound where as ttl (valid before) is the upper bound
+        _model.ValidBefore = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validAfterSeconds);
         return this;
     }
 
@@ -288,13 +311,6 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
     public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder)
     {
         _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
-        return this;
-    }
-
-    public ITransactionBodyBuilder SetValidityIntervalStart(uint validityIntervalStart)
-    {
-        // This is the current slot number, and is the lower bound where as ttl is the upper bound
-        _model.ValidityIntervalStart = validityIntervalStart;
         return this;
     }
 

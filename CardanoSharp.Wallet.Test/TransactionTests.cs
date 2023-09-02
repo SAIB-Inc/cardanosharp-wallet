@@ -92,7 +92,7 @@ namespace CardanoSharp.Wallet.Test
                         .AddOutput(payment1Addr, 7000000)
                         .AddOutput(payment2Addr, 1674895157)
                         .SetFee(171397)
-                        .SetTtl(57910820)
+                        .SetValidBefore(57910820)
                         .SetMint(mintAsset)
                         .SetCertificate(
                             CertificateBuilder.Create
@@ -184,7 +184,7 @@ namespace CardanoSharp.Wallet.Test
                         .AddOutput(payment1Addr, 7000000)
                         .AddOutput(payment2Addr, 1674895157)
                         .SetFee(171397)
-                        .SetTtl(57910820)
+                        .SetValidBefore(57910820)
                         .SetMint(mintAsset)
                         .SetCertificate(
                             CertificateBuilder.Create
@@ -244,7 +244,7 @@ namespace CardanoSharp.Wallet.Test
             }
 
             Assert.Equal(171397.ToString(), expected.TransactionBody.Fee.ToString());
-            Assert.Equal(57910820.ToString(), expected.TransactionBody.Ttl.ToString());
+            Assert.Equal(57910820.ToString(), expected.TransactionBody.ValidBefore.ToString());
             Assert.Null(expected.TransactionBody.Certificate.GenesisKeyDelegation);
             Assert.Null(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert);
             Assert.Null(expected.TransactionBody.Certificate.PoolRegistration);
@@ -254,7 +254,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
-            Assert.Null(expected.TransactionBody.ValidityIntervalStart);
+            Assert.Null(expected.TransactionBody.ValidAfter);
             Assert.Equal(mintAsset.Build(), expected.TransactionBody.Mint);
 
             // Assert the TransactionWitnessSet values are expected
@@ -365,7 +365,7 @@ namespace CardanoSharp.Wallet.Test
                         .AddInput(input1TxHash, 1)
                         .AddOutput(payment1Addr, 1, tokenBundle1)
                         .SetFee(171397)
-                        .SetTtl(57910820)
+                        .SetValidBefore(57910820)
                         .SetCertificate(
                             CertificateBuilder.Create
                                 .SetStakeRegistration(stakeHash)
@@ -429,7 +429,7 @@ namespace CardanoSharp.Wallet.Test
                         .AddInput(input1TxHash, 1)
                         .AddBaseOutput(payment1Addr.GetBytes(), 1, tokenBundle1)
                         .SetFee(171397)
-                        .SetTtl(57910820)
+                        .SetValidBefore(57910820)
                         .SetCertificate(
                             CertificateBuilder.Create
                                 .SetStakeRegistration(stakeHash)
@@ -522,7 +522,7 @@ namespace CardanoSharp.Wallet.Test
 
             // Assert the rest of the TransactionBody values are expected
             Assert.Equal(171397.ToString(), expected.TransactionBody.Fee.ToString());
-            Assert.Equal(57910820.ToString(), expected.TransactionBody.Ttl.ToString());
+            Assert.Equal(57910820.ToString(), expected.TransactionBody.ValidBefore.ToString());
             Assert.Null(expected.TransactionBody.Certificate.GenesisKeyDelegation);
             Assert.Null(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert);
             Assert.Null(expected.TransactionBody.Certificate.PoolRegistration);
@@ -532,7 +532,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
-            Assert.Null(expected.TransactionBody.ValidityIntervalStart);
+            Assert.Null(expected.TransactionBody.ValidAfter);
             Assert.Equal(new Dictionary<byte[], NativeAsset>(), expected.TransactionBody.Mint);
 
             // Assert the TransactionWitnessSet values are expected
@@ -681,7 +681,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddInput(new byte[32], 0)
                 .AddBaseOutput(baseAddr.GetBytes(), 10)
                 .AddBaseOutput(changeAddr.GetBytes(), 856488)
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetFee(143502)
                 .Build();
 
@@ -718,7 +718,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddInput(new byte[32], 0)
                 .AddBaseOutput(baseAddr.GetBytes(), 10)
                 .AddBaseOutput(changeAddr.GetBytes(), 856488)
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetFee(143502)
                 .Build();
 
@@ -753,7 +753,7 @@ namespace CardanoSharp.Wallet.Test
             var bodyBuilder = TransactionBodyBuilder.Create
                 .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7", 0)
                 .AddBaseOutput(baseAddr.GetBytes(), 1)
-                .SetTtl(10)
+                .SetValidBefore(10)
                 .SetFee(0);
 
             var witnesses = TransactionWitnessSetBuilder.Create.AddVKeyWitness(paymentPub, paymentPrv);
@@ -791,7 +791,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddInput(getGenesisTransaction(), 0)
                 .AddOutput(changeAddr, 3786498)
                 .SetCertificate(CertificateBuilder.Create.SetStakeRegistration(stakeHash).SetStakeDelegation(stakeHash, stakeHash))
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetFee(213502)
                 .Build();
 
@@ -1016,7 +1016,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray(), 0)
                 .AddBaseOutput("611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c".HexToByteArray(), 1)
-                .SetTtl(10)
+                .SetValidBefore(10)
                 .SetFee(94002);
 
             var witnesses = TransactionWitnessSetBuilder.Create.AddVKeyWitness(
@@ -1050,7 +1050,7 @@ namespace CardanoSharp.Wallet.Test
                     "00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
                     1000000
                 )
-                .SetTtl(10)
+                .SetValidBefore(10)
                 .SetFee(0);
 
             var witnesses = TransactionWitnessSetBuilder.Create.AddVKeyWitness(
@@ -1087,7 +1087,7 @@ namespace CardanoSharp.Wallet.Test
                     "00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
                     1000000
                 )
-                .SetTtl(10)
+                .SetValidBefore(10)
                 .SetFee(100000);
 
             var witnesses = TransactionWitnessSetBuilder.Create.MockVKeyWitness(mocks);
@@ -1128,7 +1128,7 @@ namespace CardanoSharp.Wallet.Test
                     "00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
                     1000000
                 )
-                .SetTtl(10)
+                .SetValidBefore(10)
                 .SetFee(100000);
 
             var witnesses = TransactionWitnessSetBuilder.Create;
@@ -1200,7 +1200,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
                 .AddBaseOutput(baseAddr.GetBytes(), 1, mintAsset, outputPurpose: OutputPurpose.Mint)
                 .SetMint(mintAsset)
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetFee(0);
 
             var witnesses = TransactionWitnessSetBuilder.Create
@@ -1258,7 +1258,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
                 .SetMint(burnAsset)
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetFee(0);
 
             var witnesses = TransactionWitnessSetBuilder.Create
@@ -1317,7 +1317,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
                 .AddOutput(baseAddr, 1, mintAsset, outputPurpose: OutputPurpose.Mint)
                 .SetMint(mintAsset)
-                .SetTtl(1000)
+                .SetValidBefore(1000)
                 .SetMetadataHash(auxData)
                 .SetFee(0);
 

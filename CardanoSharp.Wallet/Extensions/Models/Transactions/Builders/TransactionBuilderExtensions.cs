@@ -60,10 +60,10 @@ public static class TransactionBuilderExtensions
         );
 
         Transaction transaction = transactionBuilder.Build();
-        if (transaction.TransactionBody.Ttl <= 0)
-            transactionBodyBuilder.SetTtl((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
-        if (transaction.TransactionBody.ValidityIntervalStart <= 0)
-            transactionBodyBuilder.SetValidityIntervalStart((uint)providerService.ProviderData.Tip);
+        if (transaction.TransactionBody.ValidBefore <= 0)
+            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
+        if (transaction.TransactionBody.ValidAfter <= 0)
+            transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
 
         var fullTransaction = transactionBuilder.Complete(providerService.ProviderData.ProtocolParameters!, providerService.ProviderData.NetworkType);

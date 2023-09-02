@@ -51,8 +51,8 @@ public static class TransactionBodyExtensions
         cborBody.Add(2, transactionBody.Fee);
 
         //add ttl
-        if (transactionBody.Ttl.HasValue)
-            cborBody.Add(3, transactionBody.Ttl.Value);
+        if (transactionBody.ValidBefore.HasValue)
+            cborBody.Add(3, transactionBody.ValidBefore.Value);
 
         //add certificates
         if (transactionBody.Certificate != null)
@@ -77,8 +77,8 @@ public static class TransactionBodyExtensions
         }
 
         // 8) validity interval start
-        if (transactionBody.ValidityIntervalStart.HasValue)
-            cborBody.Add(8, transactionBody.ValidityIntervalStart.Value);
+        if (transactionBody.ValidAfter.HasValue)
+            cborBody.Add(8, transactionBody.ValidAfter.Value);
 
         // 9) add tokens for minting
         if (transactionBody.Mint.Any())
@@ -218,7 +218,7 @@ public static class TransactionBodyExtensions
         transactionBody.Fee = transactionBodyCbor[2].DecodeValueToUInt64();
 
         //? 3 : uint                    ; time to live
-        transactionBody.Ttl = transactionBodyCbor[3].DecodeValueToUInt32();
+        transactionBody.ValidBefore = transactionBodyCbor[3].DecodeValueToUInt32();
 
         //? 4 : [* certificate]
         if (transactionBodyCbor.ContainsKey(4))
@@ -237,7 +237,7 @@ public static class TransactionBodyExtensions
         //? 8 : uint                    ; validity interval start
         if (transactionBodyCbor.ContainsKey(8))
         {
-            transactionBody.ValidityIntervalStart = transactionBodyCbor[8].DecodeValueToUInt32();
+            transactionBody.ValidAfter = transactionBodyCbor[8].DecodeValueToUInt32();
         }
 
         //? 9 : mint
