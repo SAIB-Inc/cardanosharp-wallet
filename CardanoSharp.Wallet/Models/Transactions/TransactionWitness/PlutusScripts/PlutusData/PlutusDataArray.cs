@@ -9,18 +9,16 @@ public class PlutusDataArray : IPlutusData
 {
     // May need to add a chunking system
     //https://github.com/bloxbean/cardano-client-lib/blob/7322b16030d8fa3ac5417d5dc58c92df401855ad/core/src/main/java/com/bloxbean/cardano/client/transaction/spec/ListPlutusData.java#L72
-    public IPlutusData[] Value { get; set; } = new IPlutusData[0];
+    public IPlutusData[] Value { get; set; } = Array.Empty<IPlutusData>();
 
     public CBORObject GetCBOR()
     {
         var cborDatum = CBORObject.NewArray();
-        if (Value != null)
-        {
-            foreach (var data in Value)
-            {
-                cborDatum.Add(data.GetCBOR());
-            }
-        }
+        if (Value == null)
+            return cborDatum;
+
+        foreach (var data in Value)
+            cborDatum.Add(data.GetCBOR());
 
         return cborDatum;
     }
@@ -38,21 +36,15 @@ public static partial class PlutusDataExtensions
     public static PlutusDataArray GetPlutusDataArray(this CBORObject dataCbor)
     {
         if (dataCbor == null)
-        {
             throw new ArgumentNullException(nameof(dataCbor));
-        }
 
         if (dataCbor.Type != CBORType.Array)
-        {
             throw new ArgumentException("dataCbor is not expected type CBORType.Array");
-        }
 
-        PlutusDataArray plutusDataArray = new PlutusDataArray();
-        List<IPlutusData> plutusDatas = new List<IPlutusData>();
+        PlutusDataArray plutusDataArray = new();
+        List<IPlutusData> plutusDatas = new();
         foreach (var data in dataCbor.Values)
-        {
             plutusDatas.Add(data.GetPlutusData());
-        }
         plutusDataArray.Value = plutusDatas.ToArray();
         return plutusDataArray;
     }

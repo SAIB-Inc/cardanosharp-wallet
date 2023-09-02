@@ -16,16 +16,6 @@ public class PlutusDataBytes : IPlutusData
         Value = bytes;
     }
 
-    public void SetHex(string hexString)
-    {
-        Value = hexString.HexToByteArray();
-    }
-
-    public void SetString(string normalString)
-    {
-        Value = normalString.ToBytes();
-    }
-
     public CBORObject GetCBOR()
     {
         return CBORObject.FromObject(Value);
@@ -39,9 +29,8 @@ public class PlutusDataBytes : IPlutusData
     public override bool Equals(object? obj)
     {
         if (obj == null || GetType() != obj.GetType())
-        {
             return false;
-        }
+
         PlutusDataBytes other = (PlutusDataBytes)obj;
         return Value.SequenceEqual(other.Value);
     }
@@ -52,9 +41,7 @@ public class PlutusDataBytes : IPlutusData
         {
             int hash = 17;
             foreach (byte b in Value)
-            {
                 hash = hash * 31 + b;
-            }
             return hash;
         }
     }

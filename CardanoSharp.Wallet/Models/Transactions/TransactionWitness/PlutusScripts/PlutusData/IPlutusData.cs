@@ -21,31 +21,22 @@ public static partial class PlutusDataExtensions
     public static IPlutusData GetPlutusData(this CBORObject dataCbor)
     {
         if (dataCbor == null)
-        {
             throw new ArgumentNullException(nameof(dataCbor));
-        }
 
         if (dataCbor.Type == CBORType.Integer)
-        {
             return dataCbor.GetPlutusDataBigInt();
-        }
         else if (dataCbor.Type == CBORType.ByteString)
-        {
             return dataCbor.GetPlutusDataBytes();
-        }
         else if (dataCbor.Type == CBORType.Array)
         {
             // If the dataCbor has a tag, it is a PlutusDataConstr
             if (dataCbor.IsTagged)
-            {
                 return dataCbor.GetPlutusDataConstr();
-            }
+
             return dataCbor.GetPlutusDataArray();
         }
         else if (dataCbor.Type == CBORType.Map)
-        {
             return dataCbor.GetPlutusDataMap();
-        }
 
         throw new ArgumentException("Cbor deserialization failed. Invalid type. " + dataCbor.Type.ToString());
     }

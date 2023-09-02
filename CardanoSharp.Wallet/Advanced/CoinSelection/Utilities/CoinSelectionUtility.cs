@@ -27,7 +27,7 @@ public static class CoinSelectionUtility
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
-        int limit = 50,
+        int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.Filter,
@@ -74,7 +74,7 @@ public static class CoinSelectionUtility
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
-        int limit = 50,
+        int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.Filter
@@ -319,7 +319,7 @@ public static class CoinSelectionUtility
         string paymentAddress,
         TokenBundleBuilder? mint = null,
         List<Utxo>? requiredUtxos = null,
-        int limit = 50,
+        int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000
     )
@@ -360,7 +360,7 @@ public static class CoinSelectionUtility
         string changeAddress,
         TokenBundleBuilder? mint = null,
         List<Utxo>? requiredUtxos = null,
-        int limit = 50,
+        int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000
     )
