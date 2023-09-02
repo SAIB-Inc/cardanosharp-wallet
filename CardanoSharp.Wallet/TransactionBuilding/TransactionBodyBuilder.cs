@@ -58,8 +58,8 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     ITransactionBodyBuilder SetFee(ulong fee);
     ITransactionBodyBuilder SetValidBefore(uint validBeforeSlot);
     ITransactionBodyBuilder SetValidAfter(uint validAfterSlot);
-    ITransactionBodyBuilder SetValidBefore(long validBeforeSeconds, NetworkType networkType);
-    ITransactionBodyBuilder SetValidAfter(long validAfterSeconds, NetworkType networkType);
+    ITransactionBodyBuilder SetValidBefore(long validBeforeMilliseconds, NetworkType networkType);
+    ITransactionBodyBuilder SetValidAfter(long validAfterMilliseconds, NetworkType networkType);
     ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
     ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
@@ -289,16 +289,15 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return this;
     }
 
-    public ITransactionBodyBuilder SetValidBefore(long validBeforeSeconds, NetworkType networkType)
+    public ITransactionBodyBuilder SetValidBefore(long validBeforeMilliseconds, NetworkType networkType)
     {
-        _model.ValidBefore = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validBeforeSeconds);
+        _model.ValidBefore = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validBeforeMilliseconds / 1000);
         return this;
     }
 
-    public ITransactionBodyBuilder SetValidAfter(long validAfterSeconds, NetworkType networkType)
+    public ITransactionBodyBuilder SetValidAfter(long validAfterMilliseconds, NetworkType networkType)
     {
-        // This is the current slot number, and is the lower bound where as ttl (valid before) is the upper bound
-        _model.ValidBefore = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validAfterSeconds);
+        _model.ValidAfter = (uint?)SlotUtility.GetSlotFromUnixTime(SlotUtility.GetSlotNetworkConfig(networkType), validAfterMilliseconds / 1000);
         return this;
     }
 

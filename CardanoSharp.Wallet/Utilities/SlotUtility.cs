@@ -22,12 +22,12 @@ public static class SlotUtility
         return new SlotNetworkConfig();
     }
 
-    public static long GetSlotFromUnixTime(SlotNetworkConfig config, long unixTime)
+    public static long GetSlotFromUnixTime(SlotNetworkConfig config, long unixTimeSeconds)
     {
-        return unixTime - (config.ZeroTime / 1000) + config.ZeroSlot;
+        return unixTimeSeconds - (config.ZeroTime / 1000) + config.ZeroSlot;
     }
 
-    public static long GetPosixTimeFromSlot(SlotNetworkConfig config, long slot)
+    public static long GetPosixTimeSecondsFromSlot(SlotNetworkConfig config, long slot)
     {
         long unixTime = (config.ZeroTime / 1000) + (slot - config.ZeroSlot);
         return unixTime;
@@ -35,8 +35,8 @@ public static class SlotUtility
 
     public static DateTime GetUTCTimeFromSlot(SlotNetworkConfig config, long slot)
     {
-        long unixTime = GetPosixTimeFromSlot(config, slot);
-        DateTime posixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        long unixTime = GetPosixTimeSecondsFromSlot(config, slot);
+        DateTime posixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime unixDatetime = posixEpoch.AddSeconds(unixTime);
         return unixDatetime;
     }
