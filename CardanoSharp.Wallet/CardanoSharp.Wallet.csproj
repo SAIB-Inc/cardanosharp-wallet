@@ -17,9 +17,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
-    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.2" />
     <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
-    <PackageReference Include="CardanoSharp.CBOR" Version="0.1.0" />
+    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.2" />
+    <PackageReference Include="Orion.CardanoSharp.CBOR" Version="0.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +39,14 @@
   <!--We need to switch to the !!!"main"!!! branch in the OrionCardanoSharpWallet github in order for it to work-->
   <!--We also MUST change the <PackageId> tag to <PackageId>CardanoSharp.Wallet</PackageId> in the csproject file-->
   <!-- <ItemGroup>
-    <ProjectReference Include="..\..\OrionCardanoSharpBlockfrost\CardanoSharp.Blockfrost.Sdk\CardanoSharp.Blockfrost.Sdk.csproj" />
+    <ProjectReference Include="../../OrionCardanoSharpBlockfrost/CardanoSharp.Blockfrost.Sdk/CardanoSharp.Blockfrost.Sdk.csproj" />
+  </ItemGroup> -->
+
+  <!--Below is how we include local projects such as CardanoSharp when we need functionality early that we contribute to open source-->
+  <!--We need to switch to the !!!"main"!!! branch in the OrionCardanoSharpWallet github in order for it to work-->
+  <!--We also MUST change the <PackageId> tag to <PackageId>CardanoSharp.Wallet</PackageId> in the csproject file-->
+  <!-- <ItemGroup>
+    <ProjectReference Include="../../OrionCBOR/CBOR2/CBOR2.csproj" />
   </ItemGroup> -->
 
 </Project>
