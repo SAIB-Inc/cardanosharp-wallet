@@ -25,7 +25,32 @@ public static class TransactionBuilderExtensions
     // Transaction Creation Functions
     //---------------------------------------------------------------------------------------------------//
 
-    // Complete function with simplified interface
+    // Complete function with simplified interface, the goal of this function is to eventually have no parameters
+    public static async Task<(Transaction, TransactionEvaluation)> Complete(
+        this ITransactionBuilder transactionBuilder,
+        AProviderService providerService,
+        Address address,
+        List<Utxo>? candidateUtxos = null,
+        List<Utxo>? requiredUtxos = null,
+        List<Utxo>? spentUtxos = null,
+        TxChainingType txChainingType = TxChainingType.Filter
+    )
+    {
+        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
+        List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
+
+        return await Complete(
+            transactionBuilder,
+            providerService,
+            address,
+            tokenBundleBuilder,
+            candidateUtxos,
+            requiredUtxos,
+            spentUtxos,
+            txChainingType: txChainingType,
+            isSmartContract: redeemers.Count > 0
+        );
+    }
 
     // Complete function with all parameters
     public static async Task<(Transaction, TransactionEvaluation)> Complete(
@@ -41,7 +66,7 @@ public static class TransactionBuilderExtensions
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.Filter,
         bool isSmartContract = false,
-        int signerCount = 1
+        int signerCount = 2
     )
     {
         TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)transactionBuilder.transactionBodyBuilder;
@@ -75,7 +100,7 @@ public static class TransactionBuilderExtensions
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,
         NetworkType networkType,
-        int signerCount = 1
+        int signerCount = 2
     )
     {
         // Calculate transaction variables

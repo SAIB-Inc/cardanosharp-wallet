@@ -12,12 +12,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding;
 public interface ITransactionWitnessSetBuilder : IABuilder<TransactionWitnessSet>
 {
     ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey);
-    ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1);
-    ITransactionWitnessSetBuilder ClearMocks();
     ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder);
-
-    [Obsolete("Will be deprecated. Please use SetScriptAllNativeScript() instead")]
-    ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder);
     ITransactionWitnessSetBuilder SetScriptAllNativeScript(IScriptAllBuilder scriptAllBuilder);
     ITransactionWitnessSetBuilder SetScriptAnyNativeScript(IScriptAnyBuilder scriptAnyBuilder);
     ITransactionWitnessSetBuilder SetScriptNofKNativeScript(IScriptNofKBuilder scriptNofKBuilder);
@@ -28,6 +23,14 @@ public interface ITransactionWitnessSetBuilder : IABuilder<TransactionWitnessSet
     ITransactionWitnessSetBuilder AddRedeemer(Redeemer redeemer);
     ITransactionWitnessSetBuilder AddPlutusV2Script(PlutusV2ScriptBuilder plutusV2ScriptBuilder);
     ITransactionWitnessSetBuilder AddPlutusV2Script(PlutusV2Script plutusV2Script);
+
+    // Helper Functions
+    ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1);
+    ITransactionWitnessSetBuilder ClearMocks();
+
+    // Get Functions
+    List<VKeyWitness> GetVKeyWitnesses();
+    List<Redeemer> GetRedeemers();
 }
 
 public class TransactionWitnessSetBuilder : ABuilder<TransactionWitnessSet>, ITransactionWitnessSetBuilder
@@ -45,9 +48,8 @@ public class TransactionWitnessSetBuilder : ABuilder<TransactionWitnessSet>, ITr
     public static ITransactionWitnessSetBuilder GetBuilder(TransactionWitnessSet model)
     {
         if (model == null)
-        {
             return new TransactionWitnessSetBuilder();
-        }
+
         return new TransactionWitnessSetBuilder(model);
     }
 
@@ -69,39 +71,9 @@ public class TransactionWitnessSetBuilder : ABuilder<TransactionWitnessSet>, ITr
         return this;
     }
 
-    public ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1)
-    {
-        _model.VKeyWitnesses.CreateMocks(count);
-        return this;
-    }
-
-    public ITransactionWitnessSetBuilder ClearMocks()
-    {
-        // Hold non-Mocked VKeys
-        var realVkeys = _model.VKeyWitnesses.Where(x => !x.IsMock);
-
-        // Reset VKey list
-        _model.VKeyWitnesses = new HashSet<VKeyWitness>();
-
-        // Add non-Mocked VKeys
-        foreach (var vkey in realVkeys)
-        {
-            _model.VKeyWitnesses.Add(vkey);
-        }
-
-        return this;
-    }
-
     public ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder)
     {
         _model.NativeScripts.Add(nativeScriptBuilder.Build());
-        return this;
-    }
-
-    [Obsolete("Will be deprecated. Please use SetScriptAllNativeScript() instead")]
-    public ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder)
-    {
-        _model.NativeScripts = new List<NativeScript>() { new NativeScript() { ScriptAll = scriptAllBuilder.Build() } };
         return this;
     }
 
@@ -163,5 +135,41 @@ public class TransactionWitnessSetBuilder : ABuilder<TransactionWitnessSet>, ITr
     {
         _model.PlutusV2Scripts.Add(plutusV2Script);
         return this;
+    }
+
+    // Helper Functions
+
+    public ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1)
+    {
+        _model.VKeyWitnesses.CreateMocks(count);
+        return this;
+    }
+
+    public ITransactionWitnessSetBuilder ClearMocks()
+    {
+        // Hold non-Mocked VKeys
+        var realVkeys = _model.VKeyWitnesses.Where(x => !x.IsMock);
+
+        // Reset VKey list
+        _model.VKeyWitnesses = new HashSet<VKeyWitness>();
+
+        // Add non-Mocked VKeys
+        foreach (var vkey in realVkeys)
+        {
+            _model.VKeyWitnesses.Add(vkey);
+        }
+
+        return this;
+    }
+
+    // Get Functions
+    public List<VKeyWitness> GetVKeyWitnesses()
+    {
+        return _model.VKeyWitnesses.ToList();
+    }
+
+    public List<Redeemer> GetRedeemers()
+    {
+        return _model.Redeemers.ToList();
     }
 }
