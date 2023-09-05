@@ -37,7 +37,7 @@ public static class TransactionBuilderExtensions
         int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.Filter,
+        TxChainingType txChainingType = TxChainingType.None,
         bool isSmartContract = false,
         int signerCount = 2
     )
@@ -76,7 +76,7 @@ public static class TransactionBuilderExtensions
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
-        TxChainingType txChainingType = TxChainingType.Filter
+        TxChainingType txChainingType = TxChainingType.None
     )
     {
         TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();

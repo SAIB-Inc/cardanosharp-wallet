@@ -203,20 +203,21 @@ public static class TransactionExtensions
         if (transaction.TransactionWitnessSet.Redeemers == null || evaluation.Redeemers == null)
             return;
 
-        List<Redeemer> redeemers = new List<Redeemer>();
+        List<Redeemer> redeemers = new();
         foreach (Redeemer evaluatedRedeemer in evaluation.Redeemers)
         {
-            Redeemer redeemer = new Redeemer
-            {
-                Tag = evaluatedRedeemer.Tag,
-                Index = evaluatedRedeemer.Index,
-                PlutusData = evaluatedRedeemer.PlutusData,
-                ExUnits = new ExUnits
+            Redeemer redeemer =
+                new()
                 {
-                    Mem = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Mem * 1.05), // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
-                    Steps = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Steps * 1.05) // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
-                }
-            };
+                    Tag = evaluatedRedeemer.Tag,
+                    Index = evaluatedRedeemer.Index,
+                    PlutusData = evaluatedRedeemer.PlutusData,
+                    ExUnits = new ExUnits
+                    {
+                        Mem = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Mem * 1.05), // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                        Steps = (ulong)Math.Ceiling(evaluatedRedeemer.ExUnits.Steps * 1.05) // Increase Mem by 5% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                    }
+                };
             redeemers.Add(redeemer);
         }
         transaction.TransactionWitnessSet.Redeemers = redeemers;

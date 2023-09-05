@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;</TargetFrameworks>
-    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
+    <PackageId>CardanoSharp.Wallet</PackageId>
     <LangVersion>11.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>6.1.35</Version>
+    <Version>6.2.0</Version>
     <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
@@ -19,7 +19,7 @@
     <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
     <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.2" />
-    <PackageReference Include="Orion.CardanoSharp.CBOR" Version="0.1.0" />
+    <PackageReference Include="Orion.CardanoSharp.CBOR" Version="0.1.1" />
   </ItemGroup>
 
   <ItemGroup>

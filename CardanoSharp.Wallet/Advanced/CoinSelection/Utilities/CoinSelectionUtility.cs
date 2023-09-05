@@ -30,7 +30,7 @@ public static class CoinSelectionUtility
         int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.Filter,
+        TxChainingType txChainingType = TxChainingType.None,
         bool isSmartContract = false
     )
     {
@@ -77,7 +77,7 @@ public static class CoinSelectionUtility
         int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.Filter
+        TxChainingType txChainingType = TxChainingType.None
     )
     {
         string paymentAddress = address.ToString();
@@ -177,7 +177,7 @@ public static class CoinSelectionUtility
         int limit = 20,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.Filter
+        TxChainingType txChainingType = TxChainingType.None
     )
     {
         string paymentAddress = address.ToString();

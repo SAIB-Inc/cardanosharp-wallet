@@ -23,7 +23,7 @@ public static class TransactionChainingUtility
         HashSet<Utxo> inputUtxos,
         HashSet<Utxo> outputUtxos,
         HashSet<Utxo> spentUtxos,
-        TxChainingType txChainingType = TxChainingType.Filter
+        TxChainingType txChainingType = TxChainingType.None
     )
     {
         // Add all Utxos that are not inputs or outputs of the previous tx. We are adding outputs back later to ensure no duplicate utxos are added

@@ -37,11 +37,14 @@ public static class RedeemerExtensions
             throw new ArgumentException("redeemerCbor has unexpected number of elements (expected 4)");
         }
 
-        Redeemer redeemer = new Redeemer();
-        redeemer.Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32();
-        redeemer.Index = (uint)redeemerCbor[1].DecodeValueToUInt32();
-        redeemer.PlutusData = redeemerCbor[2].GetPlutusData();
-        redeemer.ExUnits = (ExUnits)redeemerCbor[3].GetExUnits();
+        Redeemer redeemer =
+            new()
+            {
+                Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32(),
+                Index = (uint)redeemerCbor[1].DecodeValueToUInt32(),
+                PlutusData = redeemerCbor[2].GetPlutusData(),
+                ExUnits = (ExUnits)redeemerCbor[3].GetExUnits()
+            };
         return redeemer;
     }
 

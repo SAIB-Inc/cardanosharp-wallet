@@ -131,10 +131,10 @@ namespace CsBindgen
                 }
             }
 
-            TransactionEvaluation evaluation = new TransactionEvaluation();
+            TransactionEvaluation evaluation = new();
             if (redeemersByteArray != null)
             {
-                List<Redeemer> redeemers = new List<Redeemer>();
+                List<Redeemer> redeemers = new();
                 foreach (byte[] redeemerByteArray in redeemersByteArray)
                 {
                     Redeemer redeemer = RedeemerExtensions.Deserialize(redeemerByteArray);
