@@ -349,6 +349,27 @@ public static class CoinSelectionUtility
         return transactionBodyBuilder;
     }
 
+    public static TransactionBodyBuilder UseAllCoinSelection(
+        this TransactionBodyBuilder transactionBodyBuilder,
+        List<Utxo> utxos,
+        string changeAddress,
+        TokenBundleBuilder? mint = null,
+        int limit = 120,
+        ulong feeBuffer = 0
+    )
+    {
+        CoinSelection coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint: mint, limit: limit, feeBuffer: feeBuffer);
+
+        // Set Inputs and outputs
+        foreach (TransactionOutput changeOutput in coinSelection.ChangeOutputs)
+            transactionBodyBuilder.AddOutput(changeOutput);
+
+        foreach (TransactionInput input in coinSelection.Inputs)
+            transactionBodyBuilder.AddInput(input);
+
+        return transactionBodyBuilder;
+    }
+
     //---------------------------------------------------------------------------------------------------//
 
     //---------------------------------------------------------------------------------------------------//
