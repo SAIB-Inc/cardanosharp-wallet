@@ -362,7 +362,7 @@ public static class CoinSelectionUtility
 
         // Set Inputs and outputs
         foreach (TransactionOutput changeOutput in coinSelection.ChangeOutputs)
-            transactionBodyBuilder.AddOutput(changeOutput);
+            transactionBodyBuilder.AddBaseOutput(changeOutput);
 
         foreach (TransactionInput input in coinSelection.Inputs)
             transactionBodyBuilder.AddInput(input);
