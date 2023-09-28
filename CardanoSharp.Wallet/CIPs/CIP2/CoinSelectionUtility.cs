@@ -5,6 +5,7 @@ using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 
@@ -69,7 +70,19 @@ public static class CoinSelectionUtility
         basicChangeSelectionStrategy.CalculateChange(coinSelection, balance, changeAddress);
 
         foreach (var su in coinSelection.SelectedUtxos)
-            coinSelection.Inputs.Add(new TransactionInput() { TransactionId = su.TxHash!.HexToByteArray(), TransactionIndex = su.TxIndex });
+            coinSelection.Inputs.Add(
+                new TransactionInput()
+                {
+                    TransactionId = su.TxHash.HexToByteArray(),
+                    TransactionIndex = su.TxIndex,
+                    Output =
+                        su.OutputAddress != null
+                            ? TransactionOutputBuilder.Create
+                                .SetOutputFromUtxo(new Address(su.OutputAddress).GetBytes(), su, su.OutputDatumOption, su.OutputScriptReference)
+                                .Build()
+                            : null
+                }
+            );
 
         return coinSelection;
     }
