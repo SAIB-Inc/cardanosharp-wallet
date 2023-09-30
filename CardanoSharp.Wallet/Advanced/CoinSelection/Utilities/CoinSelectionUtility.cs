@@ -216,7 +216,7 @@ public static class CoinSelectionUtility
 
         // First and last Address Utxos
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
-        if (lastAddress != null)
+        if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
             (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress, inputUtxos, outputUtxos);
             List<Utxo> singleFirstAndLastAddressUtxos = TransactionChainingUtility.TxChainingUtxos(
@@ -443,10 +443,10 @@ public static class CoinSelectionUtility
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
 
-        List<Utxo> blockfrostUtxos = await providerService.GetSingleAddressUtxos(paymentAddress);
+        List<Utxo> singleAddressUtxos = await providerService.GetSingleAddressUtxos(paymentAddress);
         List<Utxo> initialCandidateUtxos = TransactionChainingUtility.TxChainingUtxos(
             paymentAddress,
-            blockfrostUtxos,
+            singleAddressUtxos,
             inputUtxos,
             outputUtxos,
             spentUtxoSet,
