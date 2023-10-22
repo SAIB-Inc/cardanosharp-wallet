@@ -1,3 +1,6 @@
+using CardanoSharp.Wallet.Models;
+using System;
+
 namespace CardanoSharp.Wallet.Utilities;
 
 public static class AssetUtility
@@ -19,6 +22,11 @@ public static class AssetUtility
         return $"{policyId}{assetName}";
     }
 
+    public static string GetAssetFullName(Asset asset)
+    {
+        return GetAssetFullName(asset.PolicyId, asset.Name);
+    }
+
     public static string? GetCIP68AssetFullName(string cip25AssetFullName)
     {
         string policyId = cip25AssetFullName[..56];
@@ -26,7 +34,7 @@ public static class AssetUtility
         if (!assetName.StartsWith(AssetLabelUtility.GetAssetLabelHex(100)))
             return null;
 
-        assetName = AssetLabelUtility.GetAssetLabelHex(222) + assetName.Substring(8);
+        assetName = string.Concat(AssetLabelUtility.GetAssetLabelHex(222), assetName.AsSpan(8));
         return $"{policyId}{assetName}";
     }
 }

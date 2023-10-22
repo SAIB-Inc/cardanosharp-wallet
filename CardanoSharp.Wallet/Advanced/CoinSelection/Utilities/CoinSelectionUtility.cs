@@ -9,7 +9,6 @@ using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Providers;
-using CardanoSharp.Wallet.Providers.Blockfrost;
 using CardanoSharp.Wallet.TransactionBuilding;
 using CardanoSharp.Wallet.Utilities;
 using CoinSelection = CardanoSharp.Wallet.CIPs.CIP2.Models.CoinSelection;
@@ -118,7 +117,7 @@ public static class CoinSelectionUtility
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
         if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
-            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress, inputUtxos, outputUtxos);
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, lastAddress, inputUtxos, outputUtxos);
             List<Utxo> singleFirstAndLastAddressUtxos = TransactionChainingUtility.TxChainingUtxos(
                 lastAddress,
                 await providerService.GetSingleAddressUtxos(lastAddress),
@@ -218,7 +217,7 @@ public static class CoinSelectionUtility
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
         if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
-            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress, inputUtxos, outputUtxos);
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, lastAddress, inputUtxos, outputUtxos);
             List<Utxo> singleFirstAndLastAddressUtxos = TransactionChainingUtility.TxChainingUtxos(
                 lastAddress,
                 await providerService.GetSingleAddressUtxos(lastAddress),
