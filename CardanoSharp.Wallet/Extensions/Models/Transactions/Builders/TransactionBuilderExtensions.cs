@@ -123,10 +123,8 @@ public static class TransactionBuilderExtensions
                 if (collateralInput.Output?.Address != null)
                     uniqueAddresses.Add(collateralInput.Output.Address.ToString()!);
 
-        if (uniqueAddresses.Count <= 1)
-            signerCount += 1; // Onlt add 1 if there is 1 signer
-        else
-            signerCount += 2 * uniqueAddresses.Count; // 2 * for more accurate mock fee calculation
+        // Only add 1 if there is 1 signer, but mulitply it by 2 for more accurate mock fee calculation if there are more
+        signerCount += uniqueAddresses.Count <= 1 ? uniqueAddresses.Count : 2 * uniqueAddresses.Count;
 
         bool isSmartContractTx = transaction.TransactionWitnessSet.Redeemers.Count > 0;
         if (isSmartContractTx)
