@@ -25,6 +25,33 @@ public static class TransactionBuilderExtensions
     // Transaction Creation Functions
     //---------------------------------------------------------------------------------------------------//
 
+    // Complete function with simplified interface, the goal of this function is to eventually have no parameters
+    public static async Task<(Transaction, TransactionEvaluation)> Complete(
+        this ITransactionBuilder transactionBuilder,
+        AProviderService providerService,
+        Address address,
+        List<Utxo>? candidateUtxos = null,
+        List<Utxo>? requiredUtxos = null,
+        List<Utxo>? spentUtxos = null,
+        TxChainingType txChainingType = TxChainingType.None
+    )
+    {
+        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
+        List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
+
+        return await FullComplete(
+            transactionBuilder,
+            providerService,
+            address,
+            tokenBundleBuilder,
+            candidateUtxos,
+            requiredUtxos,
+            spentUtxos,
+            txChainingType: txChainingType,
+            isSmartContract: redeemers.Count > 0
+        );
+    }
+
     // Complete function with all parameters
     public static async Task<(Transaction, TransactionEvaluation)> FullComplete(
         this ITransactionBuilder transactionBuilder,
@@ -64,39 +91,16 @@ public static class TransactionBuilderExtensions
             transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
 
-        var fullTransaction = transactionBuilder.Complete(providerService.ProviderData.ProtocolParameters!, providerService.ProviderData.NetworkType);
+        var fullTransaction = transactionBuilder.SimpleComplete(
+            providerService.ProviderData.ProtocolParameters!,
+            providerService.ProviderData.NetworkType,
+            signerCount
+        );
         return fullTransaction;
     }
 
-    // Complete function with simplified interface, the goal of this function is to eventually have no parameters
-    public static async Task<(Transaction, TransactionEvaluation)> Complete(
-        this ITransactionBuilder transactionBuilder,
-        AProviderService providerService,
-        Address address,
-        List<Utxo>? candidateUtxos = null,
-        List<Utxo>? requiredUtxos = null,
-        List<Utxo>? spentUtxos = null,
-        TxChainingType txChainingType = TxChainingType.None
-    )
-    {
-        TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
-        List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
-
-        return await FullComplete(
-            transactionBuilder,
-            providerService,
-            address,
-            tokenBundleBuilder,
-            candidateUtxos,
-            requiredUtxos,
-            spentUtxos,
-            txChainingType: txChainingType,
-            isSmartContract: redeemers.Count > 0
-        );
-    }
-
     // Complete Function for when coin selection has already occured
-    public static (Transaction, TransactionEvaluation) Complete(
+    public static (Transaction, TransactionEvaluation) SimpleComplete(
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,
         NetworkType networkType,
@@ -144,8 +148,8 @@ public static class TransactionBuilderExtensions
         transactionWitnessSetBuilder.MockVKeyWitness(signerCount);
 
         // Set Dummy Value for script data hash for evaluation calculation
-        List<IPlutusData> datums = new List<IPlutusData>() { };
-        List<Redeemer> redeemers = new List<Redeemer>() { };
+        List<IPlutusData> datums = new() { };
+        List<Redeemer> redeemers = new() { };
         transactionBodyBuilder.SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
 
         // Build Transaction and set dummy fee for evaluate calculation
