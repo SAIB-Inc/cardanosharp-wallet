@@ -66,7 +66,7 @@ public static class TransactionBuilderExtensions
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
         bool isSmartContract = false,
-        int signerCount = 1
+        int signerCount = 2
     )
     {
         TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)transactionBuilder.transactionBodyBuilder;
@@ -104,7 +104,7 @@ public static class TransactionBuilderExtensions
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,
         NetworkType networkType,
-        int signerCount = 1
+        int signerCount = 2
     )
     {
         // Calculate transaction variables
