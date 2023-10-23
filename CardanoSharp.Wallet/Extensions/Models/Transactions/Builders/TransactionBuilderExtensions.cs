@@ -66,7 +66,7 @@ public static class TransactionBuilderExtensions
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
         bool isSmartContract = false,
-        int signerCount = 2
+        int signerCount = 1
     )
     {
         TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)transactionBuilder.transactionBodyBuilder;
@@ -104,7 +104,7 @@ public static class TransactionBuilderExtensions
         this ITransactionBuilder transactionBuilder,
         ProtocolParameters protocolParameters,
         NetworkType networkType,
-        int signerCount = 2
+        int signerCount = 1
     )
     {
         // Calculate transaction variables
@@ -122,7 +122,7 @@ public static class TransactionBuilderExtensions
             foreach (TransactionInput collateralInput in collateralInputs)
                 if (collateralInput.Output?.Address != null)
                     uniqueAddresses.Add(collateralInput.Output.Address.ToString()!);
-        signerCount += uniqueAddresses.Count;
+        signerCount += 2 * uniqueAddresses.Count; // 2 * for more accurate mock fee calculation
 
         bool isSmartContractTx = transaction.TransactionWitnessSet.Redeemers.Count > 0;
         if (isSmartContractTx)
