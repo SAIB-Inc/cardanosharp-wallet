@@ -86,9 +86,9 @@ public static class TransactionBuilderExtensions
         );
 
         Transaction transaction = transactionBuilder.Build();
-        if (transaction.TransactionBody.ValidBefore <= 0)
+        if (transaction.TransactionBody.ValidBefore == null || transaction.TransactionBody.ValidBefore <= 0)
             transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
-        if (transaction.TransactionBody.ValidAfter <= 0)
+        if (transaction.TransactionBody.ValidAfter == null || transaction.TransactionBody.ValidAfter <= 0)
             transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
 
