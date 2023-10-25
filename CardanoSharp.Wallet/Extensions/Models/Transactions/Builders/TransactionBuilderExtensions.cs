@@ -69,7 +69,8 @@ public static class TransactionBuilderExtensions
         int signerCount = 2
     )
     {
-        TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)transactionBuilder.transactionBodyBuilder;
+        TransactionBodyBuilder transactionBodyBuilder = (TransactionBodyBuilder)
+            transactionBuilder.transactionBodyBuilder.AddRequiredSigner(address.GetPublicKeyHash());
         await transactionBodyBuilder.UseCoinSelection(
             providerService: providerService,
             address: address,

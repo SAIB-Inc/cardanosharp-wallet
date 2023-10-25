@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
