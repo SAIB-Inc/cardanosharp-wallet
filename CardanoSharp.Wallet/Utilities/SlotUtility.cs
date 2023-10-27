@@ -27,6 +27,12 @@ public static class SlotUtility
         return unixTimeSeconds - (config.ZeroTime / 1000) + config.ZeroSlot;
     }
 
+    public static long GetSlotFromUTCTime(SlotNetworkConfig config, DateTime utcTime)
+    {
+        long unixTime = (long)(utcTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        return GetSlotFromUnixTime(config, unixTime);
+    }
+
     public static long GetPosixTimeSecondsFromSlot(SlotNetworkConfig config, long slot)
     {
         long unixTime = (config.ZeroTime / 1000) + (slot - config.ZeroSlot);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
@@ -30,6 +31,7 @@ public static class CoinSelectionUtility
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        DateTime? filterAfterTime = null,
         bool isSmartContract = false
     )
     {
@@ -44,7 +46,8 @@ public static class CoinSelectionUtility
                 limit,
                 feeBuffer,
                 maxTxSize,
-                txChainingType
+                txChainingType,
+                filterAfterTime
             );
         else
             await transactionBodyBuilder.UseStandardCoinSelection(
@@ -57,7 +60,8 @@ public static class CoinSelectionUtility
                 limit,
                 feeBuffer,
                 maxTxSize,
-                txChainingType
+                txChainingType,
+                filterAfterTime
             );
         return transactionBodyBuilder;
     }
@@ -76,11 +80,16 @@ public static class CoinSelectionUtility
         int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.None
+        TxChainingType txChainingType = TxChainingType.None,
+        DateTime? filterAfterTime = null
     )
     {
         string paymentAddress = address.ToString();
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress);
+        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+            providerService,
+            paymentAddress,
+            filterAfterTime: filterAfterTime
+        );
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
@@ -117,7 +126,13 @@ public static class CoinSelectionUtility
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
         if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
-            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, lastAddress, inputUtxos, outputUtxos);
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+                providerService,
+                lastAddress,
+                inputUtxos,
+                outputUtxos,
+                filterAfterTime: filterAfterTime
+            );
             List<Utxo> singleFirstAndLastAddressUtxos = TransactionChainingUtility.TxChainingUtxos(
                 lastAddress,
                 await providerService.GetSingleAddressUtxos(lastAddress),
@@ -176,11 +191,16 @@ public static class CoinSelectionUtility
         int limit = 20,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.None
+        TxChainingType txChainingType = TxChainingType.None,
+        DateTime? filterAfterTime = null
     )
     {
         string paymentAddress = address.ToString();
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress);
+        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+            providerService,
+            paymentAddress,
+            filterAfterTime: filterAfterTime
+        );
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
@@ -217,7 +237,13 @@ public static class CoinSelectionUtility
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
         if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
-            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, lastAddress, inputUtxos, outputUtxos);
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+                providerService,
+                lastAddress,
+                inputUtxos,
+                outputUtxos,
+                filterAfterTime: filterAfterTime
+            );
             List<Utxo> singleFirstAndLastAddressUtxos = TransactionChainingUtility.TxChainingUtxos(
                 lastAddress,
                 await providerService.GetSingleAddressUtxos(lastAddress),
@@ -434,10 +460,15 @@ public static class CoinSelectionUtility
     public async static Task<List<Utxo>> CalculateInitialCandidates(
         AProviderService providerService,
         string paymentAddress,
-        List<Utxo>? spentUtxos = null
+        List<Utxo>? spentUtxos = null,
+        DateTime? filterAfterTime = null
     )
     {
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(providerService, paymentAddress);
+        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+            providerService,
+            paymentAddress,
+            filterAfterTime: filterAfterTime
+        );
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);

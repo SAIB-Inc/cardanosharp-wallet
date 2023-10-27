@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,7 +66,8 @@ public static class TransactionChainingUtility
         AProviderService providerService,
         string address,
         HashSet<Utxo>? currentInputUtxos = null,
-        HashSet<Utxo>? currentOutputUtxos = null
+        HashSet<Utxo>? currentOutputUtxos = null,
+        DateTime? filterAfterTime = null
     )
     {
         // Determine if the wallet has any pending transactions
@@ -77,6 +79,23 @@ public static class TransactionChainingUtility
         if (pendingTxHashes != null && pendingTxHashes.Count > 0)
         {
             var mempoolTransactions = await providerService.GetMempoolTransactions(pendingTxHashes);
+            if (filterAfterTime != null)
+            {
+                // Remove mem pool transactions that are stuck in the mem pool
+                // If the invalid after time for the transaction is later then the filterAfterTime, remove the transaction.
+                // An example. If filterAfterTime is utcNow + 57 minutes, and the transaction was just submitted with an invalid after time of 1 hours,
+                // then in 3 minutes the transaction will be removed here.
+                long slot = SlotUtility.GetSlotFromUTCTime(
+                    SlotUtility.GetSlotNetworkConfig(providerService.ProviderData.NetworkType),
+                    filterAfterTime.Value
+                );
+                mempoolTransactions = mempoolTransactions
+                    .Where(
+                        mempoolTransaction =>
+                            mempoolTransaction.Tx.InvalidHereafter != null && long.Parse(mempoolTransaction.Tx.InvalidHereafter) < slot
+                    )
+                    .ToArray();
+            }
             (inputUtxos, outputUtxos) = GetUtxosFromMempoolTransactions(mempoolTransactions);
         }
 
