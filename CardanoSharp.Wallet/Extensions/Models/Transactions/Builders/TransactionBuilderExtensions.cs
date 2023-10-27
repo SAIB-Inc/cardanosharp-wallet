@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -33,11 +34,17 @@ public static class TransactionBuilderExtensions
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
-        TxChainingType txChainingType = TxChainingType.None
+        TxChainingType txChainingType = TxChainingType.None,
+        DateTime? filterAfterTime = null
     )
     {
         TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
         List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
+
+        // Default the filter after time to 57 minutes from now. We default the TTL (ValidBefore) to 1 hour from now,
+        // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out tx building
+        if (filterAfterTime == null)
+            filterAfterTime = DateTime.UtcNow.AddMinutes(57);
 
         return await FullComplete(
             transactionBuilder,
@@ -48,7 +55,8 @@ public static class TransactionBuilderExtensions
             requiredUtxos,
             spentUtxos,
             txChainingType: txChainingType,
-            isSmartContract: redeemers.Count > 0
+            isSmartContract: redeemers.Count > 0,
+            filterAfterTime: filterAfterTime
         );
     }
 
@@ -65,6 +73,7 @@ public static class TransactionBuilderExtensions
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        DateTime? filterAfterTime = null,
         bool isSmartContract = false,
         int signerCount = 2
     )
