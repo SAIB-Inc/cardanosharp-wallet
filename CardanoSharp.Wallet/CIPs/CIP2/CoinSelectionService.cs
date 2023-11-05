@@ -101,7 +101,7 @@ public class CoinSelectionService : ICoinSelectionService
         return coinSelection;
     }
 
-    private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset? asset = null)
+    private static bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset? asset = null)
     {
         long totalInput = 0;
         foreach (var su in selectedUtxos)
@@ -123,7 +123,7 @@ public class CoinSelectionService : ICoinSelectionService
         return totalInput >= amount;
     }
 
-    private long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0)
+    private static long CalculateChangeADA(CoinSelection coinSelection, Balance balance, ulong feeBuffer = 0)
     {
         long inputADA = coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
         long outputADA = (long)balance.Lovelaces - (long)feeBuffer; // Subtract feebuffer to get the real outputADA amount
@@ -133,7 +133,7 @@ public class CoinSelectionService : ICoinSelectionService
         return change;
     }
 
-    private long CalculateMinChangeADARequired(CoinSelection coinSelection, ulong feeBuffer = 0)
+    private static long CalculateMinChangeADARequired(CoinSelection coinSelection, ulong feeBuffer = 0)
     {
         long minChangeADARequired = (long)feeBuffer; // Ensure we have enough ada equal to the min required + fee buffer
         foreach (var changeOutput in coinSelection.ChangeOutputs)
@@ -143,7 +143,7 @@ public class CoinSelectionService : ICoinSelectionService
         return minChangeADARequired;
     }
 
-    private void PopulateInputList(CoinSelection coinSelection)
+    private static void PopulateInputList(CoinSelection coinSelection)
     {
         foreach (var su in coinSelection.SelectedUtxos)
         {
@@ -155,7 +155,7 @@ public class CoinSelectionService : ICoinSelectionService
                     Output =
                         su.OutputAddress != null
                             ? TransactionOutputBuilder.Create
-                                .SetOutputFromUtxo((new Address(su.OutputAddress)).GetBytes(), su, su.OutputDatumOption, su.OutputScriptReference)
+                                .SetOutputFromUtxo(new Address(su.OutputAddress).GetBytes(), su, su.OutputDatumOption, su.OutputScriptReference)
                                 .Build()
                             : null
                 }
