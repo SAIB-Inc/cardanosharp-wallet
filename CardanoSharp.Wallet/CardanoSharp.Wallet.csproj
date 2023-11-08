@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;</TargetFrameworks>
-    <PackageId>CardanoSharp.Wallet</PackageId>
+    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
     <LangVersion>11.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>6.2.16</Version>
