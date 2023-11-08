@@ -15,7 +15,7 @@ public interface IAProviderService
     //---------------------------------------------------------------------------------------------------//
     // Account Functions
     //---------------------------------------------------------------------------------------------------//
-    public Task<string?> GetMainAddress(string? address, string order = "desc");
+    public Task<string?> GetMainAddress(string? address, string order = "asc");
 
     //---------------------------------------------------------------------------------------------------//
 
@@ -81,7 +81,7 @@ public abstract class AProviderService : IAProviderService
     //---------------------------------------------------------------------------------------------------//
     // Account Functions
     //---------------------------------------------------------------------------------------------------//
-    public virtual Task<string?> GetMainAddress(string? address, string order = "desc")
+    public virtual Task<string?> GetMainAddress(string? address, string order = "asc")
     {
         throw new System.NotImplementedException();
     }
