@@ -35,6 +35,7 @@ public static class TransactionBuilderExtensions
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
         TxChainingType txChainingType = TxChainingType.None,
+        long maxTxSize = 12000,
         DateTime? filterAfterTime = null
     )
     {
@@ -42,7 +43,7 @@ public static class TransactionBuilderExtensions
         List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
 
         // Default the filter after time to 57 minutes from now. We default the TTL (ValidBefore) to 1 hour from now,
-        // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out tx building
+        // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out in tx building
         if (filterAfterTime == null)
             filterAfterTime = DateTime.UtcNow.AddMinutes(57);
 
@@ -54,6 +55,7 @@ public static class TransactionBuilderExtensions
             candidateUtxos,
             requiredUtxos,
             spentUtxos,
+            maxTxSize: maxTxSize,
             txChainingType: txChainingType,
             isSmartContract: redeemers.Count > 0,
             filterAfterTime: filterAfterTime
