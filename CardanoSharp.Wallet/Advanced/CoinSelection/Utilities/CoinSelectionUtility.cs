@@ -124,7 +124,7 @@ public static class CoinSelectionUtility
 
         // First and Last Address Utxos
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
-        if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
+        if (lastAddress != null && lastAddress != paymentAddress && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
             (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
                 providerService,
@@ -235,7 +235,7 @@ public static class CoinSelectionUtility
 
         // First and last Address Utxos
         string? lastAddress = await providerService.GetMainAddress(paymentAddress, "desc");
-        if (lastAddress != null && !AddressUtility.IsSmartContractAddress(lastAddress))
+        if (lastAddress != null && lastAddress != paymentAddress && !AddressUtility.IsSmartContractAddress(lastAddress))
         {
             (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
                 providerService,
