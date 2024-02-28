@@ -53,7 +53,8 @@ public static class DatumOptionExtension
         else if (datumType == 1)
         {
             var dataCbor = datumOptionCbor[1].Untag();
-            var datumCbor = CBORObject.DecodeFromBytes(dataCbor.GetByteString());
+            var rawCbor = dataCbor.GetByteString();
+            var datumCbor = CBORObject.DecodeFromBytes(rawCbor);
             datumOption.Data = datumCbor.GetPlutusData();
         }
 
