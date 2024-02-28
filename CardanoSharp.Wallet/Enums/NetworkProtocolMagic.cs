@@ -1,8 +1,7 @@
-﻿namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums;
+
+public enum NetworkProtocolMagic
 {
-    public enum NetworkProtocolMagic
-    {
-        Testnet = 1097911063,
-        Mainnet = 764824073
-    }
+    Testnet = 1097911063,
+    Mainnet = 764824073
 }

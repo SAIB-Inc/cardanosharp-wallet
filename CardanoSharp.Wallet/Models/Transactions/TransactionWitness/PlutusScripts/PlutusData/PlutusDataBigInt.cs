@@ -1,238 +1,192 @@
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
-using CardanoSharp.Wallet.Models.Addresses;
-using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
-namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts
+namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+
+// big_int = int / big_uint / big_nint
+// big_uint = #6.2(bounded_bytes)
+// big_nint = #6.3(bounded_bytes)
+
+// int
+public class PlutusDataInt : IPlutusData
 {
-    // big_int = int / big_uint / big_nint
-    // big_uint = #6.2(bounded_bytes)
-    // big_nint = #6.3(bounded_bytes)
+    public int Value { get; set; }
 
-    // int
-    public class PlutusDataInt : IPlutusData
+    public PlutusDataInt() { }
+
+    public PlutusDataInt(int number)
     {
-        public int Value { get; set; }
-
-        public CBORObject GetCBOR()
-        {
-            return CBORObject.FromObject(Value);
-        }
-
-        public byte[] Serialize()
-        {
-            return GetCBOR().EncodeToBytes();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-            PlutusDataInt other = (PlutusDataInt)obj;
-            return Value.Equals(other.Value);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 31 + Value.GetHashCode();
-                return hash;
-            }
-        }
+        this.Value = number;
     }
 
-    // big_uint = #6.2(bounded_bytes)
-    public class PlutusDataUInt : IPlutusData
+    public CBORObject GetCBOR()
     {
-        public BigInteger Value { get; set; }
-
-        public PlutusDataUInt(long number)
-        {
-            Value = new BigInteger(number);
-        }
-
-        public CBORObject GetCBOR()
-        {
-            return CBORObject.FromObject((long)Value);
-        }
-
-        public byte[] Serialize()
-        {
-            return GetCBOR().EncodeToBytes();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-            PlutusDataUInt other = (PlutusDataUInt)obj;
-            return Value.Equals(other.Value);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 31 + Value.GetHashCode();
-                return hash;
-            }
-        }
+        return CBORObject.FromObject(Value);
     }
 
-    // big_nint = #6.3(bounded_bytes)
-    public class PlutusDataNInt : IPlutusData
+    public byte[] Serialize()
     {
-        public BigInteger Value { get; set; }
-
-        public PlutusDataNInt(long number)
-        {
-            Value = new BigInteger(number);
-        }
-
-        public CBORObject GetCBOR()
-        {
-            return CBORObject.FromObject((long)Value);
-        }
-
-        public byte[] Serialize()
-        {
-            return GetCBOR().EncodeToBytes();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is PlutusDataNInt))
-            {
-                return false;
-            }
-
-            PlutusDataNInt other = (PlutusDataNInt)obj;
-
-            return this.Value.Equals(other.Value);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 31 + Value.GetHashCode();
-                return hash;
-            }
-        }
+        return GetCBOR().EncodeToBytes();
     }
 
-    public static partial class PlutusDataExtensions
+    public override bool Equals(object? obj)
     {
-        public static IPlutusData GetPlutusDataBigInt(this CBORObject dataCbor)
-        {
-            if (dataCbor == null)
-            {
-                throw new ArgumentNullException(nameof(dataCbor));
-            }
+        if (obj == null || GetType() != obj.GetType())
+            return false;
 
-            if (dataCbor.Type != CBORType.Integer)
-            {
-                throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
-            }
+        PlutusDataInt other = (PlutusDataInt)obj;
+        return Value.Equals(other.Value);
+    }
 
-            var number = dataCbor.AsNumber();
-            if (number.CanFitInInt32())
-                return dataCbor.GetPlutusDataInt();
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+}
 
-            if (number.IsNegative())
-                return dataCbor.GetPlutusDataNInt();
+// big_uint = #6.2(bounded_bytes)
+public class PlutusDataUInt : IPlutusData
+{
+    public BigInteger Value { get; set; }
 
-            return dataCbor.GetPlutusDataUInt();
-        }
+    public PlutusDataUInt() { }
 
-        public static PlutusDataInt GetPlutusDataInt(this CBORObject dataCbor)
-        {
-            if (dataCbor == null)
-            {
-                throw new ArgumentNullException(nameof(dataCbor));
-            }
+    public PlutusDataUInt(long number)
+    {
+        Value = new BigInteger(number);
+    }
 
-            if (dataCbor.Type != CBORType.Integer)
-            {
-                throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
-            }
+    public CBORObject GetCBOR()
+    {
+        return CBORObject.FromObject((long)Value);
+    }
 
-            var number = dataCbor.AsNumber();
-            if (!number.CanFitInInt32())
-            {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as int but number is larger than size int"
-                );
-            }
+    public byte[] Serialize()
+    {
+        return GetCBOR().EncodeToBytes();
+    }
 
-            int data = (int)dataCbor.DecodeValueToInt32();
-            PlutusDataInt plutusDataInt = new PlutusDataInt() { Value = data };
-            return plutusDataInt;
-        }
+    public override bool Equals(object? obj)
+    {
+        if (obj == null || GetType() != obj.GetType())
+            return false;
+        PlutusDataUInt other = (PlutusDataUInt)obj;
+        return Value.Equals(other.Value);
+    }
 
-        public static PlutusDataUInt GetPlutusDataUInt(this CBORObject dataCbor)
-        {
-            if (dataCbor == null)
-            {
-                throw new ArgumentNullException(nameof(dataCbor));
-            }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+}
 
-            if (dataCbor.Type != CBORType.Integer)
-            {
-                throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
-            }
+// big_nint = #6.3(bounded_bytes)
+public class PlutusDataNInt : IPlutusData
+{
+    public BigInteger Value { get; set; }
 
-            var number = dataCbor.AsNumber();
-            if (!number.CanFitInInt64())
-            {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as uint but number is larger than size uint"
-                );
-            }
+    public PlutusDataNInt() { }
 
-            long data = (long)dataCbor.DecodeValueToInt64();
-            PlutusDataUInt plutusDataUInt = new PlutusDataUInt(data);
-            return plutusDataUInt;
-        }
+    public PlutusDataNInt(long number)
+    {
+        Value = new BigInteger(number);
+    }
 
-        public static PlutusDataNInt GetPlutusDataNInt(this CBORObject dataCbor)
-        {
-            if (dataCbor == null)
-            {
-                throw new ArgumentNullException(nameof(dataCbor));
-            }
+    public CBORObject GetCBOR()
+    {
+        return CBORObject.FromObject((long)Value);
+    }
 
-            if (dataCbor.Type != CBORType.Integer)
-            {
-                throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
-            }
+    public byte[] Serialize()
+    {
+        return GetCBOR().EncodeToBytes();
+    }
 
-            var number = dataCbor.AsNumber();
-            if (!number.IsNegative() || !number.CanFitInInt64())
-            {
-                throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as nint but number is not negative"
-                );
-            }
+    public override bool Equals(object? obj)
+    {
+        if (obj is not PlutusDataNInt)
+            return false;
 
-            long data = (long)dataCbor.DecodeValueToInt64();
-            PlutusDataNInt plutusDataNInt = new PlutusDataNInt(data);
-            return plutusDataNInt;
-        }
+        PlutusDataNInt other = (PlutusDataNInt)obj;
+        return this.Value.Equals(other.Value);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+}
+
+public static partial class PlutusDataExtensions
+{
+    public static IPlutusData GetPlutusDataBigInt(this CBORObject dataCbor)
+    {
+        if (dataCbor == null)
+            throw new ArgumentNullException(nameof(dataCbor));
+
+        if (dataCbor.Type != CBORType.Integer)
+            throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
+
+        var number = dataCbor.AsNumber();
+        if (number.CanFitInInt32())
+            return dataCbor.GetPlutusDataInt();
+
+        if (number.IsNegative())
+            return dataCbor.GetPlutusDataNInt();
+
+        return dataCbor.GetPlutusDataUInt();
+    }
+
+    public static PlutusDataInt GetPlutusDataInt(this CBORObject dataCbor)
+    {
+        if (dataCbor == null)
+            throw new ArgumentNullException(nameof(dataCbor));
+
+        if (dataCbor.Type != CBORType.Integer)
+            throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
+
+        var number = dataCbor.AsNumber();
+        if (!number.CanFitInInt32())
+            throw new ArgumentException("Attempting to deserialize dataCbor as int but number is larger than size int");
+
+        int data = dataCbor.DecodeValueToInt32();
+        PlutusDataInt plutusDataInt = new() { Value = data };
+        return plutusDataInt;
+    }
+
+    public static PlutusDataUInt GetPlutusDataUInt(this CBORObject dataCbor)
+    {
+        if (dataCbor == null)
+            throw new ArgumentNullException(nameof(dataCbor));
+
+        if (dataCbor.Type != CBORType.Integer)
+            throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
+
+        var number = dataCbor.AsNumber();
+        if (!number.CanFitInInt64())
+            throw new ArgumentException("Attempting to deserialize dataCbor as uint but number is larger than size uint");
+
+        long data = dataCbor.DecodeValueToInt64();
+        PlutusDataUInt plutusDataUInt = new(data);
+        return plutusDataUInt;
+    }
+
+    public static PlutusDataNInt GetPlutusDataNInt(this CBORObject dataCbor)
+    {
+        if (dataCbor == null)
+            throw new ArgumentNullException(nameof(dataCbor));
+
+        if (dataCbor.Type != CBORType.Integer)
+            throw new ArgumentException("dataCbor is not expected type CBORType.Integer");
+
+        var number = dataCbor.AsNumber();
+        if (!number.IsNegative() || !number.CanFitInInt64())
+            throw new ArgumentException("Attempting to deserialize dataCbor as nint but number is not negative");
+
+        long data = dataCbor.DecodeValueToInt64();
+        PlutusDataNInt plutusDataNInt = new(data);
+        return plutusDataNInt;
     }
 }

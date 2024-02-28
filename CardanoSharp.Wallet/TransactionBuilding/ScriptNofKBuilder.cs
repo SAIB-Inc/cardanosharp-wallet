@@ -2,57 +2,56 @@
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IScriptNofKBuilder : IABuilder<ScriptNofK>
 {
-    public interface IScriptNofKBuilder: IABuilder<ScriptNofK>
+    IScriptNofKBuilder SetN(uint n);
+    IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
+    IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts);
+}
+
+public class ScriptNofKBuilder : ABuilder<ScriptNofK>, IScriptNofKBuilder
+{
+    public ScriptNofKBuilder()
     {
-        IScriptNofKBuilder SetN(uint n);
-        IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
-        IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts);
+        _model = new ScriptNofK();
     }
 
-    public class ScriptNofKBuilder : ABuilder<ScriptNofK>, IScriptNofKBuilder
+    private ScriptNofKBuilder(ScriptNofK model)
     {
-        public ScriptNofKBuilder()
-        {
-            _model = new ScriptNofK();
-        }
+        _model = model;
+    }
 
-        private ScriptNofKBuilder(ScriptNofK model)
+    public static IScriptNofKBuilder GetBuilder(ScriptNofK model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new ScriptNofKBuilder();
         }
+        return new ScriptNofKBuilder(model);
+    }
 
-        public static IScriptNofKBuilder GetBuilder(ScriptNofK model)
-        {
-            if (model == null)
-            {
-                return new ScriptNofKBuilder();
-            }
-            return new ScriptNofKBuilder(model);
-        }
+    public static IScriptNofKBuilder Create
+    {
+        get => new ScriptNofKBuilder();
+    }
 
-        public static IScriptNofKBuilder Create
-        {
-            get => new ScriptNofKBuilder();
-        }
+    public IScriptNofKBuilder SetN(uint n)
+    {
+        _model.N = n;
+        return this;
+    }
 
-        public IScriptNofKBuilder SetN(uint n)
-        {
-            _model.N = n;
-            return this;
-        }
+    public IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
+    {
+        _model.NativeScripts.Add(nativeScriptBuilder.Build());
+        return this;
+    }
 
-        public IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
-        {
-            _model.NativeScripts.Add(nativeScriptBuilder.Build());
-            return this;
-        }
-
-        public IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts)
-        {
-            _model.NativeScripts = nativeScripts;
-            return this;
-        }
+    public IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts)
+    {
+        _model.NativeScripts = nativeScripts;
+        return this;
     }
 }

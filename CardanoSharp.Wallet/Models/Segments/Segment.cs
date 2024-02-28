@@ -1,42 +1,43 @@
-﻿using CardanoSharp.Wallet.Enums;
-using System;
+﻿using System;
+using CardanoSharp.Wallet.Enums;
 
-namespace CardanoSharp.Wallet.Models.Segments
+namespace CardanoSharp.Wallet.Models.Segments;
+
+public interface ISegment
 {
-    public interface ISegment
-    {
-        IConvertible Value { get; }
-        //string Name { get; }
-        DerivationType? Derivation { get; }
-        bool IsRoot { get; }
-        bool IsHardened { get; }
+    IConvertible Value { get; }
 
-        string ToString();
+    //string Name { get; }
+    DerivationType? Derivation { get; }
+    bool IsRoot { get; }
+    bool IsHardened { get; }
+
+    string ToString();
+}
+
+public abstract class ASegment : ISegment
+{
+    private DerivationType _derivation;
+
+    public ASegment(IConvertible value, DerivationType derivation = DerivationType.HARD, bool root = false)
+    {
+        IsRoot = root;
+        Value = value;
+        if (root)
+            return;
+        _derivation = derivation;
     }
 
-    public abstract class ASegment : ISegment
+    public bool IsRoot { get; }
+    public string Name { get; } = default!;
+    public virtual DerivationType? Derivation => _derivation;
+
+    public bool IsHardened => Derivation == DerivationType.HARD;
+
+    public IConvertible Value { get; }
+
+    public override string ToString()
     {
-        private DerivationType _derivation;
-
-        public ASegment(IConvertible value, DerivationType derivation = DerivationType.HARD, bool root = false)
-        {
-            IsRoot = root;
-            Value = value;
-            if (root) return;
-            _derivation = derivation;
-        }
-
-        public bool IsRoot { get; }
-        public string Name { get; }
-        public virtual DerivationType? Derivation => _derivation;
-
-        public bool IsHardened => Derivation == DerivationType.HARD;
-
-        public IConvertible Value { get; }
-
-        public override string ToString()
-        {
-            return (IsRoot ? Value : Convert.ToInt32(Value)).ToString();
-        }
+        return (IsRoot ? Value : Convert.ToInt32(Value)).ToString()!;
     }
 }

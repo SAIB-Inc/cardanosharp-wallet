@@ -1,14 +1,13 @@
-﻿namespace CardanoSharp.Wallet.Models.Keys
-{
-    public class Mnemonic
-    {
-        public string Words { get; }
-        public byte[] Entropy { get; }
+﻿namespace CardanoSharp.Wallet.Models.Keys;
 
-        public Mnemonic(string words, byte[] entropy)
-        {
-            Words = words;
-            Entropy = entropy;
-        }
+public class Mnemonic
+{
+    public string Words { get; }
+    public byte[] Entropy { get; }
+
+    public Mnemonic(string words, byte[] entropy)
+    {
+        Words = words;
+        Entropy = entropy;
     }
 }

@@ -1,17 +1,16 @@
-﻿namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums;
+
+public enum WordLists
 {
-    public enum WordLists
-    {
-        English,
-        ChineseSimplified,
-        ChineseTraditional,
-        French,
-        Italian,
-        Japanese,
-        Korean,
-        Spanish,
-        Czech,
-        Portuguese,
-        German
-    }
+    English,
+    ChineseSimplified,
+    ChineseTraditional,
+    French,
+    Italian,
+    Japanese,
+    Korean,
+    Spanish,
+    Czech,
+    Portuguese,
+    German
 }

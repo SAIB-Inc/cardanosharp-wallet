@@ -1,8 +1,7 @@
-﻿namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums;
+
+public enum DerivationType
 {
-    public enum DerivationType
-    {
-        HARD,
-        SOFT
-    }
+    HARD,
+    SOFT
 }

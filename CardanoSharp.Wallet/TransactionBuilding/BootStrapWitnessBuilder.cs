@@ -1,53 +1,52 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IBootStrapWitnessBuilder : IABuilder<BootStrapWitness>
 {
-    public interface IBootStrapWitnessBuilder: IABuilder<BootStrapWitness>
+    IBootStrapWitnessBuilder WithSignature(byte[] signature);
+
+    IBootStrapWitnessBuilder WithChainNode(byte[] chainNode);
+
+    IBootStrapWitnessBuilder WithAttributes(byte[] attributes);
+}
+
+public class BootStrapWitnessBuilder : ABuilder<BootStrapWitness>, IBootStrapWitnessBuilder
+{
+    public BootStrapWitnessBuilder()
     {
-        IBootStrapWitnessBuilder WithSignature(byte[] signature);
-
-        IBootStrapWitnessBuilder WithChainNode(byte[] chainNode);
-
-        IBootStrapWitnessBuilder WithAttributes(byte[] attributes);
+        _model = new BootStrapWitness();
     }
 
-    public class BootStrapWitnessBuilder: ABuilder<BootStrapWitness>, IBootStrapWitnessBuilder
+    private BootStrapWitnessBuilder(BootStrapWitness model)
     {
-        public BootStrapWitnessBuilder()
-        {
-            _model = new BootStrapWitness();
-        }
+        _model = model;
+    }
 
-        private BootStrapWitnessBuilder(BootStrapWitness model)
+    public static IBootStrapWitnessBuilder GetBuilder(BootStrapWitness model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new BootStrapWitnessBuilder();
         }
+        return new BootStrapWitnessBuilder(model);
+    }
 
-        public static IBootStrapWitnessBuilder GetBuilder(BootStrapWitness model)
-        {
-            if (model == null)
-            {
-                return new BootStrapWitnessBuilder();
-            }
-            return new BootStrapWitnessBuilder(model);
-        }
+    public IBootStrapWitnessBuilder WithSignature(byte[] signature)
+    {
+        _model.Signature = signature;
+        return this;
+    }
 
-        public IBootStrapWitnessBuilder WithSignature(byte[] signature)
-        {
-            _model.Signature = signature;
-            return this;
-        }
+    public IBootStrapWitnessBuilder WithChainNode(byte[] chainNode)
+    {
+        _model.ChainNode = chainNode;
+        return this;
+    }
 
-        public IBootStrapWitnessBuilder WithChainNode(byte[] chainNode)
-        {
-            _model.ChainNode = chainNode;
-            return this;
-        }
-
-        public IBootStrapWitnessBuilder WithAttributes(byte[] attributes)
-        {
-            _model.Attributes = attributes;
-            return this;
-        }
+    public IBootStrapWitnessBuilder WithAttributes(byte[] attributes)
+    {
+        _model.Attributes = attributes;
+        return this;
     }
 }

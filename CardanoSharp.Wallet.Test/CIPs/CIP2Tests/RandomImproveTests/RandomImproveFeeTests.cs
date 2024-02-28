@@ -18,13 +18,7 @@ public partial class CIP2Tests
         //arrange
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_50_ada_no_assets, 
-            utxo_50_ada_no_assets,
-            utxo_10_ada_no_assets,
-            utxo_20_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_50_ada_no_assets, utxo_50_ada_no_assets, utxo_10_ada_no_assets, utxo_20_ada_no_assets, };
 
         //act
         ulong feeBuffer = 21 * adaToLovelace;
@@ -48,12 +42,7 @@ public partial class CIP2Tests
         //arrange
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_50_ada_no_assets, 
-            utxo_50_ada_no_assets,
-            utxo_10_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_50_ada_no_assets, utxo_50_ada_no_assets, utxo_10_ada_no_assets, };
 
         //assert
         try
@@ -76,9 +65,9 @@ public partial class CIP2Tests
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_no_assets, output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
-            utxo_10_ada_10_tokens, 
-            utxo_10_ada_1_owned_mint_asset, 
-            utxo_10_ada_1_owned_mint_asset_two, 
+            utxo_10_ada_10_tokens,
+            utxo_10_ada_1_owned_mint_asset,
+            utxo_10_ada_1_owned_mint_asset_two,
             utxo_10_ada_100_owned_mint_asset,
         };
 
@@ -87,8 +76,10 @@ public partial class CIP2Tests
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, feeBuffer: feeBuffer);
 
         //assert
-        Assert.Equal(response.SelectedUtxos.Count, 4);
-        Assert.Equal(response.ChangeOutputs.Count, 1);
+        int selectedUTXOsLength = response.SelectedUtxos.Count;
+        int changeOutputsLength = response.ChangeOutputs.Count;
+        Assert.Equal(4, selectedUTXOsLength);
+        Assert.Equal(1, changeOutputsLength);
 
         long totalSelected = 0;
         response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + (long)s.Balance.Lovelaces);
@@ -109,9 +100,9 @@ public partial class CIP2Tests
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_no_assets, output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
-            utxo_10_ada_10_tokens, 
-            utxo_10_ada_1_owned_mint_asset, 
-            utxo_10_ada_1_owned_mint_asset_two, 
+            utxo_10_ada_10_tokens,
+            utxo_10_ada_1_owned_mint_asset,
+            utxo_10_ada_1_owned_mint_asset_two,
             utxo_10_ada_100_owned_mint_asset,
             utxo_10_ada_100_owned_mint_asset_two,
         };
@@ -121,9 +112,9 @@ public partial class CIP2Tests
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, feeBuffer: 11 * adaToLovelace);
 
         //assert
-        Assert.Equal(response.SelectedUtxos.Count, 5);
-        Assert.Equal(response.ChangeOutputs.Count, 1);
-        Assert.Equal(response.ChangeOutputs.First().Value.MultiAsset.Count, 5);
+        Assert.Equal(5, response.SelectedUtxos.Count);
+        Assert.Equal(1, response.ChangeOutputs.Count);
+        Assert.Equal(5, response.ChangeOutputs.First().Value.MultiAsset.Count);
 
         long totalSelected = 0;
         response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + (long)s.Balance.Lovelaces);
@@ -142,12 +133,7 @@ public partial class CIP2Tests
         //arrange
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_50_ada_no_assets, 
-            utxo_50_ada_no_assets,
-            utxo_10_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_50_ada_no_assets, utxo_50_ada_no_assets, utxo_10_ada_no_assets, };
 
         //assert
         try

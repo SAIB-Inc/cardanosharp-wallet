@@ -1,37 +1,36 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 
-namespace CardanoSharp.Wallet.TransactionBuilding
+namespace CardanoSharp.Wallet.TransactionBuilding;
+
+public interface IScriptInvalidAfterBuilder : IABuilder<ScriptInvalidAfter>
 {
-    public interface IScriptInvalidAfterBuilder: IABuilder<ScriptInvalidAfter>
+    IScriptInvalidAfterBuilder WithAfter(uint after);
+}
+
+public class ScriptInvalidAfterBuilder : ABuilder<ScriptInvalidAfter>, IScriptInvalidAfterBuilder
+{
+    public ScriptInvalidAfterBuilder()
     {
-        IScriptInvalidAfterBuilder WithAfter(uint after);
+        _model = new ScriptInvalidAfter();
     }
 
-    public class ScriptInvalidAfterBuilder: ABuilder<ScriptInvalidAfter>, IScriptInvalidAfterBuilder
+    private ScriptInvalidAfterBuilder(ScriptInvalidAfter model)
     {
-        public ScriptInvalidAfterBuilder()
-        {
-            _model = new ScriptInvalidAfter();
-        }
+        _model = model;
+    }
 
-        private ScriptInvalidAfterBuilder(ScriptInvalidAfter model)
+    public static IScriptInvalidAfterBuilder GetBuilder(ScriptInvalidAfter model)
+    {
+        if (model == null)
         {
-            _model = model;
+            return new ScriptInvalidAfterBuilder();
         }
+        return new ScriptInvalidAfterBuilder(model);
+    }
 
-        public static IScriptInvalidAfterBuilder GetBuilder(ScriptInvalidAfter model)
-        {
-            if (model == null)
-            {
-                return new ScriptInvalidAfterBuilder();
-            }
-            return new ScriptInvalidAfterBuilder(model);
-        }
-
-        public IScriptInvalidAfterBuilder WithAfter(uint after)
-        {
-            _model.After = after;
-            return this;
-        }
+    public IScriptInvalidAfterBuilder WithAfter(uint after)
+    {
+        _model.After = after;
+        return this;
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions;
+
+public partial class PoolRegistration
 {
-    public partial class PoolRegistration
-    {
-        public PoolParams PoolParams { get; set; }
-    }
+    public PoolParams PoolParams { get; set; } = default!;
 }

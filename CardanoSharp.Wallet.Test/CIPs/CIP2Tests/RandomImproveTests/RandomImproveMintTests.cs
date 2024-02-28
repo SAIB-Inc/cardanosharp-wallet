@@ -18,10 +18,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -34,18 +31,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -56,10 +73,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -72,18 +86,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -114,18 +148,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -136,12 +190,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_10_ada_30_tokens, 
-            utxo_10_ada_50_tokens,
-            utxo_50_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_10_ada_30_tokens, utxo_10_ada_50_tokens, utxo_50_ada_no_assets, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -154,31 +203,71 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -190,10 +279,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
@@ -210,31 +296,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -246,11 +376,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-            utxo_50_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_50_ada_no_assets };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
@@ -267,31 +393,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -303,10 +473,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -323,31 +490,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -358,7 +569,13 @@ public partial class CIP2Tests
     public void RandomImprove_MultiUTXO_MultiOutput_MultiMint_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_50_tokens, output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
@@ -385,45 +602,108 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
-
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -435,12 +715,13 @@ public partial class CIP2Tests
     public void RandomImprove_MintAndOwned_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -456,18 +737,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -478,11 +779,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -499,31 +796,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -534,12 +875,13 @@ public partial class CIP2Tests
     public void RandomImprove_MintAndOwned_Test_3()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -556,31 +898,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -591,13 +977,13 @@ public partial class CIP2Tests
     public void RandomImprove_MintAndOwned_Test_4()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_2_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
-            utxo_10_ada_1_owned_mint_asset_two,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_2_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, utxo_10_ada_1_owned_mint_asset_two, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -614,31 +1000,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -649,12 +1079,14 @@ public partial class CIP2Tests
     public void RandomImprove_MintAndOwned_Test_Fail()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -662,7 +1094,7 @@ public partial class CIP2Tests
 
         try
         {
-            //act            
+            //act
             var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
         }
         catch (Exception e)
@@ -676,15 +1108,21 @@ public partial class CIP2Tests
     public void RandomImprove_MultiOption_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
             utxo_10_ada_1_owned_mint_asset,
             utxo_10_ada_100_owned_mint_asset,
             utxo_10_ada_40_tokens,
-            utxo_60_ada_no_assets,            
-            utxo_10_ada_20_tokens,            
+            utxo_60_ada_no_assets,
+            utxo_10_ada_20_tokens,
         };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
@@ -702,45 +1140,108 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
-
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -752,16 +1253,23 @@ public partial class CIP2Tests
     public void RandomImprove_MultiOption_Test_2()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets,
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
             utxo_10_ada_1_owned_mint_asset,
             utxo_10_ada_100_owned_mint_asset,
             utxo_10_ada_40_tokens,
-            utxo_60_ada_no_assets,            
-            utxo_10_ada_20_tokens, 
-            utxo_90_ada_no_assets,           
+            utxo_60_ada_no_assets,
+            utxo_10_ada_20_tokens,
+            utxo_90_ada_no_assets,
         };
 
         TokenBundleBuilder mint_and_burn_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
@@ -779,45 +1287,108 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
-
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -830,10 +1401,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -846,18 +1414,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -868,10 +1456,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -884,18 +1469,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -926,18 +1531,38 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -948,12 +1573,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_10_ada_30_tokens, 
-            utxo_10_ada_50_tokens,
-            utxo_50_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_10_ada_30_tokens, utxo_10_ada_50_tokens, utxo_50_ada_no_assets, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
@@ -966,31 +1586,71 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1002,10 +1662,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_2_token_1_quantity);
@@ -1018,31 +1675,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1054,11 +1755,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-            utxo_50_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_50_ada_no_assets };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_2_token_1_quantity);
@@ -1071,31 +1768,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 1, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1107,10 +1848,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
@@ -1123,31 +1861,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1158,7 +1940,13 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MultiUTXO_MultiOutput_MultiMint_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_50_tokens, output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
@@ -1181,44 +1969,108 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1230,12 +2082,13 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MintAndOwned_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
         mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
@@ -1251,20 +2104,40 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        Assert.Equal(response.ChangeOutputs.Count, 1);
+        Assert.Equal(1, response.ChangeOutputs.Count);
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
     }
@@ -1274,11 +2147,7 @@ public partial class CIP2Tests
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
-        var utxos = new List<Utxo>()
-        {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
-        };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
@@ -1291,31 +2160,75 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1326,12 +2239,13 @@ public partial class CIP2Tests
     public void RandomImprove_MulitChange_MintAndOwned_Test_3()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
@@ -1344,33 +2258,79 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        Assert.Equal(response.ChangeOutputs.Count, 1);
+        int expected = 1;
+        int actual = response.ChangeOutputs.Count;
+        Assert.Equal(expected, actual);
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
         Assert.Equal(selectedUTXOsSumAsset2 + 1, outputsSumAsset2 + changeOutputSumAsset2);
@@ -1380,13 +2340,13 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MintAndOwned_Test_4()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_2_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
-            utxo_10_ada_1_owned_mint_asset_two,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_2_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, utxo_10_ada_1_owned_mint_asset_two, };
 
         //act
         var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
@@ -1399,33 +2359,77 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        Assert.Equal(response.ChangeOutputs.Count, 1);
+        Assert.Equal(1, response.ChangeOutputs.Count);
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
         Assert.Equal(selectedUTXOsSumAsset2 + 1, outputsSumAsset2 + changeOutputSumAsset2);
@@ -1435,16 +2439,18 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MintAndOwned_Test_Fail()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_10_ada_1_already_minted_assets };
-        var utxos = new List<Utxo>()
+        var outputs = new List<TransactionOutput>()
         {
-            utxo_40_ada_no_assets,
-            utxo_10_ada_1_owned_mint_asset,
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets,
+            output_10_ada_1_already_minted_assets
         };
+        var utxos = new List<Utxo>() { utxo_40_ada_no_assets, utxo_10_ada_1_owned_mint_asset, };
 
         try
         {
-            //act            
+            //act
             var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
         }
         catch (Exception e)
@@ -1458,15 +2464,21 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MultiOption_Test()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
             utxo_10_ada_1_owned_mint_asset,
             utxo_10_ada_100_owned_mint_asset,
             utxo_10_ada_40_tokens,
-            utxo_60_ada_no_assets,            
-            utxo_10_ada_20_tokens,            
+            utxo_60_ada_no_assets,
+            utxo_10_ada_20_tokens,
         };
 
         //act
@@ -1480,44 +2492,108 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
@@ -1529,16 +2605,23 @@ public partial class CIP2Tests
     public void RandomImprove_BasicChange_MultiOption_Test_2()
     {
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
-        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>()
+        {
+            output_10_ada_2_minted_assets,
+            output_10_ada_1_minted_assets,
+            output_10_ada_1_already_minted_assets,
+            output_100_ada_no_assets,
+            output_10_ada_50_tokens
+        };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets,
             utxo_10_ada_1_owned_mint_asset,
             utxo_10_ada_100_owned_mint_asset,
             utxo_10_ada_40_tokens,
-            utxo_60_ada_no_assets,            
-            utxo_10_ada_20_tokens, 
-            utxo_90_ada_no_assets,           
+            utxo_60_ada_no_assets,
+            utxo_10_ada_20_tokens,
+            utxo_90_ada_no_assets,
         };
 
         //act
@@ -1552,48 +2635,112 @@ public partial class CIP2Tests
         long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + (long)s.Value.Coin);
 
-        var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset1 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset1 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset1 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset1 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset2 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset2 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset2 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset2 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset2 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(
+                                    z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)
+                                )
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var selectedUTXOsSumAsset3 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
-            x.Balance.Assets.Where(y => 
-                y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
-                    ?.Sum(z => (long)z.Quantity) ?? 0);
+        var selectedUTXOsSumAsset3 = response.SelectedUtxos
+            .Where(x => x.Balance.Assets is not null)
+            .Sum(
+                x =>
+                    x.Balance.Assets
+                        .Where(y => y.PolicyId.Equals(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0
+            );
 
-        var outputsSumAsset3 = outputs.Sum(x =>
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var outputsSumAsset3 = outputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
-        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(x => 
-            x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
-                y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        var changeOutputSumAsset3 = response.ChangeOutputs.Sum(
+            x =>
+                x.Value.MultiAsset
+                    ?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                    .Sum(
+                        y =>
+                            y.Value.Token
+                                .Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_40_tokens.Balance.Assets.FirstOrDefault().Name))
+                                .Sum(z => (long)z.Value)
+                    ) ?? 0
+        );
 
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
         Assert.Equal(selectedUTXOsSumAsset2 + 1, outputsSumAsset2 + changeOutputSumAsset2);
         Assert.Equal(selectedUTXOsSumAsset3, outputsSumAsset3 + changeOutputSumAsset3);
-    }    
+    }
 }

@@ -1,11 +1,8 @@
 ﻿using CardanoSharp.Wallet.Enums;
 
-namespace CardanoSharp.Wallet.Models.Segments
+namespace CardanoSharp.Wallet.Models.Segments;
+
+public class RoleNodeSegment : ASegment
 {
-    public class RoleNodeSegment : ASegment
-    {
-        public RoleNodeSegment(RoleType value) : base(value, derivation: DerivationType.SOFT)
-        {
-        }
-    }
+    public RoleNodeSegment(RoleType value) : base(value, derivation: DerivationType.SOFT) { }
 }

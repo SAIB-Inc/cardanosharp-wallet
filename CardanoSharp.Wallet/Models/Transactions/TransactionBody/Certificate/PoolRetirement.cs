@@ -1,13 +1,12 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions;
+
+//    pub struct PoolRetirement
+//    {
+//        pool_keyhash: Ed25519KeyHash,
+//    epoch: Epoch,
+//}
+public partial class PoolRetirement
 {
-    //    pub struct PoolRetirement
-    //    {
-    //        pool_keyhash: Ed25519KeyHash,
-    //    epoch: Epoch,
-    //}
-    public partial class PoolRetirement
-    {
-        public byte[] PoolKeyHash { get; set; }
-        public uint Epoch { get; set; }
-    }
+    public byte[] PoolKeyHash { get; set; } = default!;
+    public uint Epoch { get; set; }
 }

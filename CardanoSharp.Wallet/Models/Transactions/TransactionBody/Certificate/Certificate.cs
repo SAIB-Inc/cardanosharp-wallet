@@ -1,23 +1,22 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions;
+
+//pub enum CertificateKind
+//{
+//    StakeRegistration,
+//    StakeDeregistration,
+//    StakeDelegation,
+//    PoolRegistration,
+//    PoolRetirement,
+//    GenesisKeyDelegation,
+//    MoveInstantaneousRewardsCert,
+//}
+public partial class Certificate
 {
-    //pub enum CertificateKind
-    //{
-    //    StakeRegistration,
-    //    StakeDeregistration,
-    //    StakeDelegation,
-    //    PoolRegistration,
-    //    PoolRetirement,
-    //    GenesisKeyDelegation,
-    //    MoveInstantaneousRewardsCert,
-    //}
-    public partial class Certificate
-    {
-        public byte[] StakeRegistration { get; set; }
-        public byte[] StakeDeregistration { get; set; }
-        public StakeDelegation StakeDelegation { get; set; }
-        public PoolRegistration PoolRegistration { get; set; }
-        public PoolRetirement PoolRetirement { get; set; }
-        public GenesisKeyDelegation GenesisKeyDelegation { get; set; }
-        public MoveInstantaneousRewardsCert MoveInstantaneousRewardsCert { get; set; }
-    }
+    public byte[] StakeRegistration { get; set; } = default!;
+    public byte[] StakeDeregistration { get; set; } = default!;
+    public StakeDelegation StakeDelegation { get; set; } = default!;
+    public PoolRegistration PoolRegistration { get; set; } = default!;
+    public PoolRetirement PoolRetirement { get; set; } = default!;
+    public GenesisKeyDelegation GenesisKeyDelegation { get; set; } = default!;
+    public MoveInstantaneousRewardsCert MoveInstantaneousRewardsCert { get; set; } = default!;
 }

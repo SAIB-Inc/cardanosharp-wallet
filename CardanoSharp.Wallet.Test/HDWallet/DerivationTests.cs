@@ -13,10 +13,10 @@ using Xunit;
 namespace CardanoSharp.Wallet.Test
 {
     /// <summary>
-    /// HD derivation can be seen as a tree with many branches, where keys live at each node and leaf 
-    /// such that an entire sub-tree can be recovered from only a parent key (and seemingly, 
+    /// HD derivation can be seen as a tree with many branches, where keys live at each node and leaf
+    /// such that an entire sub-tree can be recovered from only a parent key (and seemingly,
     /// the whole tree can be recovered from the root master key).
-    /// 
+    ///
     /// <para>
     ///     References:
     ///     * HD Wallets: https://input-output-hk.github.io/adrestia/docs/key-concepts/hierarchical-deterministic-wallets/
@@ -123,9 +123,9 @@ namespace CardanoSharp.Wallet.Test
 
         /// <summary>
         /// Use Case:
-        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc). 
-        /// User enters in the Mnemonic and Spending Password. 
-        /// I derive down to the Account level and get the Public Key. 
+        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc).
+        /// User enters in the Mnemonic and Spending Password.
+        /// I derive down to the Account level and get the Public Key.
         /// I use the Spending Password to 2-Way encrypt the Private Key and then store both the encrypted Private Key and the plain Public Key.
         /// </summary>
         [Theory]
@@ -136,7 +136,7 @@ namespace CardanoSharp.Wallet.Test
             var accountPath = WalletPath.Parse("m/1852'/1815'/0'");
             var paymentPath = WalletPath.Parse("0/1");
 
-            // User enters in the Mnemonic and Spending Password. 
+            // User enters in the Mnemonic and Spending Password.
             var mnemonic = _keyService.Restore(words);
             PrivateKey rootKey = mnemonic.GetRootKey();
 
@@ -181,9 +181,9 @@ namespace CardanoSharp.Wallet.Test
 
         /// <summary>
         /// Use Case:
-        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc). 
-        /// User enters in the Mnemonic and Spending Password. 
-        /// I derive down to the Account level and get the Public Key. 
+        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc).
+        /// User enters in the Mnemonic and Spending Password.
+        /// I derive down to the Account level and get the Public Key.
         /// I use the Spending Password to 2-Way encrypt the Private Key and then store both the encrypted Private Key and the plain Public Key.
         /// </summary>
         [Theory]
@@ -194,7 +194,7 @@ namespace CardanoSharp.Wallet.Test
             var accountPath = "m/1852'/1815'/0'";
             var paymentPath = "0/1";
 
-            // User enters in the Mnemonic and Spending Password. 
+            // User enters in the Mnemonic and Spending Password.
             var mnemonic = _keyService.Restore(words);
             PrivateKey rootKey = mnemonic.GetRootKey();
 
@@ -240,7 +240,7 @@ namespace CardanoSharp.Wallet.Test
             var accountPath = WalletPath.Parse("m/1852'/1815'/0'");
             var paymentPath = WalletPath.Parse("0/1");
 
-            // User enters in the Mnemonic and Spending Password. 
+            // User enters in the Mnemonic and Spending Password.
             var mnemonic = _keyService.Restore(words);
             PrivateKey rootKey = mnemonic.GetRootKey();
 
@@ -250,7 +250,7 @@ namespace CardanoSharp.Wallet.Test
                 .Derive(accountPath.AccountIndex);
 
             account.SetPublicKey();
-            
+
             // use the Spending Password to 2-Way encrypt the Private Key
             // and then store both the encrypted Private Key and the plain Public Key.
             var blob = new Tuple<PrivateKey, PublicKey>(account.PrivateKey.Encrypt("password"), account.PublicKey);
@@ -260,7 +260,7 @@ namespace CardanoSharp.Wallet.Test
             // I take the Public Key and Derive (0/1).
             var roleNodePub = new RoleNodeDerivation(account.PublicKey, paymentPath.Role);
             var payment = roleNodePub.Derive(paymentPath.Index);
-            
+
             // The user now wants to send a transaction.
             // They enter in the ADDR, Amount to Send, and their Spending Password.
             // I can now decrypt the Account Private Key...
@@ -316,7 +316,7 @@ namespace CardanoSharp.Wallet.Test
         /// Path levels
         /// <para>
         /// Cardano wallet defines the following path levels:
-        /// m / purpose_H / coin_type_H / account_H / account_type / address_index 
+        /// m / purpose_H / coin_type_H / account_H / account_type / address_index
         /// </para>
         /// <para>
         /// purpose_H is set to 1852'
@@ -339,20 +339,21 @@ namespace CardanoSharp.Wallet.Test
         /// * 0 - 2^31 otherwise
         /// </para>
         /// </summary>
-        public void AccountDiscoveryTest()
-        {
-            // arrange
-            var walletService = new WalletService();
-            var keyService = new MnemonicService();
-            var wordlist = Enums.WordLists.Japanese;
-            var mnemonic = keyService.Generate(24, wordlist);
+        // [Fact]
+        // public void AccountDiscoveryTest()
+        // {
+        //     // arrange
+        //     var walletService = new WalletService();
+        //     var keyService = new MnemonicService();
+        //     var wordlist = Enums.WordLists.Japanese;
+        //     var mnemonic = keyService.Generate(24, wordlist);
 
-            // act
-            var accounts = walletService.DiscoverAccounts(mnemonic);
+        //     // act
+        //     var accounts = walletService.DiscoverAccounts(mnemonic);
 
-            // assert
-            Assert.NotNull(accounts);
-        }
+        //     // assert
+        //     Assert.NotNull(accounts);
+        // }
         #endregion
     }
 }
