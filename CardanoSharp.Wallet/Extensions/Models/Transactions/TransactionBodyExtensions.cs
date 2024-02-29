@@ -189,14 +189,6 @@ public static class TransactionBodyExtensions
         {
             throw new ArgumentException("transactionBodyCbor element 2 (Fee/Coin) unexpected type (expected Integer)");
         }
-        if (!transactionBodyCbor.ContainsKey(3))
-        {
-            throw new ArgumentException("transactionBodyCbor key 3 (TTL) not present");
-        }
-        else if (transactionBodyCbor[3].Type != CBORType.Integer)
-        {
-            throw new ArgumentException("transactionBodyCbor element 3 (TTL) unexpected type (expected Integer)");
-        }
 
         //get data
         var transactionBody = new TransactionBody();
@@ -218,7 +210,10 @@ public static class TransactionBodyExtensions
         transactionBody.Fee = transactionBodyCbor[2].DecodeValueToUInt64();
 
         //? 3 : uint                    ; time to live
-        transactionBody.ValidBefore = transactionBodyCbor[3].DecodeValueToUInt32();
+        if (transactionBodyCbor.ContainsKey(3))
+        {
+            transactionBody.ValidBefore = transactionBodyCbor[3].DecodeValueToUInt32();
+        }
 
         //? 4 : [* certificate]
         if (transactionBodyCbor.ContainsKey(4))
@@ -248,7 +243,7 @@ public static class TransactionBodyExtensions
             {
                 var byteMintKey = ((string)key.DecodeValueByCborType()).HexToByteArray();
                 var assetCbor = mintCbor[key];
-                var nativeAsset = new NativeAsset();
+                var nativeAsset = new NativeAsset<Int128>();
                 foreach (var assetKey in assetCbor.Keys)
                 {
                     var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
