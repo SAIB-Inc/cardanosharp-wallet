@@ -243,7 +243,7 @@ public static class TransactionBodyExtensions
             {
                 var byteMintKey = ((string)key.DecodeValueByCborType()).HexToByteArray();
                 var assetCbor = mintCbor[key];
-                var nativeAsset = new NativeAsset<Int128>();
+                var nativeAsset = new NativeAsset();
                 foreach (var assetKey in assetCbor.Keys)
                 {
                     var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
