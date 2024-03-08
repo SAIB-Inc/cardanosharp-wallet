@@ -438,12 +438,12 @@ public static class CoinSelectionUtility
         CoinSelection? coinSelection = null;
         try
         {
-            if (coinSelectionType == CoinSelectionType.RandomImprove)
-                coinSelection = transactionBodyBuilder.UseRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
-            else if (coinSelectionType == CoinSelectionType.OptimizedRandomImprove)
+            if (coinSelectionType == CoinSelectionType.OptimizedRandomImprove)
                 coinSelection = transactionBodyBuilder.UseOptimizedRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
             else if (coinSelectionType == CoinSelectionType.LargestFirst)
                 coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            else if (coinSelectionType == CoinSelectionType.RandomImprove)
+                coinSelection = transactionBodyBuilder.UseRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
             else if (coinSelectionType == CoinSelectionType.All)
                 coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint!, limit, feeBuffer);
             else
