@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Utilities;
+using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models;
@@ -35,6 +36,7 @@ public static class TransactionBuilderExtensions
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
         TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         long maxTxSize = 12000,
         DateTime? filterAfterTime = null
     )
@@ -47,7 +49,7 @@ public static class TransactionBuilderExtensions
         if (filterAfterTime == null)
             filterAfterTime = DateTime.UtcNow.AddMinutes(57);
 
-        return await FullComplete(
+        return await AdvancedComplete(
             transactionBuilder,
             providerService,
             address,
@@ -57,13 +59,14 @@ public static class TransactionBuilderExtensions
             spentUtxos,
             maxTxSize: maxTxSize,
             txChainingType: txChainingType,
+            coinSelectionType: coinSelectionType,
             isSmartContract: redeemers.Count > 0,
             filterAfterTime: filterAfterTime
         );
     }
 
     // Complete function with all parameters
-    public static async Task<(Transaction, TransactionEvaluation)> FullComplete(
+    public static async Task<(Transaction, TransactionEvaluation)> AdvancedComplete(
         this ITransactionBuilder transactionBuilder,
         AProviderService providerService,
         Address address,
@@ -75,6 +78,7 @@ public static class TransactionBuilderExtensions
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         DateTime? filterAfterTime = null,
         bool isSmartContract = false,
         int signerCount = 2
@@ -93,6 +97,7 @@ public static class TransactionBuilderExtensions
             feeBuffer: feeBuffer,
             maxTxSize: maxTxSize,
             txChainingType: txChainingType,
+            coinSelectionType: coinSelectionType,
             isSmartContract: isSmartContract
         );
 
