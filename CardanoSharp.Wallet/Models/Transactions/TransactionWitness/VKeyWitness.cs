@@ -9,4 +9,18 @@ public partial class VKeyWitness
     public PrivateKey SKey { get; set; } = default!;
     public byte[] Signature { get; set; } = default!;
     public bool IsMock { get; set; } = default!;
+
+    public override bool Equals(object? obj)
+    {
+        if (obj == null || GetType() != obj.GetType())
+            return false;
+
+        VKeyWitness other = (VKeyWitness)obj;
+        return VKey.Equals(other.VKey) && SKey.Equals(other.SKey);
+    }
+
+    public override int GetHashCode()
+    {
+        return System.HashCode.Combine(VKey, SKey);
+    }
 }
