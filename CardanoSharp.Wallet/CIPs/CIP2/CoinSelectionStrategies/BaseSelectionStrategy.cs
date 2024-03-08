@@ -9,7 +9,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2;
 
 public abstract class BaseSelectionStrategy
 {
-    protected long GetCurrentBalance(CoinSelection coinSelection, Asset? asset = null)
+    //---------------------------------------------------------------------------------------------------//
+    // Balance Functions
+    //---------------------------------------------------------------------------------------------------//
+    protected static long GetCurrentBalance(CoinSelection coinSelection, Asset? asset = null)
     {
         if (asset is null)
         {
@@ -35,7 +38,21 @@ public abstract class BaseSelectionStrategy
         }
     }
 
-    protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset? asset = null)
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Utxo Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static void SelectRequiredUtxos(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
+    {
+        if (requiredUtxos == null)
+            return;
+
+        foreach (var utxo in requiredUtxos)
+            coinSelection.SelectedUtxos.Add(utxo);
+    }
+
+    protected static List<Utxo> OrderUtxosByDescending(List<Utxo> utxos, Asset? asset = null)
     {
         var orderedUtxos = new List<Utxo>();
         if (asset is null)
@@ -57,7 +74,7 @@ public abstract class BaseSelectionStrategy
         return orderedUtxos;
     }
 
-    protected List<Utxo> OrderUTxOsByAscending(List<Utxo> utxos, Asset? asset = null)
+    protected static List<Utxo> OrderUtxosByAscending(List<Utxo> utxos, Asset? asset = null)
     {
         var orderedUtxos = new List<Utxo>();
         if (asset is null)
@@ -77,12 +94,20 @@ public abstract class BaseSelectionStrategy
         return orderedUtxos;
     }
 
-    public void SelectRequiredUtxos(CoinSelection coinSelection, List<Utxo>? requiredUtxos)
+    protected static List<Utxo> FilterUtxosByAsset(List<Utxo> utxos, Asset? asset = null)
     {
-        if (requiredUtxos == null)
-            return;
+        var filteredUtxos = new List<Utxo>();
+        if (asset is null)
+            return utxos;
 
-        foreach (var utxo in requiredUtxos)
-            coinSelection.SelectedUtxos.Add(utxo);
+        filteredUtxos = utxos
+            .Where(
+                x =>
+                    x.Balance.Assets is not null
+                    && x.Balance.Assets.FirstOrDefault(ma => ma.PolicyId.SequenceEqual(asset.PolicyId) && ma.Name.Equals(asset.Name)) is not null
+            )
+            .ToList();
+        return filteredUtxos;
     }
+    //---------------------------------------------------------------------------------------------------//
 }

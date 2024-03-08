@@ -53,10 +53,10 @@ public class CoinSelectionService : ICoinSelectionService
         // Add Required UTXOs to selection
         _coinSelection.SelectRequiredInputs(coinSelection, requiredUtxos);
 
-        //use balance with mint to select change outputs and balancing without mint to select inputs
+        // Get the balance of all the outputs we must find inputs for taking into account mint and feeBuffers
         var balance = outputs.AggregateAssets(mint, feeBuffer);
 
-        //perform initial selection of multi assets and ada
+        // Perform initial selection of multi assets and ada
         foreach (var asset in balance.Assets)
         {
             _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, requiredUtxos, limit);

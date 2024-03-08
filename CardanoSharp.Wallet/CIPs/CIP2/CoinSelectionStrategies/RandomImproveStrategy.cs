@@ -27,7 +27,7 @@ public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrate
         long currentAmount = GetCurrentBalance(coinSelection, asset);
 
         //reorder list
-        List<Utxo> descendingAvailableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
+        List<Utxo> descendingAvailableUtxos = OrderUtxosByDescending(availableUtxos, asset);
 
         //create a temporary selected utxo list
         var currentSelectedUtxo = new List<Utxo>();
@@ -85,7 +85,7 @@ public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrate
 
         var v0 = new Utxo();
 
-        foreach (var v1 in OrderUTxOsByAscending(descendingAvailableUtxos, asset))
+        foreach (var v1 in OrderUtxosByAscending(descendingAvailableUtxos, asset))
         {
             //The next 3 conditions establish whether the utxo is an "improvement" and should be added to the change
             if (!CalculateCondition(v1, ideal, max, v0, limit, currentSelectedUtxo, asset))
@@ -104,7 +104,7 @@ public class RandomImproveStrategy : BaseSelectionStrategy, IRandomImproveStrate
         currentSelectedUtxo.ForEach(x => availableUtxos.Remove(x));
     }
 
-    private bool CalculateCondition(Utxo v1, long ideal, long max, Utxo v0, int limit, ICollection utxos, Asset? asset)
+    private static bool CalculateCondition(Utxo v1, long ideal, long max, Utxo v0, int limit, ICollection utxos, Asset? asset)
     {
         // Condition 1: we have moved closer to the ideal value
         bool[] arrayToMatchConditions = { false, false, false, };
