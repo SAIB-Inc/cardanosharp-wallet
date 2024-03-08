@@ -16,7 +16,10 @@ public partial class VKeyWitness
             return false;
 
         VKeyWitness other = (VKeyWitness)obj;
-        return VKey.Equals(other.VKey) && SKey.Equals(other.SKey);
+        bool vkeyEqual = VKey == null && other.VKey == null || VKey != null && other.VKey != null && VKey.Equals(other.VKey);
+        bool skeyEqual = SKey == null && other.SKey == null || SKey != null && other.SKey != null && SKey.Equals(other.SKey);
+
+        return vkeyEqual && skeyEqual;
     }
 
     public override int GetHashCode()

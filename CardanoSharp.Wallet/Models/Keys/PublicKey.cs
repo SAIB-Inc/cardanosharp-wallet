@@ -21,13 +21,17 @@ public class PublicKey
             return false;
 
         PublicKey other = (PublicKey)obj;
-        return Key.SequenceEqual(other.Key) && Chaincode.SequenceEqual(other.Chaincode);
+        bool keysEqual = Key == null && other.Key == null || Key != null && other.Key != null && Key.SequenceEqual(other.Key);
+        bool chaincodesEqual =
+            Chaincode == null && other.Chaincode == null || Chaincode != null && other.Chaincode != null && Chaincode.SequenceEqual(other.Chaincode);
+
+        return keysEqual && chaincodesEqual;
     }
 
     public override int GetHashCode()
     {
-        string keyHex = Key.ToStringHex();
-        string chaincodeHex = Chaincode.ToStringHex();
+        string keyHex = Key?.ToStringHex() ?? string.Empty;
+        string chaincodeHex = Chaincode?.ToStringHex() ?? string.Empty;
         return System.HashCode.Combine(keyHex, chaincodeHex);
     }
 }
