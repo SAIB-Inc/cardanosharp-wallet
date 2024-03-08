@@ -44,7 +44,11 @@ namespace CsBindgen
         public static TransactionEvaluation GetExUnits(Transaction transaction, NetworkType networkType)
         {
             byte[] txBytes = transaction.Serialize();
+            return GetExUnits(txBytes, transaction, networkType);
+        }
 
+        public static TransactionEvaluation GetExUnits(byte[] txBytes, Transaction transaction, NetworkType networkType)
+        {
             List<byte[]> inputsList = new List<byte[]>();
             List<nuint> inputsLengthList = new List<nuint>();
             List<byte[]> resolvedInputsList = new List<byte[]>();
