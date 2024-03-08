@@ -68,18 +68,18 @@ public class CoinSelectionService : ICoinSelectionService
         if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
             throw new Exception("UTxOs have insufficient balance");
 
-        //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
+        // We need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
         if (coinSelection.SelectedUtxos.Any() && _changeCreation is not null)
             _changeCreation.CalculateChange(coinSelection, balance, changeAddress, feeBuffer: feeBuffer);
 
-        //calculate change ada from ouputs (not the current change in the coinSelection) and the minium required change ada
+        // Calculate change ada from ouputs (not the current change in the coinSelection) and the minium required change ada
         long change = CalculateChangeADA(coinSelection, balance, feeBuffer);
         long minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
 
-        //perform additional input selection until we have enough ada to cover the new min amounts (since they change each selction) or we run out of inputs
+        // Perform additional input selection until we have enough ada to cover the new min amounts (since they change each selction) or we run out of inputs
         while (change < minChangeAdaRequired && availableUTxOs.Count > 0)
         {
-            //feeBuffer is already in this calculation from minChangeAdaRequired
+            // FeeBuffer is already in this calculation from minChangeAdaRequired
             long minADA = minChangeAdaRequired - change + coinSelection.SelectedUtxos.Select(x => (long)x.Balance.Lovelaces).Sum();
 
             _coinSelection.SelectInputs(coinSelection, availableUTxOs, minADA, null, requiredUtxos, limit);
@@ -92,7 +92,7 @@ public class CoinSelectionService : ICoinSelectionService
             minChangeAdaRequired = CalculateMinChangeADARequired(coinSelection, feeBuffer);
         }
 
-        //final check to ensure we have a valid transaction
+        // Final check to ensure we have a valid transaction
         if (change < minChangeAdaRequired && availableUTxOs.Count <= 0)
             throw new Exception("UTxOs have insufficient balance");
 

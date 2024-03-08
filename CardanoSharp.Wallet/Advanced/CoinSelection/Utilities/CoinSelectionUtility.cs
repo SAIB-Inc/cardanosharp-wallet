@@ -31,6 +31,7 @@ public static class CoinSelectionUtility
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         DateTime? filterAfterTime = null,
         bool isSmartContract = false
     )
@@ -47,6 +48,7 @@ public static class CoinSelectionUtility
                 feeBuffer,
                 maxTxSize,
                 txChainingType,
+                coinSelectionType,
                 filterAfterTime
             );
         else
@@ -61,6 +63,7 @@ public static class CoinSelectionUtility
                 feeBuffer,
                 maxTxSize,
                 txChainingType,
+                coinSelectionType,
                 filterAfterTime
             );
         return transactionBodyBuilder;
@@ -81,6 +84,7 @@ public static class CoinSelectionUtility
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         DateTime? filterAfterTime = null
     )
     {
@@ -116,7 +120,8 @@ public static class CoinSelectionUtility
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
-                maxTxSize: maxTxSize
+                maxTxSize: maxTxSize,
+                coinSelectionType: coinSelectionType
             );
             return transactionBodyBuilder;
         }
@@ -152,7 +157,8 @@ public static class CoinSelectionUtility
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
-                maxTxSize: maxTxSize
+                maxTxSize: maxTxSize,
+                coinSelectionType: coinSelectionType
             );
             return transactionBodyBuilder;
         }
@@ -175,7 +181,8 @@ public static class CoinSelectionUtility
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
-            maxTxSize: maxTxSize
+            maxTxSize: maxTxSize,
+            coinSelectionType: coinSelectionType
         );
         return transactionBodyBuilder;
     }
@@ -192,6 +199,7 @@ public static class CoinSelectionUtility
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
         TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         DateTime? filterAfterTime = null
     )
     {
@@ -227,7 +235,8 @@ public static class CoinSelectionUtility
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
-                maxTxSize: maxTxSize
+                maxTxSize: maxTxSize,
+                coinSelectionType: coinSelectionType
             );
             return transactionBodyBuilder;
         }
@@ -263,7 +272,8 @@ public static class CoinSelectionUtility
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
-                maxTxSize: maxTxSize
+                maxTxSize: maxTxSize,
+                coinSelectionType: coinSelectionType
             );
             return transactionBodyBuilder;
         }
@@ -287,7 +297,8 @@ public static class CoinSelectionUtility
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
-            maxTxSize: maxTxSize
+            maxTxSize: maxTxSize,
+            coinSelectionType: coinSelectionType
         );
         return transactionBodyBuilder;
     }
@@ -303,7 +314,8 @@ public static class CoinSelectionUtility
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
-        long maxTxSize = 12000
+        long maxTxSize = 12000,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove
     )
     {
         CoinSelection? coinSelection = CoinSelection(
@@ -314,7 +326,8 @@ public static class CoinSelectionUtility
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
-            maxTxSize: maxTxSize
+            maxTxSize: maxTxSize,
+            coinSelectionType: coinSelectionType
         );
         if (coinSelection == null)
             throw new InsufficientFundsException(
@@ -346,7 +359,8 @@ public static class CoinSelectionUtility
         List<Utxo>? requiredUtxos = null,
         int limit = 120,
         ulong feeBuffer = 0,
-        long maxTxSize = 12000
+        long maxTxSize = 12000,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove
     )
     {
         CoinSelection? coinSelection = CoinSelection(
@@ -357,7 +371,8 @@ public static class CoinSelectionUtility
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
-            maxTxSize: maxTxSize
+            maxTxSize: maxTxSize,
+            coinSelectionType: coinSelectionType
         );
         if (coinSelection == null)
             throw new InsufficientFundsException(
@@ -408,21 +423,32 @@ public static class CoinSelectionUtility
         List<Utxo>? requiredUtxos = null,
         int limit = 120,
         ulong feeBuffer = 0,
-        long maxTxSize = 12000
+        long maxTxSize = 12000,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove
     )
     {
         // Filter out all required utxos from utxos
         if (requiredUtxos != null && requiredUtxos.Count > 0)
         {
             var requiredUtxosSet = new HashSet<Utxo>(requiredUtxos);
-            utxos.RemoveAll(u => requiredUtxosSet.Contains(u));
+            utxos.RemoveAll(requiredUtxosSet.Contains);
         }
 
         // If random improve fails, fallback to largest first
         CoinSelection? coinSelection = null;
         try
         {
-            coinSelection = transactionBodyBuilder.UseRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            if (coinSelectionType == CoinSelectionType.RandomImprove)
+                coinSelection = transactionBodyBuilder.UseRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            else if (coinSelectionType == CoinSelectionType.OptimizedRandomImprove)
+                coinSelection = transactionBodyBuilder.UseOptimizedRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            else if (coinSelectionType == CoinSelectionType.LargestFirst)
+                coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            else if (coinSelectionType == CoinSelectionType.All)
+                coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint!, limit, feeBuffer);
+            else
+                coinSelection = transactionBodyBuilder.UseOptimizedRandomImprove(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+
             long totalSize = GetCoinSelectionSize(coinSelection);
             if (totalSize > maxTxSize)
                 coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
