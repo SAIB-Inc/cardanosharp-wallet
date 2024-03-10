@@ -344,7 +344,7 @@ public static class CoinSelectionUtility
         );
         if (coinSelection == null)
             throw new InsufficientFundsException(
-                "Not enough ada or NFTs in wallet to build transaction. Please add more ada or wait for your pending transactions to resolve on chain"
+                "Not enough ada or tokens in wallet to build transaction. Please add more ada or wait for your pending transactions to resolve on chain"
             );
 
         // Set Inputs and outputs
@@ -401,7 +401,7 @@ public static class CoinSelectionUtility
         );
         if (coinSelection == null)
             throw new InsufficientFundsException(
-                "Not enough ada or NFTs in wallet to build transaction. Please add more ada or wait for your pending transactions to resolve on chain"
+                "Not enough ada or tokens in wallet to build transaction. Please add more ada or wait for your pending transactions to resolve on chain"
             );
 
         // Set Inputs and outputs

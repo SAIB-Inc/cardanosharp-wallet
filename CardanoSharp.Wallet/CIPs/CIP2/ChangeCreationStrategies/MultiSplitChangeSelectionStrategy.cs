@@ -25,7 +25,8 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         int assetsPerOutput = (int)Math.Ceiling((double)inputBalance.Assets.Count / idealChangeOutputs);
 
         // Calculate change for token bundle
-        foreach (var asset in inputBalance.Assets)
+        var groupedAssets = inputBalance.Assets.GroupBy(asset => asset.PolicyId).SelectMany(group => group).ToList(); // We group the assets so that we reduce the size of multiple change outputs having the same policy dictionary
+        foreach (var asset in groupedAssets)
         {
             CalculateTokenBundleUtxo(coinSelection, asset, outputBalance, changeAddress, assetsPerOutput, idealChangeOutputs);
         }
@@ -40,7 +41,7 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         }
 
         // Add remaining ada to the last ouput
-        CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer);
+        CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer, idealChangeOutputs);
     }
 
     public static int CalculateIdealChangeOutputCount(Balance balance, int maxChangeOutputs = 4, int idealMaxAssetsPerOutput = 30)
@@ -105,6 +106,9 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             coinSelection.ChangeOutputs.Add(changeUtxo);
         }
 
+        // Determine if we need to create a new change output
+        bool createNewChangeOutput = false;
+
         // Determine if we already have an asset added with the same policy id
         var multiAsset = changeUtxo.Value.MultiAsset.Where(x => x.Key.SequenceEqual(asset.PolicyId.HexToByteArray()));
         if (!multiAsset.Any())
@@ -114,6 +118,12 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
                 asset.PolicyId.HexToByteArray(),
                 new NativeAsset() { Token = new Dictionary<byte[], long>() { { asset.Name.HexToByteArray(), changeValue } } }
             );
+
+            // We ideally only want to create a new change output for assets of different policies
+            // We still perform a utxo is valid check
+            int changeOutputsCount = coinSelection.ChangeOutputs.Count;
+            int changeOutputAssetCount = changeUtxo.Value.MultiAsset.Sum(nativeAsset => nativeAsset.Value.Token.Count);
+            createNewChangeOutput = changeOutputsCount < idealChangeOutputs && changeOutputAssetCount >= assetsPerOutput;
         }
         else
         {
@@ -121,10 +131,6 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             var policyAsset = multiAsset.FirstOrDefault();
             policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), changeValue);
         }
-
-        int changeOutputsCount = coinSelection.ChangeOutputs.Count;
-        int changeOutputAssetCount = changeUtxo.Value.MultiAsset.Sum(nativeAsset => nativeAsset.Value.Token.Count);
-        bool createNewChangeOutput = changeOutputsCount < idealChangeOutputs && changeOutputAssetCount >= assetsPerOutput;
 
         // If the changeUTXO is no longer valid, remove the asset that was just added, and create a new output
         // Set maxOutputBytesSize to 2000 to create more change Utxos for smoother future transactions
@@ -204,6 +210,6 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         }
 
         for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
-            coinSelection.ChangeOutputs[i].Value.Coin = (ulong)changeValues[i];
+            coinSelection.ChangeOutputs[i].Value.Coin += (ulong)changeValues[i];
     }
 }

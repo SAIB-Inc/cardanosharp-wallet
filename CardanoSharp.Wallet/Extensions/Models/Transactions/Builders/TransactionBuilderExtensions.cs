@@ -50,6 +50,15 @@ public static class TransactionBuilderExtensions
         if (filterAfterTime == null)
             filterAfterTime = DateTime.UtcNow.AddMinutes(57);
 
+        // Estimate the fee buffer. The default fee buffer is 1 ada. This means that all transactions under 1 ada fee will work with our coin selection
+        // However if a transaction is large enough, the fee might be over 1 ada. Here we will estimate the fee buffer as 1 ada + 1 ada for each 12 outputs with a max of 3 ada
+        int outputCount = transactionBuilder.transactionBodyBuilder.Build().TransactionOutputs.Count;
+        ulong feeBuffer = CardanoUtility.adaOnlyMinUtxo;
+        if (candidateUtxos != null)
+            feeBuffer += (ulong)(outputCount / 12) * CardanoUtility.adaOnlyMinUtxo;
+        if (feeBuffer > 3 * CardanoUtility.adaOnlyMinUtxo)
+            feeBuffer = 3 * CardanoUtility.adaOnlyMinUtxo;
+
         return await AdvancedComplete(
             transactionBuilder,
             providerService,
@@ -61,6 +70,7 @@ public static class TransactionBuilderExtensions
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
             changeSelectionType: changeSelectionType,
+            feeBuffer: feeBuffer,
             maxTxSize: maxTxSize,
             isSmartContract: redeemers.Count > 0,
             filterAfterTime: filterAfterTime
