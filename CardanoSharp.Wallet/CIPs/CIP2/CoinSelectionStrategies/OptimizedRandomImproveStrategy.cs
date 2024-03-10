@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2;
 
@@ -25,12 +26,22 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
 
         // Determine the current balance and filter and reorder the utxo list
         long currentAmount = GetCurrentBalance(coinSelection, asset);
+
+        // If we already have enough of this asset, return
+        if (currentAmount >= amount)
+            return;
+
+        // Filter and order the available utxos
         List<Utxo> filteredAvailableUtxos = FilterUtxosByAsset(availableUtxos, asset);
         List<Utxo> descendingAvailableUtxos = OrderUtxosByDescending(filteredAvailableUtxos, asset);
 
+        // Set a minimum limit for the number of utxos to select. This helps clean up dust and uses small utxos for collateral selection
+        int baseMinimumLimit = asset != null ? 1 : 3; // If we are selecting a specific asset, we only need 1 utxo minimum
+        int minimumLimit = Math.Min(limit, baseMinimumLimit);
+
         // Create a temporary selected utxo list
         var currentSelectedUtxos = new List<Utxo>();
-        while (currentAmount < amount && descendingAvailableUtxos.Any())
+        while ((currentAmount < amount || currentSelectedUtxos.Count < minimumLimit) && descendingAvailableUtxos.Any())
         {
             // Make sure we havent added too many utxos
             if (currentSelectedUtxos.Count + coinSelection.SelectedUtxos.Count >= limit)
@@ -77,11 +88,11 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
         // We will loop through sort the selectedUtxos by the number of assets descending and the reamining utxos by the number of assets ascending
 
         // Step 2:
-        // We will then loop through the reamining utxos and swap them with the selected utxos if the remaining utxo has less assets then the selected utxo and is still above the requiredAmount
+        // We will then loop through the remaining utxos and swap them with the selected utxos if the remaining utxo has less assets then the selected utxo and is still above the requiredAmount
         // This will allow us to minimize the number of other assets while maximizing the quantity of the asset up to the amount
 
         // Step 3:
-        // Finally we will sort the selectedUtxos by the amount of the asset ascending and trim the selectedUtxos to bring the currentAmount closer to the amount
+        // Finally we filter the Utxo list to remove any Utxos that are not required to meet the amount
 
         // Step 1
         List<OptimizeContainer> selectedUtxosContainers = new();
@@ -91,20 +102,20 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
         foreach (Utxo remainingUtxo in descendingAvailableUtxos)
             remainingUtxosContainers.Add(new OptimizeContainer(remainingUtxo, asset));
 
-        // Order the selected utxos by the number of assets descending
+        // Step 2: Double pass optimize utxo selection
         selectedUtxosContainers = selectedUtxosContainers.OrderByDescending(x => x.numAssetCount).ToList();
-
-        // Order the remaining utxos by the number of assets ascending
         remainingUtxosContainers = remainingUtxosContainers.OrderBy(x => x.numAssetCount).ToList();
-
-        // Step 2:
         currentAmount = OptimizeSelectedUtxos(selectedUtxosContainers, remainingUtxosContainers, amount, currentAmount);
 
-        // Step 3
-        FilterSelectedUtxos(selectedUtxosContainers, amount, currentAmount);
-        List<Utxo> finalSelectedUtxos = selectedUtxosContainers.Select(x => x.utxo).ToList();
+        selectedUtxosContainers = selectedUtxosContainers.OrderByDescending(x => x.numAssetCount).ToList();
+        remainingUtxosContainers = remainingUtxosContainers.OrderBy(x => x.numAssetCount).ToList();
+        currentAmount = OptimizeSelectedUtxos(selectedUtxosContainers, remainingUtxosContainers, amount, currentAmount);
+
+        // Step 3: Filter utxo optimization
+        selectedUtxosContainers = FilterSelectedUtxos(selectedUtxosContainers, amount, currentAmount, asset);
 
         // Add the final selected Utxos to the coin selection and remove them from the available utxos
+        List<Utxo> finalSelectedUtxos = selectedUtxosContainers.Select(x => x.utxo).ToList();
         coinSelection.SelectedUtxos.AddRange(finalSelectedUtxos);
         finalSelectedUtxos.ForEach(x => availableUtxos.Remove(x));
     }
@@ -125,12 +136,12 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
 
             // If the remaining utxo has less assets then the selected utxo and is still above the requiredAmount, then swap them
             bool hasLessAssets = remainingUtxo.numAssetCount < selectedUtxo.numAssetCount;
-            bool isGreaterThanCurrentAmount = newAmount - selectedUtxo.assetAmount + remainingUtxo.assetAmount >= requiredAmount;
-            if (hasLessAssets && isGreaterThanCurrentAmount)
+            bool isGreaterThenRequiredAmount = newAmount - selectedUtxo.assetAmount + remainingUtxo.assetAmount >= requiredAmount;
+            if (hasLessAssets && isGreaterThenRequiredAmount)
             {
                 selectedUtxos[selectedUtxoIndex] = remainingUtxo;
                 remainingUtxos[i] = selectedUtxo;
-                newAmount = currentAmount - selectedUtxo.assetAmount + remainingUtxo.assetAmount;
+                newAmount = newAmount - selectedUtxo.assetAmount + remainingUtxo.assetAmount;
 
                 selectedUtxoIndex += 1;
                 if (selectedUtxoIndex >= selectedUtxos.Count)
@@ -140,18 +151,31 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
         return newAmount;
     }
 
-    public static void FilterSelectedUtxos(List<OptimizeContainer> selectedUtxos, long requiredAmount, long currentAmount)
+    public static List<OptimizeContainer> FilterSelectedUtxos(
+        List<OptimizeContainer> selectedUtxos,
+        long requiredAmount,
+        long currentAmount,
+        Asset? asset = null
+    )
     {
-        selectedUtxos = selectedUtxos.OrderBy(x => x.assetAmount).ToList();
+        // Add a slightly adjusted required amount to account for change minUtxo
+        long adjustedRequiredAmount = asset != null ? 0 : requiredAmount + CardanoUtility.adaOnlyMinUtxo;
+        List<OptimizeContainer> removeUtxos = new();
+
+        selectedUtxos = selectedUtxos.OrderByDescending(x => x.numAssetCount).ToList();
         long newAmount = currentAmount;
         for (int i = 0; i < selectedUtxos.Count; i++)
         {
             OptimizeContainer selectedUtxo = selectedUtxos[i];
-            newAmount -= selectedUtxo.assetAmount;
-            if (newAmount < requiredAmount)
-                break;
-            selectedUtxos.RemoveAt(i);
+            if (newAmount - selectedUtxo.assetAmount > adjustedRequiredAmount)
+            {
+                newAmount -= selectedUtxo.assetAmount;
+                removeUtxos.Add(selectedUtxo);
+            }
         }
+
+        selectedUtxos = selectedUtxos.Except(removeUtxos).ToList();
+        return selectedUtxos;
     }
 
     public class OptimizeContainer

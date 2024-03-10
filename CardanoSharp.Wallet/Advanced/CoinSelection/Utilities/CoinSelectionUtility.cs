@@ -334,19 +334,29 @@ public static class CoinSelectionUtility
                 "Not enough ada or NFTs in wallet to build transaction. Please add more ada or wait for your pending transactions to resolve on chain"
             );
 
-        transactionBodyBuilder.UseCollateralSelection(
-            utxos,
-            paymentAddress,
-            feeBuffer: feeBuffer,
-            maxTxSize: maxTxSize - GetCoinSelectionSize(coinSelection)
-        );
-
         // Set Inputs and outputs
         foreach (TransactionOutput changeOutput in coinSelection.ChangeOutputs)
             transactionBodyBuilder.AddOutput(changeOutput);
 
         foreach (TransactionInput input in coinSelection.Inputs)
             transactionBodyBuilder.AddInput(input);
+
+        // Calculate Dummy Fee to estimate collateral
+        TransactionBuilder dummyFeeTransactionBuilder = (TransactionBuilder)TransactionBuilder.Create;
+        TransactionWitnessSetBuilder transactionWitnessSetBuilder = (TransactionWitnessSetBuilder)TransactionWitnessSetBuilder.Create;
+        transactionWitnessSetBuilder.MockVKeyWitness(2);
+        dummyFeeTransactionBuilder.SetBodyBuilder(transactionBodyBuilder).SetWitnessesBuilder(transactionWitnessSetBuilder);
+
+        long dummyFee = dummyFeeTransactionBuilder.Build().CalculateFee();
+        ulong estimateCollateral = (ulong)dummyFee * 4; // Normally collateral is 150% of the fee, but for our estimate we will use 400%
+
+        // Set Collateral
+        transactionBodyBuilder.UseCollateralSelection(
+            utxos,
+            paymentAddress,
+            collateralAmount: estimateCollateral,
+            maxTxSize: maxTxSize - GetCoinSelectionSize(coinSelection)
+        );
 
         return transactionBodyBuilder;
     }

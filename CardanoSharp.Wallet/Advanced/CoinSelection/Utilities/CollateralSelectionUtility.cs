@@ -24,7 +24,7 @@ public static class CollateralSelectionUtility
         );
 
         int maxCollateralInputs = 3;
-        int maxCollateralOutputs = 1; // Use Largest First as there can only be 3 collateral inputs
+        int maxCollateralOutputs = 1;
         CoinSelection? coinSelection = null;
         try
         {
