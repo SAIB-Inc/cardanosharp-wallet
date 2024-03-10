@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
@@ -112,7 +111,7 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
         currentAmount = OptimizeSelectedUtxos(selectedUtxosContainers, remainingUtxosContainers, amount, currentAmount);
 
         // Step 3: Filter utxo optimization
-        selectedUtxosContainers = FilterSelectedUtxos(selectedUtxosContainers, amount, currentAmount, asset);
+        selectedUtxosContainers = FilterSelectedUtxos(selectedUtxosContainers, amount, currentAmount, rand, asset);
 
         // Add the final selected Utxos to the coin selection and remove them from the available utxos
         List<Utxo> finalSelectedUtxos = selectedUtxosContainers.Select(x => x.utxo).ToList();
@@ -155,9 +154,14 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
         List<OptimizeContainer> selectedUtxos,
         long requiredAmount,
         long currentAmount,
+        Random random,
         Asset? asset = null
     )
     {
+        // If a Utxo has less then a quantity of assets, we have a chance of keeping it in the transaction to reduce dust
+        int minAssetFilterCheck = 10;
+        int minAssetFilterPercent = 25;
+
         // Add a slightly adjusted required amount to account for change minUtxo
         long adjustedRequiredAmount = asset != null ? 0 : requiredAmount + CardanoUtility.adaOnlyMinUtxo;
         List<OptimizeContainer> removeUtxos = new();
@@ -169,8 +173,13 @@ public class OptimizedRandomImproveStrategy : BaseSelectionStrategy, IRandomImpr
             OptimizeContainer selectedUtxo = selectedUtxos[i];
             if (newAmount - selectedUtxo.assetAmount > adjustedRequiredAmount)
             {
-                newAmount -= selectedUtxo.assetAmount;
-                removeUtxos.Add(selectedUtxo);
+                // This will remove dust collection utxos. We want some method of occasionally keep dust in the transaction to reduce the number of utxos in a user's wallet
+                bool shouldKeepDust = selectedUtxo.assetAmount < minAssetFilterCheck && random.Next(100) < minAssetFilterPercent;
+                if (!shouldKeepDust)
+                {
+                    newAmount -= selectedUtxo.assetAmount;
+                    removeUtxos.Add(selectedUtxo);
+                }
             }
         }
 

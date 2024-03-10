@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -15,7 +16,8 @@ public static class CollateralSelectionUtility
         string changeAddress,
         ulong collateralAmount = 4000000, // Smart contract fee is max ~1.5 ada so this is more then 150% of the max fee
         ulong feeBuffer = 0,
-        long maxTxSize = 12000
+        long maxTxSize = 12000,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.Basic
     )
     {
         TransactionBodyBuilder collateralTBB = (TransactionBodyBuilder)TransactionBodyBuilder.Create;
@@ -34,7 +36,8 @@ public static class CollateralSelectionUtility
                 changeAddress,
                 limit: maxCollateralInputs,
                 feeBuffer: feeBuffer,
-                maxTxSize: maxTxSize
+                maxTxSize: maxTxSize,
+                changeSelectionType: changeSelectionType
             );
         }
         catch { }

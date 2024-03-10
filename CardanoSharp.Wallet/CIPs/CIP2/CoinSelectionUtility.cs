@@ -20,10 +20,18 @@ public static class CoinSelectionUtility
         ITokenBundleBuilder? mint = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
-        ulong feeBuffer = 0
+        ulong feeBuffer = 0,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.Basic
     )
     {
-        var cs = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
+        IChangeCreationStrategy changeCreationStrategy = changeSelectionType switch
+        {
+            ChangeSelectionType.MultiSplit => new MultiSplitChangeSelectionStrategy(),
+            ChangeSelectionType.Basic => new BasicChangeSelectionStrategy(),
+            _ => new BasicChangeSelectionStrategy()
+        };
+
+        var cs = new CoinSelectionService(new LargestFirstStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
         return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
     }
@@ -35,10 +43,18 @@ public static class CoinSelectionUtility
         ITokenBundleBuilder? mint = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
-        ulong feeBuffer = 0
+        ulong feeBuffer = 0,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.Basic
     )
     {
-        var cs = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
+        IChangeCreationStrategy changeCreationStrategy = changeSelectionType switch
+        {
+            ChangeSelectionType.MultiSplit => new MultiSplitChangeSelectionStrategy(),
+            ChangeSelectionType.Basic => new BasicChangeSelectionStrategy(),
+            _ => new BasicChangeSelectionStrategy()
+        };
+
+        var cs = new CoinSelectionService(new RandomImproveStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
         return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
     }
@@ -50,10 +66,18 @@ public static class CoinSelectionUtility
         ITokenBundleBuilder? mint = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
-        ulong feeBuffer = 0
+        ulong feeBuffer = 0,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.MultiSplit
     )
     {
-        var cs = new CoinSelectionService(new OptimizedRandomImproveStrategy(), new BasicChangeSelectionStrategy());
+        IChangeCreationStrategy changeCreationStrategy = changeSelectionType switch
+        {
+            ChangeSelectionType.MultiSplit => new MultiSplitChangeSelectionStrategy(),
+            ChangeSelectionType.Basic => new BasicChangeSelectionStrategy(),
+            _ => new BasicChangeSelectionStrategy()
+        };
+
+        var cs = new CoinSelectionService(new OptimizedRandomImproveStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
         return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
     }

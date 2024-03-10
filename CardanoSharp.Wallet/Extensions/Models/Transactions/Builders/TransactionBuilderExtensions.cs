@@ -37,6 +37,7 @@ public static class TransactionBuilderExtensions
         List<Utxo>? spentUtxos = null,
         TxChainingType txChainingType = TxChainingType.None,
         CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.MultiSplit,
         long maxTxSize = 12000,
         DateTime? filterAfterTime = null
     )
@@ -57,9 +58,10 @@ public static class TransactionBuilderExtensions
             candidateUtxos,
             requiredUtxos,
             spentUtxos,
-            maxTxSize: maxTxSize,
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
+            changeSelectionType: changeSelectionType,
+            maxTxSize: maxTxSize,
             isSmartContract: redeemers.Count > 0,
             filterAfterTime: filterAfterTime
         );
@@ -74,11 +76,12 @@ public static class TransactionBuilderExtensions
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        TxChainingType txChainingType = TxChainingType.None,
+        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
+        ChangeSelectionType changeSelectionType = ChangeSelectionType.MultiSplit,
         int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
-        TxChainingType txChainingType = TxChainingType.None,
-        CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         DateTime? filterAfterTime = null,
         bool isSmartContract = false,
         int signerCount = 2
@@ -98,6 +101,7 @@ public static class TransactionBuilderExtensions
             maxTxSize: maxTxSize,
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
+            changeSelectionType: changeSelectionType,
             isSmartContract: isSmartContract
         );
 
