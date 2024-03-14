@@ -359,9 +359,11 @@ public static class CoinSelectionUtility
         TransactionWitnessSetBuilder transactionWitnessSetBuilder = (TransactionWitnessSetBuilder)TransactionWitnessSetBuilder.Create;
         transactionWitnessSetBuilder.MockVKeyWitness(2);
         dummyFeeTransactionBuilder.SetBodyBuilder(transactionBodyBuilder).SetWitnessesBuilder(transactionWitnessSetBuilder);
-
         long dummyFee = dummyFeeTransactionBuilder.Build().CalculateFee();
-        ulong estimateCollateral = (ulong)dummyFee * 4; // Normally collateral is 150% of the fee, but for our estimate we will use 400%
+
+        // Estimate Collateral
+        long contractCollateral = (long)(0.25 * CardanoUtility.adaToLovelace * requiredUtxos?.Count ?? 0); // Smart Contracts are usually required Utxos, so we should add extra collateral for those
+        ulong estimateCollateral = (ulong)(4 * dummyFee + contractCollateral); // Normally collateral is 150% of the fee, but for our estimate we will use 400%
 
         // Set Collateral
         transactionBodyBuilder.UseCollateralSelection(
