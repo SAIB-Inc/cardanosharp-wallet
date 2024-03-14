@@ -4,6 +4,7 @@ using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 
@@ -87,10 +88,11 @@ public static class VKeyWitnessExtensions
     private static byte[] getMockKeyId(int length)
     {
         var hash = new byte[length];
-        for (var i = 0; i < hash.Length; i++)
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
         {
-            hash[i] = 0x00;
+            rng.GetBytes(hash);
         }
+
         return hash;
     }
 }
