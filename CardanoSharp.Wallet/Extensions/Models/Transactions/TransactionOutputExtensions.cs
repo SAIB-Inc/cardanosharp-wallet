@@ -161,7 +161,7 @@ public static partial class TransactionOutputExtensions
         return minUTxO;
     }
 
-    //maxOutputBytesSize is a Protocol Parameter and may change in the future
+    // The maxOutputBytesSize Protocol Parameter and may change in the future
     public static bool IsValid(this TransactionOutput output, ulong maxOutputBytesSize = 5000)
     {
         byte[] serializedOutput = output.Serialize();

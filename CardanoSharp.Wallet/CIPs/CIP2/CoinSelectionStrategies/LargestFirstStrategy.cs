@@ -23,7 +23,7 @@ public class LargestFirstStrategy : BaseSelectionStrategy, ILargestFirstStrategy
         long currentAmount = GetCurrentBalance(coinSelection, asset);
 
         //reorder the available utxos
-        List<Utxo> descendingAvailableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
+        List<Utxo> descendingAvailableUtxos = OrderUtxosByDescending(availableUtxos, asset);
 
         //indices to remove
         var removeIndices = new List<Utxo>();
