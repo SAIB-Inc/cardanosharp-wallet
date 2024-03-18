@@ -4,8 +4,8 @@
     <TargetFrameworks>net8.0;</TargetFrameworks>
     <PackageId>SAIB.CardanoSharp.Wallet</PackageId>
     <LangVersion>11.0</LangVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>7.0.1</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>7.0.2</Version>
     <PackageProjectUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
