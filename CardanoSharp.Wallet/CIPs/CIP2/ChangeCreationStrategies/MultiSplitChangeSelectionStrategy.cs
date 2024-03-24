@@ -205,6 +205,9 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             }
         }
 
+        if (changeValue <= 0)
+            return;
+
         long changeValuePerOutput = changeValue / coinSelection.ChangeOutputs.Count;
         long changeValueRemainder = changeValue % coinSelection.ChangeOutputs.Count;
         long[] changeValues = new long[coinSelection.ChangeOutputs.Count];

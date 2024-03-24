@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Utilities;
 using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
@@ -142,18 +142,13 @@ public static class TransactionBuilderExtensions
         Transaction transaction = transactionBuilder.Build();
         List<TransactionInput> transactionInputs = (List<TransactionInput>)transaction.TransactionBody.TransactionInputs;
         List<TransactionInput>? collateralInputs = (List<TransactionInput>?)transaction.TransactionBody.Collateral;
+        List<byte[]> requiredSigners = new();
+        if (transaction.TransactionBody.RequiredSigners != null)
+            requiredSigners = (List<byte[]>)transaction.TransactionBody.RequiredSigners;
 
         // Calculate the number of payment keys used
-        HashSet<string> uniqueAddresses = new();
-        foreach (TransactionInput transactionInput in transactionInputs)
-            if (transactionInput?.Output?.Address != null)
-                uniqueAddresses.Add(transactionInput.Output.Address.ToString()!);
-
-        if (collateralInputs != null)
-            foreach (TransactionInput collateralInput in collateralInputs)
-                if (collateralInput.Output?.Address != null)
-                    uniqueAddresses.Add(collateralInput.Output.Address.ToString()!);
-        signerCount = uniqueAddresses.Count >= 1 ? uniqueAddresses.Count : signerCount;
+        HashSet<string> uniquePublicKeyHashes = CalculateUniquePublicKeyHashes(transactionInputs, collateralInputs, requiredSigners);
+        signerCount = uniquePublicKeyHashes.Count >= 1 ? uniquePublicKeyHashes.Count : signerCount;
 
         bool isSmartContractTx = transaction.TransactionWitnessSet.Redeemers.Count > 0;
         if (isSmartContractTx)
@@ -254,5 +249,48 @@ public static class TransactionBuilderExtensions
         return (transaction, null)!;
     }
 
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Helper Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static HashSet<string> CalculateUniquePublicKeyHashes(
+        List<TransactionInput> transactionInputs,
+        List<TransactionInput>? collateralTransactionInputs,
+        List<byte[]> requiredSigners
+    )
+    {
+        // Calculate the number of payment keys used in the transaction
+        HashSet<string> uniquePKHs = new();
+        foreach (TransactionInput transactionInput in transactionInputs)
+        {
+            if (transactionInput?.Output?.Address != null)
+            {
+                Address addressObj = new(transactionInput.Output.Address);
+                string address = addressObj.ToString();
+                if (!AddressUtility.IsSmartContractAddress(address))
+                    uniquePKHs.Add(addressObj.GetPublicKeyHash().ToStringHex());
+            }
+        }
+
+        if (collateralTransactionInputs != null)
+        {
+            foreach (TransactionInput collateralTransactionInput in collateralTransactionInputs)
+            {
+                if (collateralTransactionInput?.Output?.Address != null)
+                {
+                    Address addressObj = new(collateralTransactionInput.Output.Address);
+                    string address = addressObj.ToString();
+                    if (!AddressUtility.IsSmartContractAddress(address))
+                        uniquePKHs.Add(addressObj.GetPublicKeyHash().ToStringHex());
+                }
+            }
+        }
+
+        foreach (byte[] requiredSigner in requiredSigners)
+            uniquePKHs.Add(requiredSigner.ToStringHex());
+
+        return uniquePKHs;
+    }
     //---------------------------------------------------------------------------------------------------//
 }
