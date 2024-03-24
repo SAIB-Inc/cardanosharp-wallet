@@ -9,6 +9,7 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 
@@ -182,19 +183,24 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         if (changeValue <= 0)
             return;
 
-        // Determine how many change outputs we should have
+        // Determine how many change outputs we should have.
         int changeOutputsCount = coinSelection.ChangeOutputs.Count;
         int newChangeOutputs = idealChangeOutputs - changeOutputsCount;
+
         if (newChangeOutputs > 0)
         {
+            // Ensure we have enough minUtxo in the changeValue to create new change outputs
+            int maxNewChangeOutputs = (int)Math.Floor((double)(changeValue / CardanoUtility.adaOnlyMinUtxo));
+            newChangeOutputs = Math.Min(newChangeOutputs, maxNewChangeOutputs);
             for (int i = 0; i < newChangeOutputs; i++)
             {
                 var newOutput = new TransactionOutput()
                 {
                     Address = new Address(changeAddress).GetBytes(),
-                    Value = new TransactionOutputValue() { MultiAsset = new Dictionary<byte[], NativeAsset>() },
+                    Value = new TransactionOutputValue() { Coin = CardanoUtility.adaOnlyMinUtxo, MultiAsset = new Dictionary<byte[], NativeAsset>() },
                     OutputPurpose = OutputPurpose.Change
                 };
+                changeValue -= CardanoUtility.adaOnlyMinUtxo;
                 coinSelection.ChangeOutputs.Add(newOutput);
             }
         }
