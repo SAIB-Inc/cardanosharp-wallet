@@ -41,7 +41,7 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             changeOutput.Value.Coin = changeLovelaces;
         }
 
-        // Add remaining ada to the last ouput
+        // Add remaining ada
         CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer, idealChangeOutputs);
     }
 
@@ -52,7 +52,7 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         int assetChangeOutputCount = 0;
 
         ulong lovelaces = balance.Lovelaces;
-        if (lovelaces > 10000)
+        if (lovelaces > 5000 * CardanoUtility.adaToLovelace)
             adaChangeOutputCount = 2;
 
         var assets = balance.Assets;
@@ -179,7 +179,7 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
     )
     {
         // Determine change value for current asset based on requested and how much is selected
-        var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces)) + (long)feeBuffer; // Add feebuffer to account for it being subtracted in the outputBalance.Lovelaces
+        var changeValue = (long)(ada - tokenBundleMin - outputBalance.Lovelaces) + (long)feeBuffer; // Add feebuffer to account for it being subtracted in the outputBalance.Lovelaces
         if (changeValue <= 0)
             return;
 
@@ -219,6 +219,16 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         }
 
         for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
-            coinSelection.ChangeOutputs[i].Value.Coin += (ulong)changeValues[i];
+        {
+            ulong outputCoin = coinSelection.ChangeOutputs[i].Value.Coin;
+            ulong outputCoinAddition = outputCoin + (ulong)changeValues[i];
+
+            // Ensure no output has less then the minUtxo
+            ulong minUtxo = coinSelection.ChangeOutputs[i].CalculateMinUtxoLovelace();
+            if (outputCoinAddition < minUtxo)
+                outputCoinAddition = minUtxo;
+
+            coinSelection.ChangeOutputs[i].Value.Coin = outputCoinAddition;
+        }
     }
 }
