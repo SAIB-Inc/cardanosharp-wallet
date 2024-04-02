@@ -361,8 +361,29 @@ public static class CoinSelectionUtility
         dummyFeeTransactionBuilder.SetBodyBuilder(transactionBodyBuilder).SetWitnessesBuilder(transactionWitnessSetBuilder);
         long dummyFee = dummyFeeTransactionBuilder.Build().CalculateFee();
 
+        // Estimate Smart Contracts. 2 Steps
+        int smartContractEstimate = 0;
+
+        // 1) Estimate Mints, we assume 1 smart contract execution per mint
+        Dictionary<byte[], NativeAsset>? nativeAssets = mint?.Build();
+        if (nativeAssets != null)
+        {
+            foreach (var nativeAssetPair in nativeAssets)
+            {
+                var tokens = nativeAssetPair.Value.Token;
+                foreach (var tokenPair in tokens)
+                {
+                    if (tokenPair.Value > 0)
+                        smartContractEstimate += 0;
+                }
+            }
+        }
+
+        // 2) Each required utxo is a smart contract execution
+        smartContractEstimate += requiredUtxos?.Count ?? 0;
+
         // Estimate Collateral
-        long contractCollateral = (long)(0.25 * CardanoUtility.adaToLovelace * requiredUtxos?.Count ?? 0); // Smart Contracts are usually required Utxos, so we should add extra collateral for those
+        long contractCollateral = (long)(0.25 * CardanoUtility.adaToLovelace * smartContractEstimate); // Smart Contracts are usually required Utxos, so we should add extra collateral for those
         ulong estimateCollateral = (ulong)(4 * dummyFee + contractCollateral); // Normally collateral is 150% of the fee, but for our estimate we will use 400%
 
         // Set Collateral

@@ -59,8 +59,7 @@ public static class TransactionBuilderExtensions
         if (feeBuffer > 3 * CardanoUtility.adaOnlyMinUtxo)
             feeBuffer = 3 * CardanoUtility.adaOnlyMinUtxo;
 
-        return await AdvancedComplete(
-            transactionBuilder,
+        return await transactionBuilder.AdvancedComplete(
             providerService,
             address,
             tokenBundleBuilder,
