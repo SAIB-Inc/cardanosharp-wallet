@@ -373,8 +373,8 @@ public static class CoinSelectionUtility
                 var tokens = nativeAssetPair.Value.Token;
                 foreach (var tokenPair in tokens)
                 {
-                    if (tokenPair.Value > 0)
-                        smartContractEstimate += 0;
+                    // A Smart Contract is executed for both mint and burn so ignore the quantity
+                    smartContractEstimate += 1;
                 }
             }
         }
