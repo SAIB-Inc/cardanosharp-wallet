@@ -45,10 +45,10 @@ public static class TransactionBuilderExtensions
         TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
         List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
 
-        // Default the filter after time to 57 minutes from now. We default the TTL (ValidBefore) to 1 hour from now,
+        // Default the filter after time to 117 minutes from now. We default the TTL (ValidBefore) to 2 hours from now,
         // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out in tx building
         if (filterAfterTime == null)
-            filterAfterTime = DateTime.UtcNow.AddMinutes(57);
+            filterAfterTime = DateTime.UtcNow.AddMinutes(117);
 
         // Estimate the fee buffer. The default fee buffer is 1 ada. This means that all transactions under 1 ada fee will work with our coin selection
         // However if a transaction is large enough, the fee might be over 1 ada. Here we will estimate the fee buffer as 1 ada + 1 ada for each 12 outputs with a max of 3 ada
@@ -111,12 +111,13 @@ public static class TransactionBuilderExtensions
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
             changeSelectionType: changeSelectionType,
+            filterAfterTime: filterAfterTime,
             isSmartContract: isSmartContract
         );
 
         Transaction transaction = transactionBuilder.Build();
         if (transaction.TransactionBody.ValidBefore == null || transaction.TransactionBody.ValidBefore <= 0)
-            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
+            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 2 * 60 * 60));
         if (transaction.TransactionBody.ValidAfter == null || transaction.TransactionBody.ValidAfter <= 0)
             transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
