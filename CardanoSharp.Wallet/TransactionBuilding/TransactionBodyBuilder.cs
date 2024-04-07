@@ -37,7 +37,7 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
         OutputPurpose outputPurpose = OutputPurpose.Spend
     );
     ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
-    ITransactionBodyBuilder AddOutputFromUtxo(
+    ITransactionBodyBuilder AddOutput(
         byte[] address,
         Utxo utxo,
         DatumOption? datumOption = null,
@@ -215,7 +215,7 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return this;
     }
 
-    public ITransactionBodyBuilder AddOutputFromUtxo(
+    public ITransactionBodyBuilder AddOutput(
         byte[] address,
         Utxo utxo,
         DatumOption? datumOption = null,
