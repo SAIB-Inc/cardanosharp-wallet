@@ -45,7 +45,7 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
         CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer, idealChangeOutputs);
     }
 
-    public static int CalculateIdealChangeOutputCount(Balance balance, int maxChangeOutputs = 4, int idealMaxAssetsPerOutput = 30)
+    public static int CalculateIdealChangeOutputCount(Balance balance, int maxChangeOutputs = 6, int idealMaxAssetsPerOutput = 30)
     {
         // Determine how many change outputs we should have
         int adaChangeOutputCount = 1;
@@ -131,6 +131,11 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             // Policy already exists in token bundle, just add the asset
             var policyAsset = multiAsset.FirstOrDefault();
             policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), changeValue);
+
+            // If there are too many assets from the same policy in the token bundle (2 * assetsPerOutput), create a new change output
+            int changeOutputsCount = coinSelection.ChangeOutputs.Count;
+            int changeOutputAssetCount = changeUtxo.Value.MultiAsset.Sum(nativeAsset => nativeAsset.Value.Token.Count);
+            createNewChangeOutput = changeOutputsCount < idealChangeOutputs && changeOutputAssetCount >= 2 * assetsPerOutput;
         }
 
         // If the changeUTXO is no longer valid, remove the asset that was just added, and create a new output
@@ -179,9 +184,13 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
     )
     {
         // Determine change value for current asset based on requested and how much is selected
-        var changeValue = (long)(ada - tokenBundleMin - outputBalance.Lovelaces) + (long)feeBuffer; // Add feebuffer to account for it being subtracted in the outputBalance.Lovelaces
-        if (changeValue <= 0)
+        var changeValue = (long)(ada - tokenBundleMin - outputBalance.Lovelaces);
+        if (changeValue + (long)feeBuffer <= 0)
+        {
+            // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+            coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
             return;
+        }
 
         // Determine how many change outputs we should have.
         int changeOutputsCount = coinSelection.ChangeOutputs.Count;
@@ -205,30 +214,25 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             }
         }
 
-        if (changeValue <= 0)
+        if (changeValue + (long)feeBuffer <= 0)
+        {
+            // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+            coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
             return;
+        }
 
         long changeValuePerOutput = changeValue / coinSelection.ChangeOutputs.Count;
         long changeValueRemainder = changeValue % coinSelection.ChangeOutputs.Count;
-        long[] changeValues = new long[coinSelection.ChangeOutputs.Count];
         for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
         {
-            changeValues[i] = changeValuePerOutput;
+            long addChangeValue = changeValuePerOutput;
             if (i == coinSelection.ChangeOutputs.Count - 1)
-                changeValues[i] += changeValueRemainder;
+                addChangeValue += changeValueRemainder;
+
+            coinSelection.ChangeOutputs[i].Value.Coin += (ulong)addChangeValue;
         }
 
-        for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
-        {
-            ulong outputCoin = coinSelection.ChangeOutputs[i].Value.Coin;
-            ulong outputCoinAddition = outputCoin + (ulong)changeValues[i];
-
-            // Ensure no output has less then the minUtxo
-            ulong minUtxo = coinSelection.ChangeOutputs[i].CalculateMinUtxoLovelace();
-            if (outputCoinAddition < minUtxo)
-                outputCoinAddition = minUtxo;
-
-            coinSelection.ChangeOutputs[i].Value.Coin = outputCoinAddition;
-        }
+        // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+        coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
     }
 }
