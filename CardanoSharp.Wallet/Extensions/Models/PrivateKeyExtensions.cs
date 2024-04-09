@@ -31,14 +31,26 @@ public static class PrivateKeyExtensions
         return new RoleNodeDerivation(privateKey, role);
     }
 
+    [Obsolete("This method is obsolete, for new data use NewEncrypt instead")]
     public static PrivateKey Encrypt(this PrivateKey privateKey, string password)
     {
         return new PrivateKey(privateKey.Key.Encrypt(password), privateKey.Chaincode.Encrypt(password));
     }
 
+    [Obsolete("This method is obsolete, for new data use NewDecrypt instead")]
     public static PrivateKey Decrypt(this PrivateKey privateKey, string password)
     {
         return new PrivateKey(privateKey.Key.Decrypt(password), privateKey.Chaincode.Decrypt(password));
+    }
+
+    public static PrivateKey NewEncrypt(this PrivateKey privateKey, string password)
+    {
+        return new PrivateKey(privateKey.Key.NewEncrypt(password), privateKey.Chaincode.NewEncrypt(password));
+    }
+
+    public static PrivateKey NewDecrypt(this PrivateKey privateKey, string password)
+    {
+        return new PrivateKey(privateKey.Key.NewDecrypt(password), privateKey.Chaincode.NewDecrypt(password));
     }
 
     public static PublicKey GetPublicKey(this PrivateKey privateKey, bool withZeroByte = true)

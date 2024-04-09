@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Enums;
 using CardanoSharp.Wallet.Advanced.AdvancedCoinSelection.Utilities;
 using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
@@ -45,10 +45,10 @@ public static class TransactionBuilderExtensions
         TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
         List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
 
-        // Default the filter after time to 57 minutes from now. We default the TTL (ValidBefore) to 1 hour from now,
+        // Default the filter after time to 117 minutes from now. We default the TTL (ValidBefore) to 2 hours from now,
         // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out in tx building
         if (filterAfterTime == null)
-            filterAfterTime = DateTime.UtcNow.AddMinutes(57);
+            filterAfterTime = DateTime.UtcNow.AddMinutes(117);
 
         // Estimate the fee buffer. The default fee buffer is 1 ada. This means that all transactions under 1 ada fee will work with our coin selection
         // However if a transaction is large enough, the fee might be over 1 ada. Here we will estimate the fee buffer as 1 ada + 1 ada for each 12 outputs with a max of 3 ada
@@ -59,8 +59,7 @@ public static class TransactionBuilderExtensions
         if (feeBuffer > 3 * CardanoUtility.adaOnlyMinUtxo)
             feeBuffer = 3 * CardanoUtility.adaOnlyMinUtxo;
 
-        return await AdvancedComplete(
-            transactionBuilder,
+        return await transactionBuilder.AdvancedComplete(
             providerService,
             address,
             tokenBundleBuilder,
@@ -112,12 +111,13 @@ public static class TransactionBuilderExtensions
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
             changeSelectionType: changeSelectionType,
+            filterAfterTime: filterAfterTime,
             isSmartContract: isSmartContract
         );
 
         Transaction transaction = transactionBuilder.Build();
         if (transaction.TransactionBody.ValidBefore == null || transaction.TransactionBody.ValidBefore <= 0)
-            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 1 * 60 * 60));
+            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 2 * 60 * 60));
         if (transaction.TransactionBody.ValidAfter == null || transaction.TransactionBody.ValidAfter <= 0)
             transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);
@@ -142,20 +142,13 @@ public static class TransactionBuilderExtensions
         Transaction transaction = transactionBuilder.Build();
         List<TransactionInput> transactionInputs = (List<TransactionInput>)transaction.TransactionBody.TransactionInputs;
         List<TransactionInput>? collateralInputs = (List<TransactionInput>?)transaction.TransactionBody.Collateral;
+        List<byte[]> requiredSigners = new();
+        if (transaction.TransactionBody.RequiredSigners != null)
+            requiredSigners = (List<byte[]>)transaction.TransactionBody.RequiredSigners;
 
         // Calculate the number of payment keys used
-        HashSet<string> uniqueAddresses = new();
-        foreach (TransactionInput transactionInput in transactionInputs)
-            if (transactionInput?.Output?.Address != null)
-                uniqueAddresses.Add(transactionInput.Output.Address.ToString()!);
-
-        if (collateralInputs != null)
-            foreach (TransactionInput collateralInput in collateralInputs)
-                if (collateralInput.Output?.Address != null)
-                    uniqueAddresses.Add(collateralInput.Output.Address.ToString()!);
-
-        // Only add 1 if there is 1 signer, but mulitply it by 2 for more accurate mock fee calculation if there are more
-        signerCount += uniqueAddresses.Count <= 1 ? uniqueAddresses.Count : 2 * uniqueAddresses.Count;
+        HashSet<string> uniquePublicKeyHashes = CalculateUniquePublicKeyHashes(transactionInputs, collateralInputs, requiredSigners);
+        signerCount = uniquePublicKeyHashes.Count >= 1 ? uniquePublicKeyHashes.Count : signerCount;
 
         bool isSmartContractTx = transaction.TransactionWitnessSet.Redeemers.Count > 0;
         if (isSmartContractTx)
@@ -256,5 +249,48 @@ public static class TransactionBuilderExtensions
         return (transaction, null)!;
     }
 
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Helper Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static HashSet<string> CalculateUniquePublicKeyHashes(
+        List<TransactionInput> transactionInputs,
+        List<TransactionInput>? collateralTransactionInputs,
+        List<byte[]> requiredSigners
+    )
+    {
+        // Calculate the number of payment keys used in the transaction
+        HashSet<string> uniquePKHs = new();
+        foreach (TransactionInput transactionInput in transactionInputs)
+        {
+            if (transactionInput?.Output?.Address != null)
+            {
+                Address addressObj = new(transactionInput.Output.Address);
+                string address = addressObj.ToString();
+                if (!AddressUtility.IsSmartContractAddress(address))
+                    uniquePKHs.Add(addressObj.GetPublicKeyHash().ToStringHex());
+            }
+        }
+
+        if (collateralTransactionInputs != null)
+        {
+            foreach (TransactionInput collateralTransactionInput in collateralTransactionInputs)
+            {
+                if (collateralTransactionInput?.Output?.Address != null)
+                {
+                    Address addressObj = new(collateralTransactionInput.Output.Address);
+                    string address = addressObj.ToString();
+                    if (!AddressUtility.IsSmartContractAddress(address))
+                        uniquePKHs.Add(addressObj.GetPublicKeyHash().ToStringHex());
+                }
+            }
+        }
+
+        foreach (byte[] requiredSigner in requiredSigners)
+            uniquePKHs.Add(requiredSigner.ToStringHex());
+
+        return uniquePKHs;
+    }
     //---------------------------------------------------------------------------------------------------//
 }

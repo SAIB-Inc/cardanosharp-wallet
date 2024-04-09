@@ -9,6 +9,7 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 
@@ -40,18 +41,18 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             changeOutput.Value.Coin = changeLovelaces;
         }
 
-        // Add remaining ada to the last ouput
+        // Add remaining ada
         CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer, idealChangeOutputs);
     }
 
-    public static int CalculateIdealChangeOutputCount(Balance balance, int maxChangeOutputs = 4, int idealMaxAssetsPerOutput = 30)
+    public static int CalculateIdealChangeOutputCount(Balance balance, int maxChangeOutputs = 6, int idealMaxAssetsPerOutput = 30)
     {
         // Determine how many change outputs we should have
         int adaChangeOutputCount = 1;
         int assetChangeOutputCount = 0;
 
         ulong lovelaces = balance.Lovelaces;
-        if (lovelaces > 10000)
+        if (lovelaces > 5000 * CardanoUtility.adaToLovelace)
             adaChangeOutputCount = 2;
 
         var assets = balance.Assets;
@@ -130,6 +131,11 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
             // Policy already exists in token bundle, just add the asset
             var policyAsset = multiAsset.FirstOrDefault();
             policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), changeValue);
+
+            // If there are too many assets from the same policy in the token bundle (2 * assetsPerOutput), create a new change output
+            int changeOutputsCount = coinSelection.ChangeOutputs.Count;
+            int changeOutputAssetCount = changeUtxo.Value.MultiAsset.Sum(nativeAsset => nativeAsset.Value.Token.Count);
+            createNewChangeOutput = changeOutputsCount < idealChangeOutputs && changeOutputAssetCount >= 2 * assetsPerOutput;
         }
 
         // If the changeUTXO is no longer valid, remove the asset that was just added, and create a new output
@@ -178,38 +184,55 @@ public class MultiSplitChangeSelectionStrategy : IChangeCreationStrategy
     )
     {
         // Determine change value for current asset based on requested and how much is selected
-        var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces)) + (long)feeBuffer; // Add feebuffer to account for it being subtracted in the outputBalance.Lovelaces
-        if (changeValue <= 0)
+        var changeValue = (long)(ada - tokenBundleMin - outputBalance.Lovelaces);
+        if (changeValue + (long)feeBuffer <= 0)
+        {
+            // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+            coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
             return;
+        }
 
-        // Determine how many change outputs we should have
+        // Determine how many change outputs we should have.
         int changeOutputsCount = coinSelection.ChangeOutputs.Count;
         int newChangeOutputs = idealChangeOutputs - changeOutputsCount;
+
         if (newChangeOutputs > 0)
         {
+            // Ensure we have enough minUtxo in the changeValue to create new change outputs
+            int maxNewChangeOutputs = (int)Math.Floor((double)(changeValue / CardanoUtility.adaOnlyMinUtxo));
+            newChangeOutputs = Math.Min(newChangeOutputs, maxNewChangeOutputs);
             for (int i = 0; i < newChangeOutputs; i++)
             {
                 var newOutput = new TransactionOutput()
                 {
                     Address = new Address(changeAddress).GetBytes(),
-                    Value = new TransactionOutputValue() { MultiAsset = new Dictionary<byte[], NativeAsset>() },
+                    Value = new TransactionOutputValue() { Coin = CardanoUtility.adaOnlyMinUtxo, MultiAsset = new Dictionary<byte[], NativeAsset>() },
                     OutputPurpose = OutputPurpose.Change
                 };
+                changeValue -= CardanoUtility.adaOnlyMinUtxo;
                 coinSelection.ChangeOutputs.Add(newOutput);
             }
         }
 
-        long changeValuePerOutput = changeValue / coinSelection.ChangeOutputs.Count;
-        long changeValueRemainder = changeValue % coinSelection.ChangeOutputs.Count;
-        long[] changeValues = new long[coinSelection.ChangeOutputs.Count];
-        for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
+        if (changeValue + (long)feeBuffer <= 0)
         {
-            changeValues[i] = changeValuePerOutput;
-            if (i == coinSelection.ChangeOutputs.Count - 1)
-                changeValues[i] += changeValueRemainder;
+            // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+            coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
+            return;
         }
 
+        long changeValuePerOutput = changeValue / coinSelection.ChangeOutputs.Count;
+        long changeValueRemainder = changeValue % coinSelection.ChangeOutputs.Count;
         for (int i = 0; i < coinSelection.ChangeOutputs.Count; i++)
-            coinSelection.ChangeOutputs[i].Value.Coin += (ulong)changeValues[i];
+        {
+            long addChangeValue = changeValuePerOutput;
+            if (i == coinSelection.ChangeOutputs.Count - 1)
+                addChangeValue += changeValueRemainder;
+
+            coinSelection.ChangeOutputs[i].Value.Coin += (ulong)addChangeValue;
+        }
+
+        // Add the fee buffer to the last change output to ensure the minUtxo is met after the fee is eventually subtracted
+        coinSelection.ChangeOutputs.Last().Value.Coin += feeBuffer;
     }
 }

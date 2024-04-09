@@ -83,8 +83,9 @@ public static class TransactionChainingUtility
             {
                 // Remove mem pool transactions that are stuck in the mem pool
                 // If the invalid after time for the transaction is later then the filterAfterTime, remove the transaction.
-                // An example. If filterAfterTime is utcNow + 57 minutes, and the transaction was just submitted with an invalid after time of 1 hours,
+                // An example. If filterAfterTime is utcNow + 117 minutes, and the transaction was just submitted with an invalid after time of 2 hours,
                 // then in 3 minutes the transaction will be removed here.
+                // This will allow us to not chain against failed, or long awaiting transactions
                 long slot = SlotUtility.GetSlotFromUTCTime(
                     SlotUtility.GetSlotNetworkConfig(providerService.ProviderData.NetworkType),
                     filterAfterTime.Value

@@ -119,6 +119,80 @@ public static class ByteArrayExtension
         return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
     }
 
+    public static bool SequenceEqual(this byte[] x, byte[] y)
+    {
+        return MemoryExtensions.SequenceEqual<byte>(x, y);
+    }
+
+    public static byte[] NewEncrypt(
+        this byte[] message,
+        string password,
+        int keySize = 256,
+        int blockSize = 128,
+        int derivationIterations = 1000,
+        int saltSize = 16
+    )
+    {
+        byte[] salt;
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            salt = new byte[saltSize];
+            rng.GetBytes(salt);
+        }
+
+        using var keyDerivationFunction = new Rfc2898DeriveBytes(password, salt, derivationIterations);
+        using var aesAlg = Aes.Create();
+        aesAlg.KeySize = keySize;
+        aesAlg.BlockSize = blockSize;
+        aesAlg.Key = keyDerivationFunction.GetBytes(keySize / 8);
+        aesAlg.IV = keyDerivationFunction.GetBytes(blockSize / 8);
+        aesAlg.Padding = PaddingMode.PKCS7;
+
+        using var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+        using var msEncrypt = new MemoryStream();
+        msEncrypt.Write(salt, 0, saltSize);
+
+        using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+        {
+            csEncrypt.Write(message, 0, message.Length);
+        }
+
+        return msEncrypt.ToArray();
+    }
+
+    public static byte[] NewDecrypt(
+        this byte[] encryptedMessageWithSalt,
+        string password,
+        int keySize = 256,
+        int blockSize = 128,
+        int derivationIterations = 1000,
+        int saltSize = 16
+    )
+    {
+        byte[] salt = new byte[saltSize];
+        Array.Copy(encryptedMessageWithSalt, 0, salt, 0, saltSize);
+
+        byte[] encryptedMessage = new byte[encryptedMessageWithSalt.Length - saltSize];
+        Array.Copy(encryptedMessageWithSalt, saltSize, encryptedMessage, 0, encryptedMessage.Length);
+
+        using var keyDerivationFunction = new Rfc2898DeriveBytes(password, salt, derivationIterations);
+        using var aesAlg = Aes.Create();
+        aesAlg.KeySize = keySize;
+        aesAlg.BlockSize = blockSize;
+        aesAlg.Key = keyDerivationFunction.GetBytes(keySize / 8);
+        aesAlg.IV = keyDerivationFunction.GetBytes(blockSize / 8);
+        aesAlg.Padding = PaddingMode.PKCS7;
+
+        using var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+        using var msDecrypt = new MemoryStream(encryptedMessage);
+        using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+        using var msResult = new MemoryStream();
+        csDecrypt.CopyTo(msResult);
+        return msResult.ToArray();
+    }
+
+    // Old Encrypt Function, this only works for messages that are multiples of 16
+    [Obsolete("This method is obsolete, for new data use NewEncrypt instead")]
     public static byte[] Encrypt(this byte[] bytesToEncrypt, string password)
     {
         using var f = RandomNumberGenerator.Create();
@@ -148,6 +222,8 @@ public static class ByteArrayExtension
         return encrypted;
     }
 
+    // Old Decrypt Function, this only works for messages that are multiples of 16
+    [Obsolete("This method is obsolete, for new data use NewDecrypt instead")]
     public static byte[] Decrypt(this byte[] bytesToDecrypt, string password)
     {
         (byte[] messageLengthAs32Bits, byte[] bytesWithIv) = bytesToDecrypt.Shift(4); // get the message length
@@ -201,10 +277,5 @@ public static class ByteArrayExtension
 
         int mask = ~(0xff >> n << n);
         return b & mask;
-    }
-
-    public static bool SequenceEqual(this byte[] x, byte[] y)
-    {
-        return MemoryExtensions.SequenceEqual<byte>(x, y);
     }
 }
