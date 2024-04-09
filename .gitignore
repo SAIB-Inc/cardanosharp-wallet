@@ -38,3 +38,5 @@ nuget.config
 
 # developers
 cli/
+
+.mono
