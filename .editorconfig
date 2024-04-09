@@ -9,3 +9,6 @@ dotnet_diagnostic.IDE0060.severity = none
 dotnet_diagnostic.IDE0002.severity = none
 # IDE0001: Naming Styles
 dotnet_diagnostic.IDE0001.severity = none
+
+# CS0618: Type or member is obsolete
+dotnet_diagnostic.CS0618.severity = none

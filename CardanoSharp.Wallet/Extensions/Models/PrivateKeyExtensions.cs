@@ -50,7 +50,7 @@ public static class PrivateKeyExtensions
 
     public static PrivateKey NewDecrypt(this PrivateKey privateKey, string password)
     {
-        return new PrivateKey(privateKey.Key.NewEncrypt(password), privateKey.Chaincode.NewEncrypt(password));
+        return new PrivateKey(privateKey.Key.NewDecrypt(password), privateKey.Chaincode.NewDecrypt(password));
     }
 
     public static PublicKey GetPublicKey(this PrivateKey privateKey, bool withZeroByte = true)
