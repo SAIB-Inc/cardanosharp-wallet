@@ -1,13 +1,14 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
 using System;
+using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet.TransactionBuilding;
 
 public interface ICertificateBuilder : IABuilder<Certificate>
 {
-    ICertificateBuilder SetStakeRegistration(byte[] stakeRegistration);
+    ICertificateBuilder SetStakeRegistration(int stakeRegistrationType, byte[] stakeRegistration);
 
-    ICertificateBuilder SetStakeDeregistration(byte[] stakeDeregistration);
+    ICertificateBuilder SetStakeDeregistration(int stakeRegistrationType, byte[] stakeDeregistration);
 
     ICertificateBuilder SetStakeDelegation(byte[] stakeCredential, byte[] poolHash);
 }
@@ -38,25 +39,25 @@ public class CertificateBuilder : ABuilder<Certificate>, ICertificateBuilder
         get => new CertificateBuilder();
     }
 
-    public ICertificateBuilder SetStakeRegistration(byte[] stakeRegistration)
+    public ICertificateBuilder SetStakeRegistration(int stakeRegistrationType, byte[] stakeRegistration)
     {
         if (stakeRegistration == null)
             throw new ArgumentNullException(nameof(stakeRegistration));
         if (stakeRegistration.Length != 28)
             throw new ArgumentException("stake registration should be 28 bytes long. do not include header bit.", nameof(stakeRegistration));
 
-        _model.StakeRegistration = stakeRegistration;
+        _model.StakeRegistration = new StakeRegistration() { StakeCredentialType = stakeRegistrationType, StakeCredential = stakeRegistration };
         return this;
     }
 
-    public ICertificateBuilder SetStakeDeregistration(byte[] stakeDeregistration)
+    public ICertificateBuilder SetStakeDeregistration(int stakeRegistrationType, byte[] stakeDeregistration)
     {
         if (stakeDeregistration == null)
             throw new ArgumentNullException(nameof(stakeDeregistration));
         if (stakeDeregistration.Length != 28)
             throw new ArgumentException("stake deregistration should be 28 bytes long. do not include header bit.", nameof(stakeDeregistration));
 
-        _model.StakeDeregistration = stakeDeregistration;
+        _model.StakeDeregistration = new StakeDeregistration() { StakeCredentialType = stakeRegistrationType, StakeCredential = stakeDeregistration };
         return this;
     }
 

@@ -54,12 +54,14 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     );
 
     ITransactionBodyBuilder AddBaseOutput(TransactionOutput transactionOutput);
-    ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
     ITransactionBodyBuilder SetFee(ulong fee);
     ITransactionBodyBuilder SetValidBefore(uint validBeforeSlot);
     ITransactionBodyBuilder SetValidAfter(uint validAfterSlot);
     ITransactionBodyBuilder SetValidBefore(long validBeforeMilliseconds, NetworkType networkType);
     ITransactionBodyBuilder SetValidAfter(long validAfterMilliseconds, NetworkType networkType);
+    ITransactionBodyBuilder AddCertificate(ICertificateBuilder certificateBuilder);
+    ITransactionBodyBuilder SetCertificates(List<Certificate> certificates);
+    ITransactionBodyBuilder SetWithdrawals(Dictionary<byte[], uint> withdrawals);
     ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
     ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     ITransactionBodyBuilder AddMint(ITokenBundleBuilder token);
@@ -97,6 +99,7 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     );
 
     // Get Functions
+    ICollection<ICertificateBuilder> GetCertificates();
     ITokenBundleBuilder GetMint();
 
     // Helper Functions
@@ -301,9 +304,24 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
         return this;
     }
 
-    public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
+    public ITransactionBodyBuilder SetCertificates(List<Certificate> certificates)
     {
-        _model.Certificate = certificateBuilder.Build();
+        _model.Certificates = certificates;
+        return this;
+    }
+
+    public ITransactionBodyBuilder AddCertificate(ICertificateBuilder certificateBuilder)
+    {
+        if (_model.Certificates is null)
+            _model.Certificates = new List<Certificate>();
+
+        _model.Certificates.Add(certificateBuilder.Build());
+        return this;
+    }
+
+    public ITransactionBodyBuilder SetWithdrawals(Dictionary<byte[], uint> withdrawals)
+    {
+        _model.Withdrawls = withdrawals;
         return this;
     }
 
@@ -534,6 +552,17 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
     }
 
     // Get Functions
+    public ICollection<ICertificateBuilder> GetCertificates()
+    {
+        List<ICertificateBuilder> certificateBuilders = new();
+        if (_model.Certificates is null)
+            return certificateBuilders;
+
+        foreach (var c in _model.Certificates)
+            certificateBuilders.Add(CertificateBuilder.GetBuilder(c));
+        return certificateBuilders;
+    }
+
     public ITokenBundleBuilder GetMint()
     {
         return TokenBundleBuilder.GetBuilder(_model.Mint);

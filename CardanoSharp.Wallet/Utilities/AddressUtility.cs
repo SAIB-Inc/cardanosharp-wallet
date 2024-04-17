@@ -49,10 +49,12 @@ public static class AddressUtility
         {
             AddressType.Base => "addr",
             AddressType.Script => "addr",
+            AddressType.BaseWithScriptDelegation => "addr",
+            AddressType.ScriptWithScriptDelegation => "addr",
             AddressType.Enterprise => "addr",
             AddressType.EnterpriseScript => "addr",
             AddressType.Stake => "stake",
-            AddressType.ScriptWithScriptDelegation => "addr",
+            AddressType.ScriptStake => "stake",
             _ => throw new Exception("Unknown address type")
         };
 

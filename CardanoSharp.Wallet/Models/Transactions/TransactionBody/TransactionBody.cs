@@ -15,7 +15,7 @@ public partial class TransactionBody
     public virtual IList<TransactionOutput> TransactionOutputs { get; set; }
     public ulong Fee { get; set; }
     public uint? ValidBefore { get; set; } // Ttl
-    public Certificate? Certificate { get; set; }
+    public IList<Certificate>? Certificates { get; set; }
     public Dictionary<byte[], uint>? Withdrawls { get; set; }
     public Update? Update { get; set; }
     public string? MetadataHash { get; set; }

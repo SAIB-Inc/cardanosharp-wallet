@@ -50,6 +50,11 @@ public static class TransactionBuilderExtensions
         if (filterAfterTime == null)
             filterAfterTime = DateTime.UtcNow.AddMinutes(117);
 
+        // Get the certificates from the transaction builder
+        List<ICertificateBuilder>? certificates = transactionBuilder.transactionBodyBuilder.GetCertificates().ToList();
+        if (certificates == null || certificates.Count == 0)
+            certificates = null;
+
         // Estimate the fee buffer. The default fee buffer is 1 ada. This means that all transactions under 1 ada fee will work with our coin selection
         // However if a transaction is large enough, the fee might be over 1 ada. Here we will estimate the fee buffer as 1 ada + 1 ada for each 12 outputs with a max of 3 ada
         int outputCount = transactionBuilder.transactionBodyBuilder.Build().TransactionOutputs.Count;
@@ -63,6 +68,7 @@ public static class TransactionBuilderExtensions
             providerService,
             address,
             tokenBundleBuilder,
+            certificates: certificates,
             candidateUtxos,
             requiredUtxos,
             spentUtxos,
@@ -82,6 +88,7 @@ public static class TransactionBuilderExtensions
         AProviderService providerService,
         Address address,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
@@ -102,6 +109,7 @@ public static class TransactionBuilderExtensions
             providerService: providerService,
             address: address,
             mint: mint,
+            certificates: certificates,
             candidateUtxos: candidateUtxos,
             requiredUtxos: requiredUtxos,
             spentUtxos: spentUtxos,

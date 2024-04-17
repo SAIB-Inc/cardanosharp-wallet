@@ -12,8 +12,8 @@
 //}
 public partial class Certificate
 {
-    public byte[] StakeRegistration { get; set; } = default!;
-    public byte[] StakeDeregistration { get; set; } = default!;
+    public StakeRegistration StakeRegistration { get; set; } = default!;
+    public StakeDeregistration StakeDeregistration { get; set; } = default!;
     public StakeDelegation StakeDelegation { get; set; } = default!;
     public PoolRegistration PoolRegistration { get; set; } = default!;
     public PoolRetirement PoolRetirement { get; set; } = default!;

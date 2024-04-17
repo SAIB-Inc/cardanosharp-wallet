@@ -94,10 +94,10 @@ namespace CardanoSharp.Wallet.Test
                         .SetFee(171397)
                         .SetValidBefore(57910820)
                         .SetMint(mintAsset)
-                        .SetCertificate(
+                        .AddCertificate(
                             CertificateBuilder.Create
-                                .SetStakeRegistration(stakeHash)
-                                .SetStakeDeregistration(stakeHash)
+                                .SetStakeRegistration(0, stakeHash)
+                                .SetStakeDeregistration(0, stakeHash)
                                 .SetStakeDelegation(stakeHash, stakeHash)
                         )
                 )
@@ -186,10 +186,10 @@ namespace CardanoSharp.Wallet.Test
                         .SetFee(171397)
                         .SetValidBefore(57910820)
                         .SetMint(mintAsset)
-                        .SetCertificate(
+                        .AddCertificate(
                             CertificateBuilder.Create
-                                .SetStakeRegistration(stakeHash)
-                                .SetStakeDeregistration(stakeHash)
+                                .SetStakeRegistration(0, stakeHash)
+                                .SetStakeDeregistration(0, stakeHash)
                                 .SetStakeDelegation(stakeHash, stakeHash)
                         )
                 )
@@ -245,12 +245,12 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.Equal(171397.ToString(), expected.TransactionBody.Fee.ToString());
             Assert.Equal(57910820.ToString(), expected.TransactionBody.ValidBefore.ToString());
-            Assert.Null(expected.TransactionBody.Certificate.GenesisKeyDelegation);
-            Assert.Null(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert);
-            Assert.Null(expected.TransactionBody.Certificate.PoolRegistration);
-            Assert.Null(expected.TransactionBody.Certificate.PoolRetirement);
-            Assert.Equal(stakeHash, expected.TransactionBody.Certificate.StakeDelegation.PoolHash);
-            Assert.Equal(stakeHash, expected.TransactionBody.Certificate.StakeDelegation.StakeCredential);
+            Assert.Null(expected.TransactionBody.Certificates.First().GenesisKeyDelegation);
+            Assert.Null(expected.TransactionBody.Certificates.First().MoveInstantaneousRewardsCert);
+            Assert.Null(expected.TransactionBody.Certificates.First().PoolRegistration);
+            Assert.Null(expected.TransactionBody.Certificates.First().PoolRetirement);
+            Assert.Equal(stakeHash, expected.TransactionBody.Certificates.First().StakeDelegation.PoolHash);
+            Assert.Equal(stakeHash, expected.TransactionBody.Certificates.First().StakeDelegation.StakeCredential);
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
@@ -366,10 +366,10 @@ namespace CardanoSharp.Wallet.Test
                         .AddOutput(payment1Addr, 1, tokenBundle1)
                         .SetFee(171397)
                         .SetValidBefore(57910820)
-                        .SetCertificate(
+                        .AddCertificate(
                             CertificateBuilder.Create
-                                .SetStakeRegistration(stakeHash)
-                                .SetStakeDeregistration(stakeHash)
+                                .SetStakeRegistration(0, stakeHash)
+                                .SetStakeDeregistration(0, stakeHash)
                                 .SetStakeDelegation(stakeHash, stakeHash)
                         )
                 )
@@ -430,10 +430,10 @@ namespace CardanoSharp.Wallet.Test
                         .AddBaseOutput(payment1Addr.GetBytes(), 1, tokenBundle1)
                         .SetFee(171397)
                         .SetValidBefore(57910820)
-                        .SetCertificate(
+                        .AddCertificate(
                             CertificateBuilder.Create
-                                .SetStakeRegistration(stakeHash)
-                                .SetStakeDeregistration(stakeHash)
+                                .SetStakeRegistration(0, stakeHash)
+                                .SetStakeDeregistration(0, stakeHash)
                                 .SetStakeDelegation(stakeHash, stakeHash)
                         )
                 )
@@ -523,12 +523,12 @@ namespace CardanoSharp.Wallet.Test
             // Assert the rest of the TransactionBody values are expected
             Assert.Equal(171397.ToString(), expected.TransactionBody.Fee.ToString());
             Assert.Equal(57910820.ToString(), expected.TransactionBody.ValidBefore.ToString());
-            Assert.Null(expected.TransactionBody.Certificate.GenesisKeyDelegation);
-            Assert.Null(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert);
-            Assert.Null(expected.TransactionBody.Certificate.PoolRegistration);
-            Assert.Null(expected.TransactionBody.Certificate.PoolRetirement);
-            Assert.Equal(stakeHash, expected.TransactionBody.Certificate.StakeDelegation.PoolHash);
-            Assert.Equal(stakeHash, expected.TransactionBody.Certificate.StakeDelegation.StakeCredential);
+            Assert.Null(expected.TransactionBody.Certificates.First().GenesisKeyDelegation);
+            Assert.Null(expected.TransactionBody.Certificates.First().MoveInstantaneousRewardsCert);
+            Assert.Null(expected.TransactionBody.Certificates.First().PoolRegistration);
+            Assert.Null(expected.TransactionBody.Certificates.First().PoolRetirement);
+            Assert.Equal(stakeHash, expected.TransactionBody.Certificates.First().StakeDelegation.PoolHash);
+            Assert.Equal(stakeHash, expected.TransactionBody.Certificates.First().StakeDelegation.StakeCredential);
             Assert.Null(expected.TransactionBody.Withdrawls);
             Assert.Null(expected.TransactionBody.Update);
             Assert.Null(expected.TransactionBody.MetadataHash);
@@ -790,7 +790,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddOutput(changeAddr, 3786498)
-                .SetCertificate(CertificateBuilder.Create.SetStakeRegistration(stakeHash).SetStakeDelegation(stakeHash, stakeHash))
+                .AddCertificate(CertificateBuilder.Create.SetStakeRegistration(0, stakeHash).SetStakeDelegation(stakeHash, stakeHash))
                 .SetValidBefore(1000)
                 .SetFee(213502)
                 .Build();
@@ -815,7 +815,7 @@ namespace CardanoSharp.Wallet.Test
             var actualSuccess = false;
             try
             {
-                CertificateBuilder.Create.SetStakeRegistration(bytes);
+                CertificateBuilder.Create.SetStakeRegistration(0, bytes);
                 actualSuccess = true;
             }
             catch { }
@@ -832,7 +832,7 @@ namespace CardanoSharp.Wallet.Test
             var actualSuccess = false;
             try
             {
-                CertificateBuilder.Create.SetStakeDeregistration(bytes);
+                CertificateBuilder.Create.SetStakeDeregistration(0, bytes);
                 actualSuccess = true;
             }
             catch { }
