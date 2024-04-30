@@ -99,6 +99,7 @@ public interface ITransactionBodyBuilder : IABuilder<TransactionBody>
     );
 
     // Get Functions
+    IList<TransactionOutput> GetTransactionOutputs();
     ICollection<ICertificateBuilder> GetCertificates();
     ITokenBundleBuilder GetMint();
 
@@ -552,6 +553,11 @@ public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBod
     }
 
     // Get Functions
+    public IList<TransactionOutput> GetTransactionOutputs()
+    {
+        return _model.TransactionOutputs;
+    }
+
     public ICollection<ICertificateBuilder> GetCertificates()
     {
         List<ICertificateBuilder> certificateBuilders = new();

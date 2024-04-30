@@ -12,6 +12,7 @@ public class Redeemer
 
     // Building Data
     public Utxo? Utxo { get; set; } = null; // If this Utxo is set, calculate the index in the "Complete" function
+    public int? ParameterIndex { get; set; } = null; // If this ParameterIndex is set, also apply the Index to the PlutusData array at the ParameterIndex
 
     public override bool Equals(object? obj)
     {

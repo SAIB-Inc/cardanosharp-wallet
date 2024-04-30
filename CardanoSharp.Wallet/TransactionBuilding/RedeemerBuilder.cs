@@ -16,6 +16,7 @@ public interface IRedeemerBuilder
     IRedeemerBuilder SetPlutusData(IPlutusData plutusData);
     IRedeemerBuilder SetExUnits(ExUnits exUnits);
     IRedeemerBuilder SetSpendUtxo(Utxo utxo); // This will allow us to calculate the index in the Complete function
+    IRedeemerBuilder SetParameterIndex(int parameterIndex); // This will allow us to apply the index to the PlutusData array at the ParameterIndex
 }
 
 public class RedeemerBuilder : ABuilder<Redeemer>, IRedeemerBuilder
@@ -92,6 +93,12 @@ public class RedeemerBuilder : ABuilder<Redeemer>, IRedeemerBuilder
     public IRedeemerBuilder SetSpendUtxo(Utxo utxo)
     {
         _model.Utxo = utxo;
+        return this;
+    }
+
+    public IRedeemerBuilder SetParameterIndex(int parameterIndex)
+    {
+        _model.ParameterIndex = parameterIndex;
         return this;
     }
 }
