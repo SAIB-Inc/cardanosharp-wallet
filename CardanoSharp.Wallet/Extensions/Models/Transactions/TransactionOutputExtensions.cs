@@ -132,7 +132,7 @@ public static partial class TransactionOutputExtensions
         ulong coinsPerUtxOByte = 4310 // coinsPerUtxoByte in protocol params
     )
     {
-        if ((output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0) && output.DatumOption != null && output.ScriptReference != null)
+        if ((output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0) && output.DatumOption == null && output.ScriptReference == null)
             return (ulong)CardanoUtility.adaOnlyMinUtxo;
 
         // Set a dummy coin value if coin is 0
