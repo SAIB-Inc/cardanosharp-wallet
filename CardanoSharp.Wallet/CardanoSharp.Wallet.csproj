@@ -18,7 +18,7 @@
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
-    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.6" />
+    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.7" />
     <PackageReference Include="Orion.CardanoSharp.CBOR" Version="0.1.1" />
   </ItemGroup>
 
@@ -38,9 +38,9 @@
   <!--Below is how we include local projects such as CardanoSharp when we need functionality early that we contribute to open source-->
   <!--We need to switch to the !!!"main"!!! branch in the OrionCardanoSharpWallet github in order for it to work-->
   <!--We also MUST change the <PackageId> tag to <PackageId>CardanoSharp.Wallet</PackageId> in the csproject file-->
-  <!-- <ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../OrionCardanoSharpBlockfrost/CardanoSharp.Blockfrost.Sdk/CardanoSharp.Blockfrost.Sdk.csproj" />
-  </ItemGroup> -->
+  </ItemGroup>
 
   <!--Below is how we include local projects such as CardanoSharp when we need functionality early that we contribute to open source-->
   <!--We need to switch to the !!!"main"!!! branch in the OrionCardanoSharpWallet github in order for it to work-->
