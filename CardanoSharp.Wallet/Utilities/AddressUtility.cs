@@ -49,10 +49,12 @@ public static class AddressUtility
         {
             AddressType.Base => "addr",
             AddressType.Script => "addr",
+            AddressType.BaseWithScriptDelegation => "addr",
+            AddressType.ScriptWithScriptDelegation => "addr",
             AddressType.Enterprise => "addr",
             AddressType.EnterpriseScript => "addr",
             AddressType.Stake => "stake",
-            AddressType.ScriptWithScriptDelegation => "addr",
+            AddressType.ScriptStake => "stake",
             _ => throw new Exception("Unknown address type")
         };
 
@@ -102,8 +104,54 @@ public static class AddressUtility
     //---------------------------------------------------------------------------------------------------//
 
     //---------------------------------------------------------------------------------------------------//
+    // Base Address With Script Delegation Functions
+    //---------------------------------------------------------------------------------------------------//
+
+    public static Address GetBaseWithScriptDelegationAddress(byte[] paymentEncoded, byte[] stakeEncoded, NetworkType networkType)
+    {
+        var addressType = AddressType.BaseWithScriptDelegation;
+        var networkInfo = GetNetworkInfo(networkType);
+
+        //get prefix
+        var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+        //get header
+        var header = GetHeader(networkInfo, addressType);
+
+        //get body
+        byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
+        addressArray[0] = header;
+        Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+        Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
+
+        return new Address(prefix, addressArray);
+    }
+
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
     // Script Address Functions
     //---------------------------------------------------------------------------------------------------//
+    public static Address GetScriptAddress(byte[] paymentEncoded, byte[] stakeEncoded, NetworkType networkType)
+    {
+        var addressType = AddressType.Script;
+        var networkInfo = GetNetworkInfo(networkType);
+
+        //get prefix
+        var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+        //get header
+        var header = GetHeader(networkInfo, addressType);
+
+        //get body
+        byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
+        addressArray[0] = header;
+        Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+        Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
+
+        return new Address(prefix, addressArray);
+    }
+
     public static Address GetScriptAddress<T>(T paymentPolicy, PublicKey stake, NetworkType networkType)
     {
         var stakeEncoded = HashUtility.Blake2b224(stake.Key);
@@ -146,6 +194,26 @@ public static class AddressUtility
     //---------------------------------------------------------------------------------------------------//
     // Script Address With Script Delegation Functions
     //---------------------------------------------------------------------------------------------------//
+    public static Address GetScriptWithScriptDelegationAddress(byte[] paymentEncoded, byte[] stakeEncoded, NetworkType networkType)
+    {
+        var addressType = AddressType.ScriptWithScriptDelegation;
+        var networkInfo = GetNetworkInfo(networkType);
+
+        //get prefix
+        var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+        //get header
+        var header = GetHeader(networkInfo, addressType);
+
+        //get body
+        byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
+        addressArray[0] = header;
+        Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+        Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
+
+        return new Address(prefix, addressArray);
+    }
+
     public static Address GetScriptWithScriptDelegationAddress<T, K>(T paymentPolicy, K stakePolicy, NetworkType networkType)
     {
         var addressType = AddressType.ScriptWithScriptDelegation;
@@ -194,15 +262,39 @@ public static class AddressUtility
     //---------------------------------------------------------------------------------------------------//
     // Enterprise Address Functions
     //---------------------------------------------------------------------------------------------------//
+    public static Address GetEnterpriseAddress(byte[] paymentEncoded, NetworkType networkType)
+    {
+        var addressType = AddressType.Enterprise;
+        var networkInfo = GetNetworkInfo(networkType);
+
+        //get prefix
+        var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+        //get header
+        var header = GetHeader(networkInfo, addressType);
+
+        //get body
+        byte[] addressArray = new byte[1 + paymentEncoded.Length];
+        addressArray[0] = header;
+        Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+
+        return new Address(prefix, addressArray);
+    }
+
     public static Address GetEnterpriseAddress(PublicKey payment, NetworkType networkType)
     {
         var paymentEncoded = HashUtility.Blake2b224(payment.Key);
         return GetEnterpriseAddress(paymentEncoded, networkType);
     }
 
-    public static Address GetEnterpriseAddress(byte[] paymentEncoded, NetworkType networkType)
+    //---------------------------------------------------------------------------------------------------//
+
+    //---------------------------------------------------------------------------------------------------//
+    // Enterprise Script Address Functions
+    //---------------------------------------------------------------------------------------------------//
+    public static Address GetEnterpriseScriptAddress(byte[] paymentEncoded, NetworkType networkType)
     {
-        var addressType = AddressType.Enterprise;
+        var addressType = AddressType.EnterpriseScript;
         var networkInfo = GetNetworkInfo(networkType);
 
         //get prefix

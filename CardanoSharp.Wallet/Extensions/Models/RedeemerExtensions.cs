@@ -74,6 +74,20 @@ public static class RedeemerExtensions
         uint index = (uint)
             transactionInputs.FindIndex(t => t.TransactionId.ToStringHex() == redeemer.Utxo.TxHash && t.TransactionIndex == redeemer.Utxo.TxIndex);
         redeemer.Index = index;
+
+        // If we are implementing a fast own input function in our smart contract,
+        // we need to set the correct sorted index in the PlutusData array so we can find it fast in the smart contract
+        if (redeemer.ParameterIndex != null)
+        {
+            PlutusDataConstr plutusDataConstr = redeemer.PlutusData.GetCBOR().GetPlutusDataConstr();
+            IPlutusData[] updatedPlutusDatas = plutusDataConstr.Value.Value;
+            updatedPlutusDatas[(int)redeemer.ParameterIndex] = new PlutusDataUInt(index);
+
+            // Set the redeemer values back
+            plutusDataConstr.Value.Value = updatedPlutusDatas;
+            redeemer.PlutusData = plutusDataConstr;
+        }
+
         return redeemer;
     }
 }

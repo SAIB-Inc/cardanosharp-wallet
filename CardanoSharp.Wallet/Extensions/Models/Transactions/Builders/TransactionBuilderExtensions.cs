@@ -35,6 +35,8 @@ public static class TransactionBuilderExtensions
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        HashSet<Utxo>? inputMempoolUtxos = null,
+        HashSet<Utxo>? outputMempoolUtxos = null,
         TxChainingType txChainingType = TxChainingType.None,
         CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         ChangeSelectionType changeSelectionType = ChangeSelectionType.MultiSplit,
@@ -45,10 +47,15 @@ public static class TransactionBuilderExtensions
         TokenBundleBuilder tokenBundleBuilder = (TokenBundleBuilder)transactionBuilder.transactionBodyBuilder.GetMint();
         List<Redeemer> redeemers = transactionBuilder.transactionWitnessesBuilder.GetRedeemers();
 
-        // Default the filter after time to 117 minutes from now. We default the TTL (ValidBefore) to 2 hours from now,
+        // Default the filter after time to 237 minutes from now. We default the TTL (ValidBefore) to 4 hours from now,
         // So if a transaction is stuck in the mempool for over 3 minutes, it will be filtered out in tx building
         if (filterAfterTime == null)
-            filterAfterTime = DateTime.UtcNow.AddMinutes(117);
+            filterAfterTime = DateTime.UtcNow.AddMinutes(237);
+
+        // Get the certificates from the transaction builder
+        List<ICertificateBuilder>? certificates = transactionBuilder.transactionBodyBuilder.GetCertificates().ToList();
+        if (certificates == null || certificates.Count == 0)
+            certificates = null;
 
         // Estimate the fee buffer. The default fee buffer is 1 ada. This means that all transactions under 1 ada fee will work with our coin selection
         // However if a transaction is large enough, the fee might be over 1 ada. Here we will estimate the fee buffer as 1 ada + 1 ada for each 12 outputs with a max of 3 ada
@@ -63,9 +70,12 @@ public static class TransactionBuilderExtensions
             providerService,
             address,
             tokenBundleBuilder,
+            certificates: certificates,
             candidateUtxos,
             requiredUtxos,
             spentUtxos,
+            inputMempoolUtxos,
+            outputMempoolUtxos,
             txChainingType: txChainingType,
             coinSelectionType: coinSelectionType,
             changeSelectionType: changeSelectionType,
@@ -82,9 +92,12 @@ public static class TransactionBuilderExtensions
         AProviderService providerService,
         Address address,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        HashSet<Utxo>? inputMempoolUtxos = null,
+        HashSet<Utxo>? outputMempoolUtxos = null,
         TxChainingType txChainingType = TxChainingType.None,
         CoinSelectionType coinSelectionType = CoinSelectionType.OptimizedRandomImprove,
         ChangeSelectionType changeSelectionType = ChangeSelectionType.MultiSplit,
@@ -102,9 +115,12 @@ public static class TransactionBuilderExtensions
             providerService: providerService,
             address: address,
             mint: mint,
+            certificates: certificates,
             candidateUtxos: candidateUtxos,
             requiredUtxos: requiredUtxos,
             spentUtxos: spentUtxos,
+            inputMempoolUtxos: inputMempoolUtxos,
+            outputMempoolUtxos: outputMempoolUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
             maxTxSize: maxTxSize,
@@ -117,7 +133,7 @@ public static class TransactionBuilderExtensions
 
         Transaction transaction = transactionBuilder.Build();
         if (transaction.TransactionBody.ValidBefore == null || transaction.TransactionBody.ValidBefore <= 0)
-            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 2 * 60 * 60));
+            transactionBodyBuilder.SetValidBefore((uint)(providerService.ProviderData.Tip + 4 * 60 * 60));
         if (transaction.TransactionBody.ValidAfter == null || transaction.TransactionBody.ValidAfter <= 0)
             transactionBodyBuilder.SetValidAfter((uint)providerService.ProviderData.Tip);
         transactionBuilder.SetBodyBuilder(transactionBodyBuilder);

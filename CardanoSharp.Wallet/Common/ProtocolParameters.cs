@@ -5,6 +5,7 @@ namespace CardanoSharp.Wallet.Common;
 public class ProtocolParameters
 {
     // Constants taken from protocol params as of mainnet epoch 345
+    public ulong keyDeposit { get; set; } = 2000000;
     public uint MinFeeA { get; set; } = 44;
     public uint MinFeeB { get; set; } = 155381;
     public uint MaxTxSize { get; set; } = 16384;

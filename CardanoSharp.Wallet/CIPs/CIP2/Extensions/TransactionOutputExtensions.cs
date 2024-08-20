@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 
@@ -11,16 +13,18 @@ public static partial class TransactionOutputExtensions
 {
     public static Balance AggregateAssets(
         this IEnumerable<TransactionOutput> transactionOutputs,
+        ProtocolParameters protocolParameters,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         ulong feeBuffer = 0
     )
     {
-        Balance balance = new Balance() { Lovelaces = feeBuffer, Assets = new List<Asset>() };
+        Balance balance = new() { Lovelaces = feeBuffer, Assets = new List<Asset>() };
 
         foreach (var o in transactionOutputs)
         {
             //aggregate lovelaces and optional fee
-            balance.Lovelaces = balance.Lovelaces + o.Value.Coin;
+            balance.Lovelaces += o.Value.Coin;
 
             //aggregate native assets
             if (o.Value.MultiAsset is null)
@@ -46,6 +50,18 @@ public static partial class TransactionOutputExtensions
 
                     nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
                 }
+            }
+        }
+
+        if (certificates is not null)
+        {
+            foreach (var c in certificates)
+            {
+                Certificate certificate = c.Build();
+                if (certificate.StakeRegistration != null)
+                    balance.Lovelaces += protocolParameters.keyDeposit; // Ensures our change amounts have can have the keyDeposit removed from them without unbalancing the tx
+                if (certificate.StakeDeregistration != null)
+                    balance.Lovelaces -= protocolParameters.keyDeposit; // Ensures our change amounts have can have the keyDeposit added to them without unbalancing the tx
             }
         }
 
