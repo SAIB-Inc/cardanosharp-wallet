@@ -4,7 +4,9 @@ using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
+using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Extensions.Models.Certificates;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
@@ -16,10 +18,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2;
 public interface ICoinSelectionService
 {
     CoinSelection GetCoinSelection(
-        IEnumerable<TransactionOutput> outputs,
-        IEnumerable<Utxo> utxos,
+        List<TransactionOutput> outputs,
+        List<Utxo> utxos,
         string changeAddress,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0
@@ -38,15 +41,17 @@ public class CoinSelectionService : ICoinSelectionService
     }
 
     public CoinSelection GetCoinSelection(
-        IEnumerable<TransactionOutput> outputs,
-        IEnumerable<Utxo> utxos,
+        List<TransactionOutput> outputs,
+        List<Utxo> utxos,
         string changeAddress,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0
     )
     {
+        var protocolParameters = new ProtocolParameters();
         var coinSelection = new CoinSelection();
         var availableUTxOs = new List<Utxo>(utxos);
 
@@ -54,7 +59,7 @@ public class CoinSelectionService : ICoinSelectionService
         _coinSelection.SelectRequiredInputs(coinSelection, requiredUtxos);
 
         // Get the balance of all the outputs we must find inputs for taking into account mint and feeBuffers
-        var balance = outputs.AggregateAssets(mint, feeBuffer);
+        var balance = outputs.AggregateAssets(protocolParameters, mint, certificates, feeBuffer);
 
         // Perform initial selection of multi assets and ada
         foreach (var asset in balance.Assets)

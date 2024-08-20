@@ -24,9 +24,12 @@ public static class CoinSelectionUtility
         AProviderService providerService,
         Address address,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        HashSet<Utxo>? inputMempoolUtxos = null,
+        HashSet<Utxo>? outputMempoolUtxos = null,
         int limit = 120,
         ulong feeBuffer = 1000000,
         long maxTxSize = 12000,
@@ -42,9 +45,12 @@ public static class CoinSelectionUtility
                 providerService,
                 address,
                 mint,
+                certificates,
                 candidateUtxos: candidateUtxos,
                 requiredUtxos: requiredUtxos,
                 spentUtxos: spentUtxos,
+                inputMempoolUtxos: inputMempoolUtxos,
+                outputMempoolUtxos: outputMempoolUtxos,
                 limit,
                 feeBuffer,
                 maxTxSize,
@@ -58,9 +64,12 @@ public static class CoinSelectionUtility
                 providerService,
                 address,
                 mint,
+                certificates,
                 candidateUtxos: candidateUtxos,
                 requiredUtxos: requiredUtxos,
                 spentUtxos: spentUtxos,
+                inputMempoolUtxos: inputMempoolUtxos,
+                outputMempoolUtxos: outputMempoolUtxos,
                 limit,
                 feeBuffer,
                 maxTxSize,
@@ -80,9 +89,12 @@ public static class CoinSelectionUtility
         AProviderService providerService,
         Address address,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        HashSet<Utxo>? inputMempoolUtxos = null,
+        HashSet<Utxo>? outputMempoolUtxos = null,
         int limit = 120,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
@@ -93,11 +105,19 @@ public static class CoinSelectionUtility
     )
     {
         string paymentAddress = address.ToString();
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
-            providerService,
-            paymentAddress,
-            filterAfterTime: filterAfterTime
-        );
+        HashSet<Utxo> inputUtxos = inputMempoolUtxos ?? new();
+        HashSet<Utxo> outputUtxos = outputMempoolUtxos ?? new();
+        if (inputMempoolUtxos == null || outputMempoolUtxos == null)
+        {
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+                providerService,
+                paymentAddress,
+                inputUtxos,
+                outputUtxos,
+                filterAfterTime: filterAfterTime
+            );
+        }
+
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
@@ -121,6 +141,7 @@ public static class CoinSelectionUtility
                 utxos,
                 paymentAddress,
                 mint: mint,
+                certificates: certificates,
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
@@ -159,6 +180,7 @@ public static class CoinSelectionUtility
                 utxos,
                 paymentAddress,
                 mint: mint,
+                certificates: certificates,
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
@@ -184,6 +206,7 @@ public static class CoinSelectionUtility
             utxos,
             paymentAddress,
             mint: mint,
+            certificates: certificates,
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
@@ -199,9 +222,12 @@ public static class CoinSelectionUtility
         AProviderService providerService,
         Address address,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? candidateUtxos = null,
         List<Utxo>? requiredUtxos = null,
         List<Utxo>? spentUtxos = null,
+        HashSet<Utxo>? inputMempoolUtxos = null,
+        HashSet<Utxo>? outputMempoolUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
         long maxTxSize = 12000,
@@ -212,11 +238,19 @@ public static class CoinSelectionUtility
     )
     {
         string paymentAddress = address.ToString();
-        (HashSet<Utxo> inputUtxos, HashSet<Utxo> outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
-            providerService,
-            paymentAddress,
-            filterAfterTime: filterAfterTime
-        );
+        HashSet<Utxo> inputUtxos = inputMempoolUtxos ?? new();
+        HashSet<Utxo> outputUtxos = outputMempoolUtxos ?? new();
+        if (inputMempoolUtxos == null || outputMempoolUtxos == null)
+        {
+            (inputUtxos, outputUtxos) = await TransactionChainingUtility.GetMempoolUtxos(
+                providerService,
+                paymentAddress,
+                inputUtxos,
+                outputUtxos,
+                filterAfterTime: filterAfterTime
+            );
+        }
+
         HashSet<Utxo> spentUtxoSet = new();
         if (spentUtxos != null)
             spentUtxoSet = new HashSet<Utxo>(spentUtxos);
@@ -240,6 +274,7 @@ public static class CoinSelectionUtility
                 utxos,
                 paymentAddress,
                 mint: mint,
+                certificates: certificates,
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
@@ -278,6 +313,7 @@ public static class CoinSelectionUtility
                 utxos,
                 paymentAddress,
                 mint: mint,
+                certificates: certificates,
                 requiredUtxos: requiredUtxos,
                 limit: limit,
                 feeBuffer: feeBuffer,
@@ -304,6 +340,7 @@ public static class CoinSelectionUtility
             utxos,
             paymentAddress,
             mint: mint,
+            certificates: certificates,
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
@@ -322,6 +359,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string paymentAddress,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
@@ -335,6 +373,7 @@ public static class CoinSelectionUtility
             utxos,
             paymentAddress,
             mint: mint,
+            certificates: certificates,
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
@@ -402,6 +441,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string paymentAddress,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 120,
         ulong feeBuffer = 0,
@@ -415,6 +455,7 @@ public static class CoinSelectionUtility
             utxos,
             paymentAddress,
             mint: mint,
+            certificates: certificates,
             requiredUtxos: requiredUtxos,
             limit: limit,
             feeBuffer: feeBuffer,
@@ -442,11 +483,19 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         int limit = 120,
         ulong feeBuffer = 0
     )
     {
-        CoinSelection coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint: mint, limit: limit, feeBuffer: feeBuffer);
+        CoinSelection coinSelection = transactionBodyBuilder.UseAll(
+            utxos,
+            changeAddress,
+            mint: mint,
+            certificates: certificates,
+            limit: limit,
+            feeBuffer: feeBuffer
+        );
 
         // Set Inputs and outputs
         foreach (TransactionOutput changeOutput in coinSelection.ChangeOutputs)
@@ -468,6 +517,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 120,
         ulong feeBuffer = 0,
@@ -492,6 +542,7 @@ public static class CoinSelectionUtility
                     utxos,
                     changeAddress,
                     mint!,
+                    certificates,
                     requiredUtxos,
                     limit,
                     feeBuffer,
@@ -502,6 +553,7 @@ public static class CoinSelectionUtility
                     utxos,
                     changeAddress,
                     mint!,
+                    certificates,
                     requiredUtxos,
                     limit,
                     feeBuffer,
@@ -512,18 +564,20 @@ public static class CoinSelectionUtility
                     utxos,
                     changeAddress,
                     mint!,
+                    certificates,
                     requiredUtxos,
                     limit,
                     feeBuffer,
                     changeSelectionType
                 );
             else if (coinSelectionType == CoinSelectionType.All)
-                coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint!, limit, feeBuffer);
+                coinSelection = transactionBodyBuilder.UseAll(utxos, changeAddress, mint!, certificates, limit, feeBuffer);
             else
                 coinSelection = transactionBodyBuilder.UseOptimizedRandomImprove(
                     utxos,
                     changeAddress,
                     mint!,
+                    certificates,
                     requiredUtxos,
                     limit,
                     feeBuffer,
@@ -532,7 +586,7 @@ public static class CoinSelectionUtility
 
             long totalSize = GetCoinSelectionSize(coinSelection);
             if (totalSize > maxTxSize)
-                coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+                coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, certificates, requiredUtxos, limit, feeBuffer);
 
             return coinSelection;
         }
@@ -540,7 +594,7 @@ public static class CoinSelectionUtility
 
         try
         {
-            coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, requiredUtxos, limit, feeBuffer);
+            coinSelection = transactionBodyBuilder.UseLargestFirst(utxos, changeAddress, mint!, certificates, requiredUtxos, limit, feeBuffer);
         }
         catch { }
 

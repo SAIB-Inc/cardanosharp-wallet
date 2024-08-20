@@ -3,6 +3,7 @@ using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
+using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Addresses;
@@ -18,6 +19,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
@@ -33,7 +35,7 @@ public static class CoinSelectionUtility
 
         var cs = new CoinSelectionService(new LargestFirstStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
-        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
+        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, certificates, requiredUtxos, limit, feeBuffer);
     }
 
     public static CoinSelection UseRandomImprove(
@@ -41,6 +43,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
@@ -56,7 +59,7 @@ public static class CoinSelectionUtility
 
         var cs = new CoinSelectionService(new RandomImproveStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
-        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
+        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, certificates, requiredUtxos, limit, feeBuffer);
     }
 
     public static CoinSelection UseOptimizedRandomImprove(
@@ -64,6 +67,7 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         ITokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         List<Utxo>? requiredUtxos = null,
         int limit = 20,
         ulong feeBuffer = 0,
@@ -79,7 +83,7 @@ public static class CoinSelectionUtility
 
         var cs = new CoinSelectionService(new OptimizedRandomImproveStrategy(), changeCreationStrategy);
         var tb = tbb.Build();
-        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, requiredUtxos, limit, feeBuffer);
+        return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos, changeAddress, mint, certificates, requiredUtxos, limit, feeBuffer);
     }
 
     public static CoinSelection UseAll(
@@ -87,10 +91,12 @@ public static class CoinSelectionUtility
         List<Utxo> utxos,
         string changeAddress,
         TokenBundleBuilder? mint = null,
+        List<ICertificateBuilder>? certificates = null,
         int limit = 20,
         ulong feeBuffer = 0
     )
     {
+        var protocolParameters = new ProtocolParameters();
         CoinSelection coinSelection = new();
 
         int utxoIndex = 0;
@@ -104,7 +110,7 @@ public static class CoinSelectionUtility
         }
 
         var outputs = tbb.Build().TransactionOutputs.ToList();
-        var balance = outputs.AggregateAssets(mint!);
+        var balance = outputs.AggregateAssets(protocolParameters, mint!);
         BasicChangeSelectionStrategy basicChangeSelectionStrategy = new();
         basicChangeSelectionStrategy.CalculateChange(coinSelection, balance, changeAddress);
 

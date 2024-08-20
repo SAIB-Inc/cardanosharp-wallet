@@ -5,7 +5,7 @@
     <PackageId>SAIB.CardanoSharp.Wallet</PackageId>
     <LangVersion>12.0</LangVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>7.1.1</Version>
+    <Version>7.2.1</Version>
     <PackageProjectUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
@@ -18,7 +18,7 @@
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
-    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.6" />
+    <PackageReference Include="Orion.CardanoSharp.Blockfrost.Sdk" Version="0.0.8" />
     <PackageReference Include="Orion.CardanoSharp.CBOR" Version="0.1.1" />
   </ItemGroup>
 

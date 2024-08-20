@@ -8,12 +8,12 @@ public static partial class UtxoExtensions
 {
     public static Balance AggregateAssets(this IEnumerable<Utxo> utxos)
     {
-        Balance balance = new Balance() { Assets = new List<Asset>() };
+        Balance balance = new() { Assets = new List<Asset>() };
 
         foreach (var o in utxos)
         {
             //aggregate lovelaces
-            balance.Lovelaces = balance.Lovelaces + o.Balance.Lovelaces;
+            balance.Lovelaces += o.Balance.Lovelaces;
 
             //aggregate native assets
             if (o.Balance.Assets is null)
@@ -33,7 +33,7 @@ public static partial class UtxoExtensions
                     balance.Assets.Add(nativeAsset);
                 }
 
-                nativeAsset.Quantity = nativeAsset.Quantity + ma.Quantity;
+                nativeAsset.Quantity += ma.Quantity;
             }
         }
 

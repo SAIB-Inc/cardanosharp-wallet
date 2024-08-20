@@ -36,17 +36,18 @@ public static class AddressExtensions
 
     public static Address GetStakeAddress(this Address address)
     {
-        if (address.AddressType != AddressType.Base)
-            throw new ArgumentException($"{nameof(address)}:{address} is not a base address", nameof(address));
+        AddressType stakePrefixType = AddressType.Stake;
+        if (address.AddressType == AddressType.ScriptWithScriptDelegation || address.AddressType == AddressType.BaseWithScriptDelegation)
+            stakePrefixType = AddressType.ScriptStake;
+
+        var rewardAddressPrefix = $"{AddressUtility.GetPrefixHeader(stakePrefixType)}{AddressUtility.GetPrefixTail(address.NetworkType)}";
+        var rewardAddressHeader = AddressUtility.GetHeader(AddressUtility.GetNetworkInfo(address.NetworkType), stakePrefixType);
 
         // The stake key digest is the second half of a base address's bytes (pre-bech32)
         // and same value as the blake2b-224 hash digest of the stake key (blake2b-224=224bits=28bytes)
         const int stakeKeyDigestByteLength = 28;
         byte[] rewardAddressBytes = new byte[1 + stakeKeyDigestByteLength];
-        var rewardAddressPrefix = $"{AddressUtility.GetPrefixHeader(AddressType.Stake)}{AddressUtility.GetPrefixTail(address.NetworkType)}";
-        var rewardAddressHeader = AddressUtility.GetHeader(AddressUtility.GetNetworkInfo(address.NetworkType), AddressType.Stake);
         rewardAddressBytes[0] = rewardAddressHeader;
-        // Extract stake key hash from baseAddressBytes
         Buffer.BlockCopy(address.GetBytes(), 29, rewardAddressBytes, 1, stakeKeyDigestByteLength);
 
         return new Address(rewardAddressPrefix, rewardAddressBytes);

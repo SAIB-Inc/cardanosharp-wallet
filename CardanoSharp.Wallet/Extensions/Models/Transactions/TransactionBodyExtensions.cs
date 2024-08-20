@@ -16,12 +16,11 @@ public static class TransactionBodyExtensions
 
         CBORObject cborInputs = null!;
         CBORObject cborOutputs = null!;
-        CBORObject cborTransactionMint = null!;
         CBORObject cborCollateralInputs = null!;
         CBORObject cborRequiredSigners = null!;
         CBORObject cborReferenceInputs = null!;
 
-        //add all the transaction inputs
+        // 0) Transaction Inputs
         if (transactionBody.TransactionInputs.Any())
         {
             cborInputs = CBORObject.NewArray();
@@ -34,7 +33,7 @@ public static class TransactionBodyExtensions
         if (cborInputs != null)
             cborBody.Add(0, cborInputs);
 
-        //add all the transaction outputs
+        // 1) Transaction Outputs
         if (transactionBody.TransactionOutputs.Any())
         {
             cborOutputs = CBORObject.NewArray();
@@ -47,23 +46,34 @@ public static class TransactionBodyExtensions
         if (cborOutputs != null)
             cborBody.Add(1, cborOutputs);
 
-        //add fee
+        // 2) Fee
         cborBody.Add(2, transactionBody.Fee);
 
-        //add ttl
+        // 3) TTL
         if (transactionBody.ValidBefore.HasValue)
             cborBody.Add(3, transactionBody.ValidBefore.Value);
 
-        //add certificates
-        if (transactionBody.Certificate != null)
+        // 4) Certificates
+        if (transactionBody.Certificates != null && transactionBody.Certificates.Any())
         {
-            cborBody.Add(4, transactionBody.Certificate.GetCBOR());
+            CBORObject cborTransactionCertificates = CBORObject.NewArray();
+            foreach (var certificate in transactionBody.Certificates)
+                cborTransactionCertificates.Add(certificate.GetCBOR());
+            cborBody.Add(4, cborTransactionCertificates);
         }
 
         // 5) Withdrawals
+        if (transactionBody.Withdrawls != null && transactionBody.Withdrawls.Any())
+        {
+            CBORObject cborTransactionWithdrawals = CBORObject.NewMap();
+            foreach (var withdrawal in transactionBody.Withdrawls)
+                cborTransactionWithdrawals.Add(withdrawal.Key, withdrawal.Value);
+            cborBody.Add(5, cborTransactionWithdrawals);
+        }
+
         // 6) Update
 
-        // 7) add metadata
+        // 7) Metadata
         if (auxiliaryData != null || transactionBody.MetadataHash != default)
         {
             if (auxiliaryData != null)
@@ -83,7 +93,7 @@ public static class TransactionBodyExtensions
         // 9) add tokens for minting
         if (transactionBody.Mint.Any())
         {
-            cborTransactionMint = CBORObject.NewMap();
+            CBORObject cborTransactionMint = CBORObject.NewMap();
             foreach (var nativeAsset in transactionBody.Mint)
             {
                 var assetCbor = CBORObject.NewMap();
@@ -218,10 +228,27 @@ public static class TransactionBodyExtensions
         //? 4 : [* certificate]
         if (transactionBodyCbor.ContainsKey(4))
         {
-            transactionBody.Certificate = transactionBodyCbor[4].GetCertificate();
+            transactionBody.Certificates = new List<Certificate>();
+
+            var certificatesCbor = transactionBodyCbor[4];
+            foreach (var certificate in certificatesCbor.Values)
+                transactionBody.Certificates.Add(certificate.GetCertificate());
         }
 
         //? 5 : withdrawals
+        if (transactionBodyCbor.ContainsKey(5))
+        {
+            transactionBody.Withdrawls = new Dictionary<byte[], uint>();
+
+            var withdrawalsCbor = transactionBodyCbor[5];
+            foreach (var withdrawal in withdrawalsCbor.Keys)
+            {
+                var byteWithdrawal = ((string)withdrawal.DecodeValueByCborType()).HexToByteArray();
+                var value = withdrawalsCbor[withdrawal].DecodeValueToUInt32();
+                transactionBody.Withdrawls.Add(byteWithdrawal, value);
+            }
+        }
+
         //? 6 : update
         //? 7 : auxiliary_data_hash
         if (transactionBodyCbor.ContainsKey(7))
