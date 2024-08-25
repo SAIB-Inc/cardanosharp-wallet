@@ -35,10 +35,10 @@ public static class ScriptUtility
         byte[] redeemerBytes;
         if (redeemers != null && redeemers.Count > 0)
         {
-            var cborRedeemers = CBORObject.NewMap();
-            for(int i = 0; i < redeemers.Count; i++)
+            var cborRedeemers = CBORObject.NewArray();
+            foreach (var redeemer in redeemers)
             {
-                cborRedeemers.Add(i, redeemers[i].GetCBOR());
+                cborRedeemers.Add(redeemer.GetCBOR());
             }
             redeemerBytes = cborRedeemers.EncodeToBytes();
         }

@@ -58,10 +58,10 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.Redeemers.Any())
         {
-            var cborRedeemers = CBORObject.NewMap();
-            for (int i = 0; i < transactionWitnessSet.Redeemers.Count; i++)
+            var cborRedeemers = CBORObject.NewArray();
+            foreach (var redeemer in transactionWitnessSet.Redeemers)
             {
-                cborRedeemers.Add(i, transactionWitnessSet.Redeemers.ToList()[i].GetCBOR());
+                cborRedeemers.Add(redeemer.GetCBOR());
             }
             cborWitnessSet.Add(5, cborRedeemers);
         }
