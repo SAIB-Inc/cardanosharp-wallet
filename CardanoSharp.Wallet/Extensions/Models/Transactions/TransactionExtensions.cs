@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
@@ -107,7 +108,8 @@ public static class TransactionExtensions
     {
         uint baseFee = transaction.CalculateBaseFee(a, b);
         uint scriptFee = transaction.CalculateScriptFee(priceMem, priceStep);
-        return baseFee + scriptFee;
+        uint refScriptFee = transaction.CalculateRefScriptFee();
+        return baseFee + scriptFee + refScriptFee;
     }
 
     public static uint CalculateBaseFee(this Transaction transaction, uint? a = null, uint? b = null)
@@ -128,7 +130,7 @@ public static class TransactionExtensions
         if (!priceStep.HasValue)
             priceStep = FeeStructure.PriceStep;
 
-        List<ExUnits> exUnits = new List<ExUnits>();
+        List<ExUnits> exUnits = [];
         foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers)
         {
             exUnits.Add(redeemer.ExUnits);
@@ -148,6 +150,51 @@ public static class TransactionExtensions
             return 0;
 
         return (uint)Math.Ceiling(scriptFee);
+    }
+
+    public static uint CalculateRefScriptFee(this Transaction transaction)
+    {
+        uint referenceScriptSize = transaction.CalculateRefScriptSize();
+        if (referenceScriptSize == 0)
+            return 0;
+
+        double baseFee = FeeStructure.RefScriptBase;
+        double refFee = 0.0;
+
+        while (referenceScriptSize > 0)
+        {
+            uint rangeSize = Math.Min(FeeStructure.RefScriptRange, referenceScriptSize);
+            refFee += rangeSize * baseFee;
+            referenceScriptSize -= rangeSize;
+            baseFee *= FeeStructure.RefScriptMultiplier;
+        }
+
+        return (uint)Math.Ceiling(refFee);
+    }
+
+    public static uint CalculateRefScriptSize(this Transaction transaction)
+    {
+        uint scriptSize = 0;
+
+        transaction.TransactionBody.ReferenceInputs?.ToList().ForEach(input =>
+        {
+            if (input.Output?.ScriptReference?.NativeScript is not null)
+            {
+                scriptSize += (uint)input.Output.ScriptReference.NativeScript.Serialize().Length;
+            }
+
+            if (input.Output?.ScriptReference?.PlutusV1Script is not null)
+            {
+                scriptSize += (uint)input.Output.ScriptReference.PlutusV1Script.Serialize().Length;
+            }
+
+            if (input.Output?.ScriptReference?.PlutusV2Script is not null)
+            {
+                scriptSize += (uint)input.Output.ScriptReference.PlutusV2Script.Serialize().Length;
+            }
+        });
+
+        return scriptSize;
     }
 
     /// <summary>
