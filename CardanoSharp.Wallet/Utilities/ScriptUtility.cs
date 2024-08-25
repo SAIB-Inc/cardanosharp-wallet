@@ -21,7 +21,7 @@ public static class ScriptUtility
         ; field is an empty string.
         **/
 
-        byte[] plutusDataBytes = new byte[0];
+        byte[] plutusDataBytes = [];
         if (datums != null && datums.Count > 0)
         {
             var cborPlutusDatas = CBORObject.NewArray();
@@ -32,7 +32,7 @@ public static class ScriptUtility
             plutusDataBytes = cborPlutusDatas.EncodeToBytes();
         }
 
-        byte[] redeemerBytes = new byte[0];
+        byte[] redeemerBytes;
         if (redeemers != null && redeemers.Count > 0)
         {
             var cborRedeemers = CBORObject.NewArray();
