@@ -33,6 +33,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackagePath>runtimes/linux-x64/native</PackagePath>
     </None>
+    <None Include="libcardanosharp_uplc.dylib">
+      <Pack>true</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>runtimes/aarch64/native</PackagePath>
+    </None>
   </ItemGroup>
 
   <!--Below is how we include local projects such as CardanoSharp when we need functionality early that we contribute to open source-->
