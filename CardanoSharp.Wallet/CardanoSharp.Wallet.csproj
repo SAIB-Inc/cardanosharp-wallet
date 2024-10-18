@@ -36,7 +36,7 @@
     <None Include="libcardanosharp_uplc.dylib">
       <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>runtimes/aarch64/native</PackagePath>
+      <PackagePath>runtimes/osx-arm64/native</PackagePath>
     </None>
   </ItemGroup>
 
