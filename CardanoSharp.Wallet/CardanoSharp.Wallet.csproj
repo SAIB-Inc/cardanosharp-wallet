@@ -5,7 +5,7 @@
     <PackageId>SAIB.CardanoSharp.Wallet</PackageId>
     <LangVersion>12.0</LangVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>7.3.8</Version>
+    <Version>7.3.9</Version>
     <PackageProjectUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
@@ -36,7 +36,7 @@
     <None Include="libcardanosharp_uplc.dylib">
       <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>runtimes/aarch64/native</PackagePath>
+      <PackagePath>runtimes/osx-arm64/native</PackagePath>
     </None>
   </ItemGroup>
 
