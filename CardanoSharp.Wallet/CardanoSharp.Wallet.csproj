@@ -5,7 +5,7 @@
     <PackageId>SAIB.CardanoSharp.Wallet</PackageId>
     <LangVersion>12.0</LangVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>7.3.4</Version>
+    <Version>7.3.5</Version>
     <PackageProjectUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SAIB-Inc/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
