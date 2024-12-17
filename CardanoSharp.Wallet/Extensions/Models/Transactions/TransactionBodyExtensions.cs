@@ -23,7 +23,7 @@ public static class TransactionBodyExtensions
         // 0) Transaction Inputs
         if (transactionBody.TransactionInputs.Any())
         {
-            cborInputs = CBORObject.NewArray();
+            cborInputs = CBORObject.NewArray().WithTag(258);
             foreach (var txInput in transactionBody.TransactionInputs)
             {
                 cborInputs.Add(txInput.GetCBOR());
@@ -56,7 +56,7 @@ public static class TransactionBodyExtensions
         // 4) Certificates
         if (transactionBody.Certificates != null && transactionBody.Certificates.Any())
         {
-            CBORObject cborTransactionCertificates = CBORObject.NewArray();
+            CBORObject cborTransactionCertificates = CBORObject.NewArray().WithTag(258);
             foreach (var certificate in transactionBody.Certificates)
                 cborTransactionCertificates.Add(certificate.GetCBOR());
             cborBody.Add(4, cborTransactionCertificates);
@@ -115,7 +115,7 @@ public static class TransactionBodyExtensions
         // 13) collateral_inputs
         if (transactionBody.Collateral != null && transactionBody.Collateral.Any())
         {
-            cborCollateralInputs = CBORObject.NewArray();
+            cborCollateralInputs = CBORObject.NewArray().WithTag(258);
             foreach (var txInput in transactionBody.Collateral)
             {
                 cborCollateralInputs.Add(txInput.GetCBOR());
@@ -127,7 +127,7 @@ public static class TransactionBodyExtensions
         // 14) required_signers
         if (transactionBody.RequiredSigners != null && transactionBody.RequiredSigners.Any())
         {
-            cborRequiredSigners = CBORObject.NewArray();
+            cborRequiredSigners = CBORObject.NewArray().WithTag(258);
             foreach (var requireSigners in transactionBody.RequiredSigners)
             {
                 cborRequiredSigners.Add(requireSigners);
@@ -157,7 +157,7 @@ public static class TransactionBodyExtensions
         // 18) reference inputs
         if (transactionBody.ReferenceInputs != null && transactionBody.ReferenceInputs.Any())
         {
-            cborReferenceInputs = CBORObject.NewArray();
+            cborReferenceInputs = CBORObject.NewArray().WithTag(258);
             foreach (var referenceInput in transactionBody.ReferenceInputs)
             {
                 cborReferenceInputs.Add(referenceInput.GetCBOR());

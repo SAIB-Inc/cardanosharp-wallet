@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 hex = "0.4.3"
-uplc = { version = "1.0.31-alpha" }
+uplc = { version = "1.1.9" }
 
 [build-dependencies]
 csbindgen = "1.9.3"
