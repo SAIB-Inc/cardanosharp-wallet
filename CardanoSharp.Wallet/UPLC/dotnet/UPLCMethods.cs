@@ -43,7 +43,7 @@ namespace CsBindgen
 
         public static TransactionEvaluation GetExUnits(Transaction transaction, NetworkType networkType)
         {
-            byte[] txBytes = transaction.Serialize();
+            byte[] txBytes = transaction.Serialize(withSetTag: false);
             return GetExUnits(txBytes, transaction, networkType);
         }
 
