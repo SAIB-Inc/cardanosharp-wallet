@@ -16,7 +16,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.VKeyWitnesses.Any())
         {
-            var cborVKeyWitnesses = CBORObject.NewArray();
+            var cborVKeyWitnesses = CBORObject.NewArray().WithTag(258);
             foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
             {
                 cborVKeyWitnesses.Add(vkeyWitness.GetCBOR(transactionBody, auxiliaryData));
@@ -27,7 +27,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.NativeScripts.Any())
         {
-            var cborNativeScriptWitnesses = CBORObject.NewArray();
+            var cborNativeScriptWitnesses = CBORObject.NewArray().WithTag(258);
             foreach (var nativeScript in transactionWitnessSet.NativeScripts)
             {
                 cborNativeScriptWitnesses.Add(nativeScript.GetCBOR2());
@@ -38,7 +38,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusV1Scripts.Any())
         {
-            var cborPlutusV1Scripts = CBORObject.NewArray();
+            var cborPlutusV1Scripts = CBORObject.NewArray().WithTag(258);
             foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts)
             {
                 cborPlutusV1Scripts.Add(plutusV1Script.GetCBOR());
@@ -48,7 +48,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusDatas.Any())
         {
-            var cborPlutusDatas = CBORObject.NewArray();
+            var cborPlutusDatas = CBORObject.NewArray().WithTag(258);
             foreach (var plutusData in transactionWitnessSet.PlutusDatas)
             {
                 cborPlutusDatas.Add(plutusData.GetCBOR());
@@ -68,7 +68,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusV2Scripts.Any())
         {
-            var cborPlutusV2Scripts = CBORObject.NewArray();
+            var cborPlutusV2Scripts = CBORObject.NewArray().WithTag(258);
             foreach (var plutusV2Script in transactionWitnessSet.PlutusV1Scripts)
             {
                 cborPlutusV2Scripts.Add(plutusV2Script.GetCBOR());
