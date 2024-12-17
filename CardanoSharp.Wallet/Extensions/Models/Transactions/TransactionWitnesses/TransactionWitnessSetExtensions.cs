@@ -10,13 +10,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
 
 public static class TransactionWitnessSetExtensions
 {
-    public static CBORObject GetCBOR(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData? auxiliaryData)
+    public static CBORObject GetCBOR(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData? auxiliaryData, bool withSetTag = true)
     {
         var cborWitnessSet = CBORObject.NewMap();
 
         if (transactionWitnessSet.VKeyWitnesses.Any())
         {
-            var cborVKeyWitnesses = CBORObject.NewArray().WithTag(258);
+            var cborVKeyWitnesses = withSetTag ? CBORObject.NewArray().WithTag(258) : CBORObject.NewArray();
             foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
             {
                 cborVKeyWitnesses.Add(vkeyWitness.GetCBOR(transactionBody, auxiliaryData));
@@ -27,7 +27,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.NativeScripts.Any())
         {
-            var cborNativeScriptWitnesses = CBORObject.NewArray().WithTag(258);
+            var cborNativeScriptWitnesses = withSetTag ? CBORObject.NewArray().WithTag(258) : CBORObject.NewArray();
             foreach (var nativeScript in transactionWitnessSet.NativeScripts)
             {
                 cborNativeScriptWitnesses.Add(nativeScript.GetCBOR2());
@@ -38,7 +38,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusV1Scripts.Any())
         {
-            var cborPlutusV1Scripts = CBORObject.NewArray().WithTag(258);
+            var cborPlutusV1Scripts = withSetTag ? CBORObject.NewArray().WithTag(258) : CBORObject.NewArray();
             foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts)
             {
                 cborPlutusV1Scripts.Add(plutusV1Script.GetCBOR());
@@ -48,7 +48,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusDatas.Any())
         {
-            var cborPlutusDatas = CBORObject.NewArray().WithTag(258);
+            var cborPlutusDatas = withSetTag ? CBORObject.NewArray().WithTag(258) : CBORObject.NewArray();
             foreach (var plutusData in transactionWitnessSet.PlutusDatas)
             {
                 cborPlutusDatas.Add(plutusData.GetCBOR());
@@ -68,7 +68,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.PlutusV2Scripts.Any())
         {
-            var cborPlutusV2Scripts = CBORObject.NewArray().WithTag(258);
+            var cborPlutusV2Scripts = withSetTag ? CBORObject.NewArray().WithTag(258) : CBORObject.NewArray();
             foreach (var plutusV2Script in transactionWitnessSet.PlutusV1Scripts)
             {
                 cborPlutusV2Scripts.Add(plutusV2Script.GetCBOR());
@@ -158,9 +158,9 @@ public static class TransactionWitnessSetExtensions
         return transactionWitnessSet;
     }
 
-    public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+    public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData, bool withSetTag = true)
     {
-        return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
+        return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData, withSetTag).EncodeToBytes();
     }
 
     public static TransactionWitnessSet DeserializeTransactionWitnessSet(this byte[] bytes)

@@ -16,7 +16,7 @@ public static class TransactionExtensions
     //---------------------------------------------------------------------------------------------------//
     // Transaction Serialization Functions
     //---------------------------------------------------------------------------------------------------//
-    public static CBORObject GetCBOR(this Transaction transaction)
+    public static CBORObject GetCBOR(this Transaction transaction, bool withSetTag = true)
     {
         //create Transaction CBOR Object
         var cborTransaction = CBORObject.NewArray();
@@ -24,13 +24,13 @@ public static class TransactionExtensions
         //if we have a transaction body, lets build Body CBOR and add to Transaction Array
         if (transaction.TransactionBody != null)
         {
-            cborTransaction.Add(transaction.TransactionBody.GetCBOR(transaction.AuxiliaryData));
+            cborTransaction.Add(transaction.TransactionBody.GetCBOR(transaction.AuxiliaryData, withSetTag));
         }
 
         //if we have a transaction witness set, lets build Witness Set CBOR and add to Transaction Array
         if (transaction.TransactionWitnessSet != null)
         {
-            cborTransaction.Add(transaction.TransactionWitnessSet.GetCBOR(transaction.TransactionBody!, transaction.AuxiliaryData));
+            cborTransaction.Add(transaction.TransactionWitnessSet.GetCBOR(transaction.TransactionBody!, transaction.AuxiliaryData, withSetTag));
         }
         else
         {
@@ -88,9 +88,9 @@ public static class TransactionExtensions
         return transaction;
     }
 
-    public static byte[] Serialize(this Transaction transaction)
+    public static byte[] Serialize(this Transaction transaction, bool withSetTag = true)
     {
-        return transaction.GetCBOR().EncodeToBytes();
+        return transaction.GetCBOR(withSetTag).EncodeToBytes();
     }
 
     public static Transaction DeserializeTransaction(this byte[] bytes)
