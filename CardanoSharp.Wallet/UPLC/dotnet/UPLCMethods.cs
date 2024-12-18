@@ -9,6 +9,7 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Utilities;
+using PeterO.Cbor2;
 
 namespace CsBindgen
 {
@@ -141,7 +142,32 @@ namespace CsBindgen
                 List<Redeemer> redeemers = new();
                 foreach (byte[] redeemerByteArray in redeemersByteArray)
                 {
-                    Redeemer redeemer = RedeemerExtensions.Deserialize(redeemerByteArray);
+                    // TODO: update this to support map type redeemer, uplc currently only supports array type
+                    CBORObject redeemerCbor = CBORObject.DecodeFromBytes(redeemerByteArray);
+
+                    if (redeemerCbor == null)
+                    {
+                        throw new Exception(nameof(redeemerCbor));
+                    }
+
+                    if (redeemerCbor.Type != CBORType.Array)
+                    {
+                        throw new Exception("redeemerCbor is not expected type CBORType.Array");
+                    }
+
+                    if (redeemerCbor.Count != 4)
+                    {
+                        throw new Exception("redeemerCbor has unexpected number of elements (expected 4)");
+                    }
+
+                    Redeemer redeemer = new()
+                    {
+                        Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32(),
+                        Index = (uint)redeemerCbor[1].DecodeValueToUInt32(),
+                        PlutusData = redeemerCbor[2].GetPlutusData(),
+                        ExUnits = (ExUnits)redeemerCbor[3].GetExUnits()
+                    };
+
                     redeemers.Add(redeemer);
                 }
                 evaluation.Redeemers = redeemers;

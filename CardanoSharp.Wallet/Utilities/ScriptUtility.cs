@@ -35,23 +35,18 @@ public static class ScriptUtility
         byte[] redeemerBytes;
         if (redeemers != null && redeemers.Count > 0)
         {
-            var cborRedeemers = CBORObject.NewArray();
-            foreach (var redeemer in redeemers)
-            {
-                cborRedeemers.Add(redeemer.GetCBOR());
-            }
-            redeemerBytes = cborRedeemers.EncodeToBytes();
+            redeemerBytes = redeemers.GetCBOR().EncodeToBytes();
         }
         else
         {
             /**
             ; Finally, note that in the case that a transaction includes datums but does not
             ; include any redeemers, the script data format becomes (in hex):
-            ; [ 80 | datums | A0 ]
-            ; corresponding to a CBOR empty list and an empty map.
+            ; [ A0 | datums | A0 ]
+            ; corresponding to a CBOR empty map and an empty map for language view.
             **/
 
-            redeemerBytes = "80".HexToByteArray();
+            redeemerBytes = "A0".HexToByteArray();
             languageViews = "A0".HexToByteArray();
         }
 
