@@ -9,53 +9,87 @@ namespace CardanoSharp.Wallet.Extensions.Models;
 
 public static class RedeemerExtensions
 {
-    public static CBORObject GetCBOR(this Redeemer redeemer)
+    public static CBORObject GetCBOR(this IEnumerable<Redeemer> redeemers)
     {
-        // redeemer = [ tag: redeemer_tag, index: uint, data: plutus_data, ex_units: ex_units ]
-        var cborRedeemer = CBORObject.NewArray();
-        cborRedeemer.Add((uint)redeemer.Tag);
-        cborRedeemer.Add(redeemer.Index);
-        cborRedeemer.Add(redeemer.PlutusData.GetCBOR());
-        cborRedeemer.Add(redeemer.ExUnits.GetCBOR());
-        return cborRedeemer;
+        CBORObject cborRedeemers = CBORObject.NewMap();
+
+        foreach (Redeemer redeemer in redeemers)
+        {
+            CBORObject cborRedeemerKey = CBORObject.NewArray();
+            cborRedeemerKey.Add((uint)redeemer.Tag);
+            cborRedeemerKey.Add(redeemer.Index);
+
+            CBORObject cborRedeemerValue = CBORObject.NewArray();
+            cborRedeemerValue.Add(redeemer.PlutusData.GetCBOR());
+            cborRedeemerValue.Add(redeemer.ExUnits.GetCBOR());
+
+            cborRedeemers.Add(cborRedeemerKey, cborRedeemerValue);
+        }
+
+        return cborRedeemers;
     }
 
-    public static Redeemer GetRedeemer(this CBORObject redeemerCbor)
+    public static IEnumerable<Redeemer> GetRedeemers(this CBORObject redeemersCbor)
     {
-        if (redeemerCbor == null)
+        if (redeemersCbor == null)
         {
-            throw new ArgumentNullException(nameof(redeemerCbor));
+            throw new ArgumentNullException(nameof(redeemersCbor));
         }
 
-        if (redeemerCbor.Type != CBORType.Array)
+        if (redeemersCbor.Type != CBORType.Map)
         {
-            throw new ArgumentException("redeemerCbor is not expected type CBORType.Array");
+            throw new ArgumentException("redeemersCbor is not expected type CBORType.Map");
         }
 
-        if (redeemerCbor.Count != 4)
-        {
-            throw new ArgumentException("redeemerCbor has unexpected number of elements (expected 4)");
-        }
+        List<Redeemer> redeemers = new();
 
-        Redeemer redeemer =
-            new()
+        foreach (CBORObject key in redeemersCbor.Keys)
+        {
+            if (key.Type != CBORType.Array)
             {
-                Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32(),
-                Index = (uint)redeemerCbor[1].DecodeValueToUInt32(),
-                PlutusData = redeemerCbor[2].GetPlutusData(),
-                ExUnits = (ExUnits)redeemerCbor[3].GetExUnits()
-            };
-        return redeemer;
+                throw new ArgumentException("redeemerCbor key is not expected type CBORType.Array");
+            }
+
+            if (key.Count != 2)
+            {
+                throw new ArgumentException("redeemerCbor key has unexpected number of elements (expected 2)");
+            }
+
+            CBORObject value = redeemersCbor[key];
+
+            if (value.Type != CBORType.Array)
+            {
+                throw new ArgumentException("redeemerCbor value is not expected type CBORType.Array");
+            }
+
+            if (value.Count != 2)
+            {
+                throw new ArgumentException("redeemerCbor value has unexpected number of elements (expected 2)");
+            }
+
+            Redeemer redeemer =
+                new()
+                {
+                    Tag = (RedeemerTag)key[0].DecodeValueToInt32(),
+                    Index = (uint)key[1].DecodeValueToUInt32(),
+                    PlutusData = value[0].GetPlutusData(),
+                    ExUnits = value[1].GetExUnits()
+                };
+
+            redeemers.Add(redeemer);
+        }
+
+        return redeemers;
     }
 
-    public static byte[] Serialize(this Redeemer redeemer)
+    public static byte[] Serialize(this IEnumerable<Redeemer> redeemers)
     {
-        return redeemer.GetCBOR().EncodeToBytes();
+        return redeemers.GetCBOR().EncodeToBytes();
     }
 
-    public static Redeemer Deserialize(this byte[] bytes)
+    public static IEnumerable<Redeemer> Deserialize(this byte[] bytes)
     {
-        return CBORObject.DecodeFromBytes(bytes).GetRedeemer();
+        return CBORObject.DecodeFromBytes(bytes).GetRedeemers();
     }
 
     public static Redeemer SetIndexFromUtxo(this Redeemer redeemer, Transaction transaction)

@@ -58,12 +58,7 @@ public static class TransactionWitnessSetExtensions
 
         if (transactionWitnessSet.Redeemers.Any())
         {
-            var cborRedeemers = CBORObject.NewArray();
-            foreach (var redeemer in transactionWitnessSet.Redeemers)
-            {
-                cborRedeemers.Add(redeemer.GetCBOR());
-            }
-            cborWitnessSet.Add(5, cborRedeemers);
+            cborWitnessSet.Add(5, transactionWitnessSet.Redeemers.GetCBOR());
         }
 
         if (transactionWitnessSet.PlutusV2Scripts.Any())
@@ -139,9 +134,9 @@ public static class TransactionWitnessSetExtensions
         if (transactionWitnessSetCbor.ContainsKey(5))
         {
             var redeemersCbor = transactionWitnessSetCbor[5];
-            foreach (var redeemerCbor in redeemersCbor.Values)
+            foreach (var redeemer in redeemersCbor.GetRedeemers())
             {
-                transactionWitnessSet.Redeemers.Add(redeemerCbor.GetRedeemer());
+                transactionWitnessSet.Redeemers.Add(redeemer);
             }
         }
 
